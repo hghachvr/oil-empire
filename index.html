@@ -23,39 +23,50 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 #rebirth-btn.unlocked{border-color:#ffd700!important;color:#ffd700!important;animation:rglow 1.5s ease infinite}
 
 /* Stats */
-#stats{background:#0f1318;border-bottom:1px solid #1e2832;padding:7px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;flex-shrink:0;text-align:center}
+#stats{background:#0f1318;border-bottom:1px solid #1e2832;padding:6px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;flex-shrink:0;text-align:center}
 .stat-label{font-size:6px;color:#8a7f70;display:block;margin-bottom:1px}
 .stat-val{font-size:10px;color:#e8e0d0;display:block}
 .stat-val.gold{color:#f5a623}
 .stat-sub{font-size:6px;color:#8a7f70;display:block}
 .stat-sub.green{color:#4caf50}
 
-/* Drill area */
-#drill-area{position:relative;height:210px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+/* Drill area — flex:1 so it stretches */
+#drill-area{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 #drill-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 25% 75%,#0d2000,transparent 55%),radial-gradient(ellipse at 75% 20%,#1a1000,transparent 55%),#090909}
 #grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(245,166,35,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,.025) 1px,transparent 1px);background-size:16px 16px}
-#oil-fill{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,#0c2200,#1a4a0070);transition:height .5s ease}
-#combo-text{position:absolute;top:8px;left:10px;font-size:8px;color:#ff6b35;text-shadow:0 0 10px #ff6b35;display:none;z-index:3}
-#bps-text{position:absolute;top:8px;right:10px;font-size:6px;color:#8a7f70;z-index:3}
-#rebirth-progress-bar{position:absolute;bottom:6px;left:12px;right:12px;z-index:3;display:none}
-#rp-label{font-size:6px;color:#8a7f70;margin-bottom:2px}
-#rebirth-ready-text{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:7px;color:#ffd700;animation:rglow 1s ease infinite;display:none;z-index:3}
+#oil-fill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height .6s ease;background:linear-gradient(0deg,#0c2200,#1a4a0070)}
 
-#drill-btn{position:relative;z-index:2;width:138px;height:138px;border-radius:50%;border:4px solid #f5a623;background:radial-gradient(circle at 38% 32%,#3e2c00,#150f00);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:opulse 2.2s ease infinite;outline:none;transition:transform .09s}
-#drill-btn:active{transform:scale(0.91)!important;animation:none}
+/* Animated scene elements */
+#scene-layer{position:absolute;inset:0;pointer-events:none;z-index:1}
+.pipe-h{position:absolute;height:6px;background:linear-gradient(180deg,#5a4200,#3a2800);border-radius:3px;border:1px solid #6a5200}
+.pipe-v{position:absolute;width:6px;background:linear-gradient(90deg,#5a4200,#3a2800);border-radius:3px;border:1px solid #6a5200}
+.pipe-glow{box-shadow:0 0 4px #f5a62340}
+.barrel-scene{position:absolute;width:18px;height:22px;border-radius:2px}
+.smoke-puff{position:absolute;border-radius:50%;pointer-events:none;animation:smokeFade 2.5s ease-out forwards}
+.oil-bubble{position:absolute;border-radius:50%;background:radial-gradient(circle,#2d6a00,#0a2200);border:1px solid #3a8000;animation:bubbleFloat linear infinite}
+.spark{position:absolute;width:3px;height:3px;border-radius:50%;background:#f5a623;animation:sparkFly 0.8s ease-out forwards}
+.derrick-side{position:absolute;pointer-events:none}
+.dollar-float{position:absolute;font-size:10px;animation:dollarRise 1.5s ease-out forwards;pointer-events:none;z-index:5}
+
+#combo-text{position:absolute;top:10px;left:12px;font-size:9px;color:#ff6b35;text-shadow:0 0 10px #ff6b35;display:none;z-index:4}
+#bps-text{position:absolute;top:10px;right:12px;font-size:6px;color:#8a7f70;z-index:4}
+#rebirth-progress-bar{position:absolute;bottom:8px;left:14px;right:14px;z-index:4;display:none}
+#rp-label{font-size:6px;color:#8a7f70;margin-bottom:2px}
+#rebirth-ready-text{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:8px;color:#ffd700;animation:rglow 1s ease infinite;display:none;z-index:4}
+
+#drill-btn{position:relative;z-index:3;width:142px;height:142px;border-radius:50%;border:4px solid #f5a623;background:radial-gradient(circle at 38% 32%,#3e2c00,#150f00);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:opulse 2.2s ease infinite;outline:none}
 #drill-label{font-size:5px;color:#c47d10;margin-top:3px;text-align:center;letter-spacing:.5px}
-#drill-svg{transition:transform .09s}
+#drill-svg{transition:transform .09s,filter .09s}
 
 #particles{position:absolute;inset:0;pointer-events:none;z-index:10;overflow:hidden}
 .particle{position:absolute;font-size:8px;color:#f5a623;font-family:'Press Start 2P',monospace;pointer-events:none;font-weight:bold;white-space:nowrap}
-
-#flash-msg{position:absolute;top:42%;left:50%;transform:translateX(-50%) translateY(-50%);background:rgba(0,0,0,.88);border:1px solid #f5a623;padding:7px 14px;font-size:8px;color:#f5a623;border-radius:3px;pointer-events:none;z-index:50;white-space:nowrap;display:none;animation:flashIn 1.8s ease forwards}
+#flash-msg{position:absolute;top:40%;left:50%;transform:translateX(-50%) translateY(-50%);background:rgba(0,0,0,.88);border:1px solid #f5a623;padding:7px 14px;font-size:8px;color:#f5a623;border-radius:3px;pointer-events:none;z-index:50;white-space:nowrap;display:none;animation:flashIn 1.8s ease forwards}
 
 /* Sell row */
-#sell-row{padding:6px 12px;display:flex;gap:8px;flex-shrink:0}
-#sell-btn{flex:1;padding:10px 4px;background:linear-gradient(180deg,#4caf50,#2e7d32);border:2px solid #81c784;color:#fff;font-size:7px;border-radius:3px;box-shadow:0 3px 0 #1b5e20;line-height:1.6}
+#sell-row{padding:5px 10px;display:flex;gap:8px;flex-shrink:0}
+#sell-btn{flex:1;padding:9px 4px;background:linear-gradient(180deg,#4caf50,#2e7d32);border:2px solid #81c784;color:#fff;font-size:7px;border-radius:3px;box-shadow:0 3px 0 #1b5e20;line-height:1.6}
 #sell-btn:active{transform:translateY(2px);box-shadow:none}
-#boost-btn{padding:10px 10px;background:linear-gradient(180deg,#0d47a1,#060d2e);border:2px solid #1565c0;color:#fff;font-size:6px;border-radius:3px;text-align:center;line-height:1.7;box-shadow:0 3px 0 #001040;min-width:70px}
+#boost-btn{padding:9px 10px;background:linear-gradient(180deg,#0d47a1,#060d2e);border:2px solid #1565c0;color:#fff;font-size:6px;border-radius:3px;text-align:center;line-height:1.7;box-shadow:0 3px 0 #001040;min-width:72px}
 #boost-btn.active{background:linear-gradient(180deg,#4a148c,#1a0050);border-color:#ce93d8;box-shadow:0 3px 0 #12003d}
 
 /* Tabs */
@@ -63,61 +74,61 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 .tab-btn{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:#8a7f70;font-size:7px}
 .tab-btn.active{background:#1e2832;border-bottom-color:#f5a623;color:#f5a623}
 
-/* Scroll area */
-#tab-content{flex:1;overflow-y:auto;padding:8px 8px 12px;-webkit-overflow-scrolling:touch}
+/* Tab content — fixed height so it doesn't overflow */
+#tab-content{height:220px;overflow-y:auto;padding:8px 8px 10px;-webkit-overflow-scrolling:touch;flex-shrink:0}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:#111}
 ::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 
 /* Upgrade cards */
-.upg-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;transition:border-color .2s,opacity .2s}
+.upg-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:7px 9px;margin-bottom:5px;display:flex;align-items:center;gap:8px;transition:border-color .2s,opacity .2s}
 .upg-card.afford{border-color:#2a2a2a}
 .upg-card.maxed{border-color:#1a3a00}
-.upg-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.upg-icon{font-size:18px;width:26px;text-align:center;flex-shrink:0}
 .upg-info{flex:1;min-width:0}
 .upg-row{display:flex;justify-content:space-between;margin-bottom:2px}
 .upg-name{font-size:6px;color:#e8e0d0}
 .upg-name.maxed{color:#4caf50}
 .upg-lvl{font-size:6px;color:#8a7f70}
 .upg-lvl.maxed{color:#4caf50}
-.prog-bar-bg{background:#0a0a0a;border-radius:2px;height:7px;overflow:hidden;border:1px solid #222}
+.prog-bar-bg{background:#0a0a0a;border-radius:2px;height:6px;overflow:hidden;border:1px solid #222}
 .prog-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
 .upg-stat{font-size:5px;color:#8a7f70;margin-top:2px}
-.upg-buy-btn{padding:7px 6px;min-width:52px;border:1px solid #222;background:linear-gradient(180deg,#1e1e1e,#0f0f0f);color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0;text-align:center;line-height:1.7}
+.upg-buy-btn{padding:6px 5px;min-width:50px;border:1px solid #222;background:linear-gradient(180deg,#1e1e1e,#0f0f0f);color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0;text-align:center;line-height:1.7}
 .upg-buy-btn.afford{background:linear-gradient(180deg,#f5a623,#c47d10);border-color:#c47d10;color:#000;box-shadow:0 2px 0 #c47d10}
 .upg-buy-btn.maxed{background:linear-gradient(180deg,#1a3a00,#0f2000);border-color:#2a5a00;color:#4caf50}
 
-/* Prestige tab */
-#pp-card{background:#100820;border:1px solid #4a1a7a;border-radius:4px;padding:10px;margin-bottom:8px;text-align:center}
+/* Prestige */
+#pp-card{background:#100820;border:1px solid #4a1a7a;border-radius:4px;padding:9px;margin-bottom:7px;text-align:center}
 #pp-label{font-size:7px;color:#ce93d8;margin-bottom:3px}
-#pp-val{font-size:20px;color:#e040fb}
-#pp-sub{font-size:6px;color:#8a7f70;margin-top:3px}
-#rebirth-req-card{background:#0f0c00;border:2px solid #2a2000;border-radius:4px;padding:10px;margin-bottom:8px}
-#rebirth-req-card.can-rebirth{background:#1a1200;border-color:#ffd700;animation:rglow 1.5s ease infinite}
-#rr-title{font-size:8px;color:#6a5a00;margin-bottom:6px;text-align:center}
-#rr-title.can{color:#ffd700}
-#rr-desc{font-size:6px;color:#8a7f70;line-height:1.9;margin-bottom:8px;text-align:center}
+#pp-val{font-size:18px;color:#e040fb}
+#pp-sub{font-size:6px;color:#8a7f70;margin-top:2px}
+.rebirth-req-card{background:#0f0c00;border:2px solid #2a2000;border-radius:4px;padding:9px;margin-bottom:7px}
+.rebirth-req-card.can-rebirth{background:#1a1200;border-color:#ffd700;animation:rglow 1.5s ease infinite}
+.rr-title{font-size:8px;color:#6a5a00;margin-bottom:5px;text-align:center}
+.rr-title.can{color:#ffd700}
+.rr-desc{font-size:6px;color:#8a7f70;line-height:1.9;margin-bottom:7px;text-align:center}
 .rr-req-row{font-size:6px;margin-bottom:3px}
 .rr-req-label{color:#888}
 .rr-req-label.done{color:#4caf50}
-.req-prog{background:#0a0a0a;border-radius:2px;height:7px;overflow:hidden;border:1px solid #222;margin-bottom:6px}
+.req-prog{background:#0a0a0a;border-radius:2px;height:6px;overflow:hidden;border:1px solid #222;margin-bottom:5px}
 .req-prog-fill{height:100%;border-radius:2px;transition:width .4s}
-#rebirth-action-btn{width:100%;padding:10px;margin-top:8px;background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #333;color:#333;font-size:8px;border-radius:3px}
-#rebirth-action-btn.can{background:linear-gradient(180deg,#b8860b,#7a5c00);border-color:#ffd700;color:#ffd700;box-shadow:0 3px 0 #5a4000;cursor:pointer}
-.prest-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:10px;margin-bottom:6px}
+.rebirth-action-btn{width:100%;padding:9px;margin-top:7px;background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #333;color:#333;font-size:7px;border-radius:3px}
+.rebirth-action-btn.can{background:linear-gradient(180deg,#b8860b,#7a5c00);border-color:#ffd700;color:#ffd700;box-shadow:0 3px 0 #5a4000}
+.prest-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:9px;margin-bottom:5px}
 .prest-card.owned{border-color:#4a1a7a;opacity:.72}
 .prest-inner{display:flex;align-items:center;gap:8px}
-.prest-icon{font-size:18px}
+.prest-icon{font-size:16px}
 .prest-name{font-size:6px;margin-bottom:2px}
 .prest-desc{font-size:5px;color:#8a7f70}
-.prest-buy-btn{padding:6px 8px;background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #2a2a2a;color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0}
+.prest-buy-btn{padding:5px 7px;background:linear-gradient(180deg,#1a1a1a,#0d0d0d);border:1px solid #2a2a2a;color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0}
 .prest-buy-btn.afford{background:linear-gradient(180deg,#6a1fa2,#3a0870);border-color:#ce93d8;color:#fff;box-shadow:0 2px 0 #2a0050}
 
 /* Modal */
 #modal-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center}
 #modal-overlay.show{display:flex}
 #modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.88)}
-#modal-box{position:relative;z-index:1;background:#0f1318;border:2px solid #f5a623;border-radius:4px;padding:22px;max-width:340px;width:92%;box-shadow:0 0 35px #f5a62325}
+#modal-box{position:relative;z-index:1;background:#0f1318;border:2px solid #f5a623;border-radius:4px;padding:20px;max-width:340px;width:92%;box-shadow:0 0 35px #f5a62325}
 .modal-title{font-size:11px;color:#f5a623;margin-bottom:12px;text-align:center}
 .modal-title.gold{color:#ffd700;text-shadow:0 0 14px #ffd700}
 .modal-title.blue{color:#64b5f6}
@@ -141,12 +152,10 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 #tutorial-overlay{position:fixed;inset:0;z-index:200;display:none;pointer-events:none}
 #tutorial-overlay.show{display:block}
 #tut-bg{position:absolute;inset:0;background:rgba(0,0,0,.91)}
-#tut-box{position:fixed;bottom:65px;left:50%;transform:translateX(-50%);z-index:210;background:#0f1318;border:2px solid #f5a623;border-radius:4px;padding:18px;max-width:330px;width:90%;box-shadow:0 0 35px #f5a62340;pointer-events:auto}
-#tut-step{font-size:6px;color:#8a7f70;margin-bottom:5px}
-#tut-title{font-size:10px;color:#f5a623;margin-bottom:9px;text-shadow:0 0 10px #f5a623;line-height:1.7}
-#tut-desc{font-size:7px;color:#8a7f70;line-height:2.1;margin-bottom:16px}
-
-/* Safe area */
+#tut-box{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:210;background:#0f1318;border:2px solid #f5a623;border-radius:4px;padding:16px;max-width:330px;width:90%;box-shadow:0 0 35px #f5a62340;pointer-events:auto}
+#tut-step{font-size:6px;color:#8a7f70;margin-bottom:4px}
+#tut-title{font-size:10px;color:#f5a623;margin-bottom:8px;text-shadow:0 0 10px #f5a623;line-height:1.7}
+#tut-desc{font-size:7px;color:#8a7f70;line-height:2.1;margin-bottom:14px}
 #safe-bottom{height:env(safe-area-inset-bottom,0);background:#0a0a0a;flex-shrink:0}
 
 /* Keyframes */
@@ -154,12 +163,17 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 @keyframes rglow{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.5)}50%{box-shadow:0 0 22px rgba(255,215,0,1),0 0 45px rgba(255,215,0,.4)}}
 @keyframes flashIn{0%{opacity:0;transform:translateX(-50%) translateY(-60%)}20%{opacity:1;transform:translateX(-50%) translateY(-50%)}80%{opacity:1;transform:translateX(-50%) translateY(-50%)}100%{opacity:0;transform:translateX(-50%) translateY(-40%)}}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-70px) scale(.5)}}
+@keyframes smokeFade{0%{opacity:.7;transform:scale(1) translateY(0)}100%{opacity:0;transform:scale(2.5) translateY(-30px)}}
+@keyframes bubbleFloat{0%{transform:translateY(0) scale(1);opacity:.8}50%{opacity:1}100%{transform:translateY(-40px) scale(1.2);opacity:0}}
+@keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}}
+@keyframes dollarRise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px)}}
+@keyframes pipeFlow{0%{box-shadow:inset 0 0 0 0 #f5a62320}50%{box-shadow:inset 0 0 8px 2px #f5a62340}100%{box-shadow:inset 0 0 0 0 #f5a62320}}
+@keyframes derrickBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes flameFlicker{0%,100%{transform:scaleY(1) scaleX(1);opacity:1}33%{transform:scaleY(1.3) scaleX(.8);opacity:.8}66%{transform:scaleY(.8) scaleX(1.2);opacity:.9}}
 </style>
 </head>
 <body>
 <div id="app">
-
-  <!-- HEADER -->
   <div id="header">
     <div id="title">IMPERIO PETROLERO</div>
     <div id="hbtns">
@@ -169,7 +183,6 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
     </div>
   </div>
 
-  <!-- STATS BAR -->
   <div id="stats">
     <div>
       <span class="stat-label">🛢️ <span id="lbl-barrels">Barriles</span></span>
@@ -179,7 +192,7 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
     <div>
       <span class="stat-label">⚗️ <span id="lbl-proc">Procesados</span></span>
       <span class="stat-val" id="stat-proc">0</span>
-      <span class="stat-sub" id="lbl-price">$90/barril</span>
+      <span class="stat-sub" id="lbl-price">$102/barril</span>
     </div>
     <div>
       <span class="stat-label">💵 <span id="lbl-dollars">Dólares</span></span>
@@ -188,11 +201,11 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
     </div>
   </div>
 
-  <!-- DRILL AREA -->
   <div id="drill-area">
     <div id="drill-bg"></div>
     <div id="grid-overlay"></div>
     <div id="oil-fill"></div>
+    <div id="scene-layer"></div>
     <div id="combo-text">¡COMBO! ×<span id="combo-num">0</span></div>
     <div id="bps-text"></div>
     <div id="rebirth-progress-bar">
@@ -200,15 +213,12 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
       <div class="prog-bar-bg"><div id="rp-fill" class="prog-bar-fill" style="background:#ffd700;width:0%"></div></div>
     </div>
     <div id="rebirth-ready-text">⚡ RENACER AHORA ⚡</div>
-
     <button id="drill-btn" ontouchstart="handleTap(event)" onmousedown="handleTap(event)">
       <svg id="drill-svg" width="72" height="72" viewBox="0 0 18 18" style="image-rendering:pixelated;filter:drop-shadow(0 0 8px rgba(245,166,35,.5))">
         <rect x="0" y="15" width="18" height="3" fill="#2a1800"/>
         <rect x="1" y="15" width="16" height="2" fill="#3a2400"/>
-        <rect x="2"  y="6" width="2" height="10" fill="#4a3200"/>
-        <rect x="2"  y="6" width="1" height="10" fill="#5a4200"/>
-        <rect x="14" y="6" width="2" height="10" fill="#4a3200"/>
-        <rect x="15" y="6" width="1" height="10" fill="#5a4200"/>
+        <rect x="2"  y="6" width="2" height="10" fill="#4a3200"/><rect x="2"  y="6" width="1" height="10" fill="#5a4200"/>
+        <rect x="14" y="6" width="2" height="10" fill="#4a3200"/><rect x="15" y="6" width="1" height="10" fill="#5a4200"/>
         <rect x="2" y="12" width="14" height="1" fill="#5a4200"/>
         <rect x="3" y="9"  width="12" height="1" fill="#5a4200"/>
         <rect x="4" y="3"  width="10" height="1" fill="#6a5200"/>
@@ -229,12 +239,10 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
       </svg>
       <div id="drill-label">¡TOCA PARA TALADRAR!</div>
     </button>
-
     <div id="particles"></div>
     <div id="flash-msg"></div>
   </div>
 
-  <!-- SELL ROW -->
   <div id="sell-row">
     <button id="sell-btn" onclick="handleSell()">
       💰 VENDER TODO<br><span id="sell-sub" style="font-size:6px;opacity:.8"></span>
@@ -242,25 +250,20 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
     <button id="boost-btn" onclick="openModal('boost')">🚀 IMPULSO ×3</button>
   </div>
 
-  <!-- TAB BAR -->
   <div id="tab-bar">
     <button class="tab-btn active" id="tab-upg" onclick="setTab('upgrades')">⬆️ MEJORAS</button>
     <button class="tab-btn" id="tab-pres" onclick="setTab('prestige')">🌟 PRESTIGIO</button>
   </div>
 
-  <!-- TAB CONTENT -->
   <div id="tab-content"></div>
-
   <div id="safe-bottom"></div>
 </div>
 
-<!-- MODAL -->
 <div id="modal-overlay" onclick="closeModalIfBackdrop(event)">
   <div id="modal-backdrop"></div>
   <div id="modal-box"></div>
 </div>
 
-<!-- TUTORIAL -->
 <div id="tutorial-overlay">
   <div id="tut-bg"></div>
   <div id="tut-box">
@@ -275,15 +278,114 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// AUDIO ENGINE — Web Audio API, no files needed
+// ══════════════════════════════════════════════════════════════
+let AC = null;
+function getAC(){
+  if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  if(AC && AC.state==='suspended') AC.resume();
+  return AC;
+}
+function playTone(freq,type,dur,vol,attack,decay){
+  try{
+    const ac=getAC(); if(!ac) return;
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type=type||'sine'; o.frequency.setValueAtTime(freq,ac.currentTime);
+    const v=vol||0.15;
+    g.gain.setValueAtTime(0,ac.currentTime);
+    g.gain.linearRampToValueAtTime(v,ac.currentTime+(attack||0.01));
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+(dur||0.2));
+    o.start(ac.currentTime); o.stop(ac.currentTime+(dur||0.2)+(decay||0));
+  }catch(e){}
+}
+function playNoise(dur,vol){
+  try{
+    const ac=getAC(); if(!ac) return;
+    const buf=ac.createBuffer(1,ac.sampleRate*dur,ac.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+    const s=ac.createBufferSource(), g=ac.createGain(), f=ac.createBiquadFilter();
+    f.type='bandpass'; f.frequency.value=200;
+    s.buffer=buf; s.connect(f); f.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(vol||0.08,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
+    s.start(ac.currentTime);
+  }catch(e){}
+}
+
+// Sound effects
+function sfxDrill(){
+  // Mechanical thud + metallic ping
+  playTone(80,'sawtooth',0.08,0.12,0.005,0.02);
+  playTone(220,'square',0.06,0.06,0.01,0.01);
+  playNoise(0.05,0.06);
+}
+function sfxBuy(){
+  // Rising coin jingle
+  [523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.12,0.14,0.005,0.05),i*60));
+}
+function sfxSell(){
+  // Cash register cha-ching
+  playTone(1047,'triangle',0.08,0.18,0.005,0.02);
+  setTimeout(()=>playTone(1319,'triangle',0.15,0.18,0.005,0.05),80);
+  setTimeout(()=>playTone(1568,'triangle',0.2,0.2,0.005,0.1),160);
+}
+function sfxRebirth(){
+  // Epic ascending sweep
+  try{
+    const ac=getAC(); if(!ac) return;
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type='sawtooth';
+    o.frequency.setValueAtTime(110,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(880,ac.currentTime+1.2);
+    g.gain.setValueAtTime(0,ac.currentTime);
+    g.gain.linearRampToValueAtTime(0.25,ac.currentTime+0.1);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+1.4);
+    o.start(ac.currentTime); o.stop(ac.currentTime+1.5);
+    // Chords
+    [220,330,440,660].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.5,0.12,0.02,0.1),i*200));
+  }catch(e){}
+}
+function sfxBoost(){
+  // Power-up whoosh
+  try{
+    const ac=getAC(); if(!ac) return;
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type='square';
+    o.frequency.setValueAtTime(200,ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1200,ac.currentTime+0.4);
+    g.gain.setValueAtTime(0.18,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5);
+    o.start(ac.currentTime); o.stop(ac.currentTime+0.5);
+  }catch(e){}
+}
+function sfxMilestone(){
+  [392,494,587,784].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.18,0.16,0.01,0.05),i*80));
+}
+function sfxError(){
+  playTone(150,'square',0.1,0.1,0.005,0.02);
+  setTimeout(()=>playTone(120,'square',0.12,0.1,0.005,0.02),100);
+}
+function sfxCombo(){
+  playTone(660+comboCount*20,'sine',0.08,0.12,0.005,0.01);
+}
+function sfxPrestige(){
+  [262,330,392,523,659].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.2,0.18,0.01,0.08),i*70));
+}
+
+// ══════════════════════════════════════════════════════════════
 // TRANSLATIONS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 const T = {
   es:{
     title:"IMPERIO PETROLERO",tap:"¡TOCA PARA TALADRAR!",barrels:"Barriles",
     proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",
     upgrades:"MEJORAS",prestige:"PRESTIGIO",settings:"AJUSTES",
-    perSec:"/seg",sellPrice:"$90/barril",
+    perSec:"/seg",sellPrice:"$102/barril",
     rebirthTitle:"RENACIMIENTO",
     rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",
     rebirthBonus:"Bono de Ganancias",rebirthCount:"Renacimientos",
@@ -303,7 +405,7 @@ const T = {
     tuts:[
       {t:"¡Bienvenido a Imperio Petrolero!",d:"¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo crudo."},
       {t:"¡Toca para Extraer!",d:"Toca el taladro para obtener barriles. ¡Toca rápido para construir COMBOS y multiplicar tu poder!"},
-      {t:"Procesar y Vender",d:"Los barriles se procesan solos. ¡Véndelos todos a $90 cada uno presionando VENDER!"},
+      {t:"Procesar y Vender",d:"Los barriles se procesan solos. ¡Véndelos todos a $102 cada uno presionando VENDER!"},
       {t:"Compra Mejoras",d:"Gasta tus dólares en maquinaria y trabajadores para producir petróleo automáticamente."},
       {t:"Sistema de Renacimiento",d:"¡Lleva TODAS las mejoras al MAX y acumula $500M para RENACER y ganar un bono permanente ×1.2!"},
       {t:"Mira Anuncios para Impulso",d:"Activa el impulso ×3 para triplicar todo por 10 minutos. ¡Úsalo en el momento correcto!"},
@@ -314,7 +416,7 @@ const T = {
     title:"OIL EMPIRE",tap:"TAP TO DRILL!",barrels:"Barrels",
     proc:"Processed",dollars:"Dollars",sell:"SELL ALL",
     upgrades:"UPGRADES",prestige:"PRESTIGE",settings:"SETTINGS",
-    perSec:"/sec",sellPrice:"$90/barrel",
+    perSec:"/sec",sellPrice:"$102/barrel",
     rebirthTitle:"REBIRTH",
     rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",
     rebirthBonus:"Earnings Bonus",rebirthCount:"Rebirths",
@@ -334,7 +436,7 @@ const T = {
     tuts:[
       {t:"Welcome to Oil Empire!",d:"Build the biggest oil empire on Earth! Tap the drill to extract crude oil barrels."},
       {t:"Tap to Extract!",d:"Tap the drill to get barrels. Tap fast to build COMBOS and multiply your power!"},
-      {t:"Process & Sell",d:"Barrels auto-process into refined oil. Sell them all for $90 each!"},
+      {t:"Process & Sell",d:"Barrels auto-process into refined oil. Sell them all for $102 each!"},
       {t:"Buy Upgrades",d:"Spend dollars on machinery and workers to produce oil automatically 24/7."},
       {t:"Rebirth System",d:"MAX all upgrades + reach $500M cash to REBIRTH and earn a permanent ×1.2 bonus!"},
       {t:"Watch Ads for Boost",d:"Activate ×3 boost to triple everything for 10 minutes. Use it wisely!"},
@@ -343,49 +445,48 @@ const T = {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // CONFIG
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 const UPGRADES = [
-  {id:"pickaxe",  icon:"⛏️", en:"Hand Drill",       es:"Taladro Manual",      base:500,       mult:1.18, bps:0.5,    tap:2,  max:50},
-  {id:"pump",     icon:"🔧", en:"Oil Pump",         es:"Bomba de Petróleo",   base:3000,      mult:1.20, bps:3,      tap:0,  max:50},
-  {id:"worker",   icon:"👷", en:"Worker",           es:"Trabajador",          base:12000,     mult:1.22, bps:10,     tap:0,  max:50},
-  {id:"refinery", icon:"🏭", en:"Mini Refinery",    es:"Mini Refinería",      base:75000,     mult:1.25, bps:40,     tap:0,  max:40},
-  {id:"tanker",   icon:"🚛", en:"Oil Tanker",       es:"Camión Cisterna",     base:400000,    mult:1.28, bps:150,    tap:0,  max:40},
-  {id:"platform", icon:"🛢️", en:"Sea Platform",     es:"Plataforma Marina",   base:2500000,   mult:1.30, bps:600,    tap:0,  max:30},
-  {id:"pipeline", icon:"🔩", en:"Pipeline Network", es:"Red de Tuberías",     base:15000000,  mult:1.33, bps:2500,   tap:0,  max:25},
-  {id:"drillbot", icon:"🛸", en:"AI Drillbot",      es:"Robot Taladrador IA", base:100000000, mult:1.38, bps:12000,  tap:0,  max:20},
+  {id:"pickaxe",  icon:"⛏️", en:"Hand Drill",       es:"Taladro Manual",      base:500,       mult:1.18, bps:0.5,   tap:2, max:50},
+  {id:"pump",     icon:"🔧", en:"Oil Pump",         es:"Bomba de Petróleo",   base:3000,      mult:1.20, bps:3,     tap:0, max:50},
+  {id:"worker",   icon:"👷", en:"Worker",           es:"Trabajador",          base:12000,     mult:1.22, bps:10,    tap:0, max:50},
+  {id:"refinery", icon:"🏭", en:"Mini Refinery",    es:"Mini Refinería",      base:75000,     mult:1.25, bps:40,    tap:0, max:40},
+  {id:"tanker",   icon:"🚛", en:"Oil Tanker",       es:"Camión Cisterna",     base:400000,    mult:1.28, bps:150,   tap:0, max:40},
+  {id:"platform", icon:"🛢️", en:"Sea Platform",     es:"Plataforma Marina",   base:2500000,   mult:1.30, bps:600,   tap:0, max:30},
+  {id:"pipeline", icon:"🔩", en:"Pipeline Network", es:"Red de Tuberías",     base:15000000,  mult:1.33, bps:2500,  tap:0, max:25},
+  {id:"drillbot", icon:"🛸", en:"AI Drillbot",      es:"Robot Taladrador IA", base:100000000, mult:1.38, bps:12000, tap:0, max:20},
 ];
 
 const PRESTIGE_UPGRADES = [
-  {id:"golden",  icon:"🪙", en:"Golden Drill",    es:"Taladro Dorado",       cost:3,  en_d:"+75% tap power",          es_d:"+75% fuerza de toque"},
-  {id:"oil_rush",icon:"💨", en:"Oil Rush",        es:"Fiebre del Petróleo",  cost:5,  en_d:"+150% auto production",   es_d:"+150% producción auto"},
-  {id:"black",   icon:"⚫", en:"Black Gold",      es:"Oro Negro",            cost:8,  en_d:"+35% sell price",         es_d:"+35% precio de venta"},
-  {id:"megaboost",icon:"🚀",en:"Mega Boost",      es:"Mega Impulso",         cost:12, en_d:"Ad boost lasts 20 min",   es_d:"Impulso dura 20 min"},
-  {id:"deep",    icon:"💎", en:"Deep Core Drill", es:"Taladro de Núcleo",    cost:20, en_d:"×2 barrels per tap",      es_d:"×2 barriles por toque"},
+  {id:"golden",   icon:"🪙", en:"Golden Drill",    es:"Taladro Dorado",      cost:3,  en_d:"+75% tap power",        es_d:"+75% fuerza de toque"},
+  {id:"oil_rush", icon:"💨", en:"Oil Rush",        es:"Fiebre del Petróleo", cost:5,  en_d:"+150% auto production", es_d:"+150% producción auto"},
+  {id:"black",    icon:"⚫", en:"Black Gold",      es:"Oro Negro",           cost:8,  en_d:"+35% sell price",       es_d:"+35% precio de venta"},
+  {id:"megaboost",icon:"🚀", en:"Mega Boost",      es:"Mega Impulso",        cost:12, en_d:"Ad boost lasts 20 min", es_d:"Impulso dura 20 min"},
+  {id:"deep",     icon:"💎", en:"Deep Core Drill", es:"Taladro de Núcleo",   cost:20, en_d:"×2 barrels per tap",    es_d:"×2 barriles por toque"},
 ];
 
 const MILESTONES = [
-  {money:1000,     es:"¡Primeros $1,000!",      en:"First $1,000!"},
-  {money:100000,   es:"¡$100K alcanzados!",     en:"$100K reached!"},
-  {money:1000000,  es:"¡MILLONARIO!",           en:"MILLIONAIRE!"},
-  {money:10000000, es:"¡Imperio de $10M!",      en:"$10M Empire!"},
-  {money:100000000,es:"¡Magnate de $100M!",     en:"$100M Tycoon!"},
-  {money:500000000,es:"¡RENACIMIENTO DESBLOQUEADO!",en:"REBIRTH UNLOCKED!"},
+  {money:1000,     es:"¡Primeros $1,000!",           en:"First $1,000!"},
+  {money:100000,   es:"¡$100K alcanzados!",          en:"$100K reached!"},
+  {money:1000000,  es:"¡MILLONARIO!",                en:"MILLIONAIRE!"},
+  {money:10000000, es:"¡Imperio de $10M!",           en:"$10M Empire!"},
+  {money:100000000,es:"¡Magnate de $100M!",          en:"$100M Tycoon!"},
+  {money:500000000,es:"¡RENACIMIENTO DESBLOQUEADO!", en:"REBIRTH UNLOCKED!"},
 ];
 
 const REBIRTH_MONEY = 500000000;
-const SAVE_KEY = "oilempire3";
+const SAVE_KEY = "oilempire4";
+const BASE_SELL = 102; // ← Updated price
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 let G = {
-  lang:"es",
-  barrels:0, processed:0, dollars:0, totalEarned:0,
+  lang:"es", barrels:0, processed:0, dollars:0, totalEarned:0,
   upgrades:{}, rebirths:0, rebirthMult:1.0,
-  pp:0, prestigeBought:[],
-  tutDone:false, seenMilestones:[],
+  pp:0, prestigeBought:[], tutDone:false, seenMilestones:[],
   boostActive:false, boostEnd:0,
 };
 UPGRADES.forEach(u=>{ G.upgrades[u.id]=0; });
@@ -395,17 +496,14 @@ let oilLevel=0;
 let currentTab="upgrades";
 let currentModal=null;
 let tutStep=0;
-let animFrame=null;
 let lastTime=Date.now();
-let particleId=0;
 let flashTimer=null;
-let boostRemainingStr="";
+let sceneLevel=0; // unlocked scene complexity
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // HELPERS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 function t(){ return T[G.lang]; }
-
 function fmt(n){
   if(n>=1e12) return (n/1e12).toFixed(2)+"T";
   if(n>=1e9)  return (n/1e9).toFixed(2)+"B";
@@ -414,622 +512,551 @@ function fmt(n){
   return Math.floor(n).toString();
 }
 function fmtTime(ms){
-  const s=Math.ceil(ms/1000), m=Math.floor(s/60), ss=s%60;
+  const s=Math.ceil(ms/1000),m=Math.floor(s/60),ss=s%60;
   return m+":"+(ss<10?"0":"")+ss;
 }
-
-function upgradeCost(u){
-  return Math.floor(u.base * Math.pow(u.mult, G.upgrades[u.id]||0));
-}
-
+function upgradeCost(u){ return Math.floor(u.base*Math.pow(u.mult,G.upgrades[u.id]||0)); }
 function totalBPS(){
   let bps=0;
-  UPGRADES.forEach(u=>{ bps += u.bps*(G.upgrades[u.id]||0); });
-  const boost = G.boostActive && Date.now()<G.boostEnd ? 3 : 1;
-  const prest = G.prestigeBought.includes("oil_rush") ? 2.5 : 1;
-  return bps * G.rebirthMult * boost * prest;
+  UPGRADES.forEach(u=>{ bps+=u.bps*(G.upgrades[u.id]||0); });
+  const boost=G.boostActive&&Date.now()<G.boostEnd?3:1;
+  const prest=G.prestigeBought.includes("oil_rush")?2.5:1;
+  return bps*G.rebirthMult*boost*prest;
 }
-
 function tapPower(){
   let tp=1;
   UPGRADES.forEach(u=>{ if(u.tap) tp+=u.tap*(G.upgrades[u.id]||0); });
-  const boost = G.boostActive && Date.now()<G.boostEnd ? 3 : 1;
-  const combo = 1 + Math.min(comboCount*0.08, 1.5);
-  const pg = G.prestigeBought.includes("golden") ? 1.75 : 1;
-  const pd = G.prestigeBought.includes("deep") ? 2 : 1;
-  return tp * G.rebirthMult * boost * combo * pg * pd;
+  const boost=G.boostActive&&Date.now()<G.boostEnd?3:1;
+  const combo=1+Math.min(comboCount*0.08,1.5);
+  const pg=G.prestigeBought.includes("golden")?1.75:1;
+  const pd=G.prestigeBought.includes("deep")?2:1;
+  return tp*G.rebirthMult*boost*combo*pg*pd;
 }
+function sellPrice(){ return BASE_SELL*(G.prestigeBought.includes("black")?1.35:1); }
+function allMaxed(){ return UPGRADES.every(u=>(G.upgrades[u.id]||0)>=u.max); }
+function canRebirth(){ return allMaxed()&&G.dollars>=REBIRTH_MONEY; }
+function rebirthItemsPct(){ return UPGRADES.filter(u=>(G.upgrades[u.id]||0)>=u.max).length/UPGRADES.length; }
+function rebirthMoneyPct(){ return Math.min(1,G.dollars/REBIRTH_MONEY); }
 
-function sellPrice(){
-  return 90 * (G.prestigeBought.includes("black") ? 1.35 : 1);
-}
-
-function allMaxed(){
-  return UPGRADES.every(u=>(G.upgrades[u.id]||0)>=u.max);
-}
-
-function canRebirth(){
-  return allMaxed() && G.dollars>=REBIRTH_MONEY;
-}
-
-function rebirthItemsPct(){
-  const done = UPGRADES.filter(u=>(G.upgrades[u.id]||0)>=u.max).length;
-  return done/UPGRADES.length;
-}
-
-function rebirthMoneyPct(){
-  return Math.min(1, G.dollars/REBIRTH_MONEY);
-}
-
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // SAVE / LOAD
-// ═══════════════════════════════════════════════════════════
-function saveGame(){
-  try{ localStorage.setItem(SAVE_KEY, JSON.stringify({...G, savedAt:Date.now()})); }catch(e){}
-}
-
+// ══════════════════════════════════════════════════════════════
+function saveGame(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify({...G,savedAt:Date.now()})); }catch(e){} }
 function loadGame(){
   try{
-    const raw = localStorage.getItem(SAVE_KEY);
+    const raw=localStorage.getItem(SAVE_KEY);
     if(!raw){ showTutorial(); return; }
-    const s = JSON.parse(raw);
-    Object.assign(G, s);
-    // ensure all upgrade keys exist
+    const s=JSON.parse(raw);
+    Object.assign(G,s);
     UPGRADES.forEach(u=>{ if(!(u.id in G.upgrades)) G.upgrades[u.id]=0; });
     if(!G.prestigeBought) G.prestigeBought=[];
     if(!G.seenMilestones) G.seenMilestones=[];
-
-    // offline earnings
     if(s.savedAt){
-      const offSec = (Date.now()-s.savedAt)/1000;
+      const offSec=(Date.now()-s.savedAt)/1000;
       if(offSec>30){
-        let bpsV=0;
-        UPGRADES.forEach(u=>{ bpsV+=u.bps*(s.upgrades?.[u.id]||0); });
-        const ob = Math.floor(bpsV*offSec*(s.rebirthMult||1)*0.5);
-        if(ob>0){
-          openOfflineModal(Date.now()-s.savedAt, ob);
-          return;
-        }
+        let bpsV=0; UPGRADES.forEach(u=>{ bpsV+=u.bps*(s.upgrades?.[u.id]||0); });
+        const ob=Math.floor(bpsV*offSec*(s.rebirthMult||1)*0.5);
+        if(ob>0){ openOfflineModal(Date.now()-s.savedAt,ob); return; }
       }
     }
     if(!G.tutDone) showTutorial();
   }catch(e){ showTutorial(); }
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // FLASH
-// ═══════════════════════════════════════════════════════════
-function flash(msg, color){
-  const el = document.getElementById("flash-msg");
-  el.textContent = msg;
-  el.style.borderColor = color||"#f5a623";
-  el.style.color = color||"#f5a623";
-  el.style.display = "block";
-  el.style.animation = "none";
-  void el.offsetWidth;
-  el.style.animation = "flashIn 1.8s ease forwards";
+// ══════════════════════════════════════════════════════════════
+function flash(msg,color){
+  const el=document.getElementById("flash-msg");
+  el.textContent=msg; el.style.borderColor=color||"#f5a623"; el.style.color=color||"#f5a623";
+  el.style.display="block"; el.style.animation="none"; void el.offsetWidth;
+  el.style.animation="flashIn 1.8s ease forwards";
   if(flashTimer) clearTimeout(flashTimer);
-  flashTimer = setTimeout(()=>{ el.style.display="none"; }, 1800);
+  flashTimer=setTimeout(()=>{ el.style.display="none"; },1800);
 }
 
-// ═══════════════════════════════════════════════════════════
-// PARTICLES
-// ═══════════════════════════════════════════════════════════
-function spawnParticles(x, y, power){
-  const container = document.getElementById("particles");
-  for(let i=0;i<5;i++){
-    const p = document.createElement("div");
-    p.className = "particle";
-    const px = x + (Math.random()-.5)*50;
-    const py = y + (Math.random()-.5)*30;
-    p.style.left = px+"px";
-    p.style.top  = (py+45)+"px";
-    p.textContent = Math.random()>.6 ? "+"+Math.ceil(power) : (Math.random()>.5?"🛢️":"💧");
-    p.style.animation = "floatUp 1.3s ease forwards";
-    container.appendChild(p);
-    setTimeout(()=>p.remove(), 1300);
+// ══════════════════════════════════════════════════════════════
+// SCENE ANIMATIONS — Oil field elements based on progress
+// ══════════════════════════════════════════════════════════════
+let sceneTimer=null, bubbleTimer=null, smokeTimer=null;
+
+function getSceneLevel(){
+  const totalLevels=UPGRADES.reduce((a,u)=>a+(G.upgrades[u.id]||0),0);
+  if(totalLevels===0) return 0;
+  if(totalLevels<20)  return 1; // bubbles only
+  if(totalLevels<60)  return 2; // + barrels
+  if(totalLevels<120) return 3; // + pipes
+  if(totalLevels<200) return 4; // + smoke + sparks
+  return 5;                     // full scene
+}
+
+function buildScene(){
+  const layer=document.getElementById("scene-layer");
+  layer.innerHTML="";
+  const area=document.getElementById("drill-area");
+  const W=area.offsetWidth||380, H=area.offsetHeight||220;
+  const lv=getSceneLevel();
+
+  // ── Level 1+: floating oil bubbles (always present once started) ──
+  if(lv>=1){
+    for(let i=0;i<6;i++){
+      const b=document.createElement("div");
+      b.className="oil-bubble";
+      const sz=4+Math.random()*8;
+      b.style.cssText=`width:${sz}px;height:${sz}px;left:${10+Math.random()*80}%;bottom:${Math.random()*30}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s;opacity:${0.4+Math.random()*0.4}`;
+      layer.appendChild(b);
+    }
+  }
+
+  // ── Level 2+: oil barrels on sides ──
+  if(lv>=2){
+    // Left barrel stack
+    [[8,H-42],[8,H-64],[20,H-53]].forEach(([x,y])=>{
+      const b=document.createElement("div");
+      b.className="barrel-scene";
+      b.style.cssText=`left:${x}px;top:${y}px;background:linear-gradient(180deg,#8B2020,#5a1010);border:1px solid #a03030;width:18px;height:22px;border-radius:2px`;
+      // barrel band
+      const band=document.createElement("div");
+      band.style.cssText=`position:absolute;left:0;right:0;top:8px;height:2px;background:#c04040`;
+      b.appendChild(band);
+      const band2=document.createElement("div");
+      band2.style.cssText=`position:absolute;left:0;right:0;top:14px;height:2px;background:#c04040`;
+      b.appendChild(band2);
+      layer.appendChild(b);
+    });
+    // Right barrel
+    const rb=document.createElement("div");
+    rb.style.cssText=`position:absolute;right:8px;bottom:20px;width:18px;height:22px;background:linear-gradient(180deg,#8B2020,#5a1010);border:1px solid #a03030;border-radius:2px`;
+    layer.appendChild(rb);
+  }
+
+  // ── Level 3+: pipe network ──
+  if(lv>=3){
+    // Horizontal pipe top-left
+    const p1=document.createElement("div"); p1.className="pipe-h pipe-glow";
+    p1.style.cssText=`left:0;top:${H*0.3}px;width:${W*0.2}px`;
+    layer.appendChild(p1);
+    // Horizontal pipe top-right
+    const p2=document.createElement("div"); p2.className="pipe-h pipe-glow";
+    p2.style.cssText=`right:0;top:${H*0.3}px;width:${W*0.2}px`;
+    layer.appendChild(p2);
+    // Vertical pipe left going down
+    const p3=document.createElement("div"); p3.className="pipe-v";
+    p3.style.cssText=`left:${W*0.1}px;top:${H*0.3}px;height:${H*0.4}px`;
+    layer.appendChild(p3);
+    // Vertical pipe right
+    const p4=document.createElement("div"); p4.className="pipe-v";
+    p4.style.cssText=`right:${W*0.1}px;top:${H*0.3}px;height:${H*0.4}px`;
+    layer.appendChild(p4);
+    // Gauge circle on left pipe
+    const g=document.createElement("div");
+    g.style.cssText=`position:absolute;left:${W*0.07}px;top:${H*0.45}px;width:14px;height:14px;border-radius:50%;background:#1a1a1a;border:2px solid #5a4200;display:flex;align-items:center;justify-content:center;font-size:6px`;
+    g.textContent="●";
+    layer.appendChild(g);
+  }
+
+  // ── Level 4+: chimneys with smoke + spark emitters ──
+  if(lv>=4){
+    // Two mini derrick silhouettes on sides
+    [[W*0.07,H*0.15],[W*0.83,H*0.15]].forEach(([x,y])=>{
+      const d=document.createElement("div");
+      d.style.cssText=`position:absolute;left:${x}px;top:${y}px;width:20px;height:${H*0.5}px;opacity:.5`;
+      d.innerHTML=`<svg width="20" height="80" viewBox="0 0 10 40" style="image-rendering:pixelated">
+        <rect x="4" y="0" width="2" height="35" fill="#3a2800"/>
+        <rect x="1" y="5" width="8" height="1" fill="#4a3800"/>
+        <rect x="2" y="12" width="6" height="1" fill="#4a3800"/>
+        <rect x="3" y="20" width="4" height="1" fill="#4a3800"/>
+        <rect x="1" y="0" width="2" height="30" fill="#4a3200"/>
+        <rect x="7" y="0" width="2" height="30" fill="#4a3200"/>
+      </svg>`;
+      layer.appendChild(d);
+    });
+
+    // Flame on top of main derrick (inside drill btn is separate, do it in overlay)
+    const flame=document.createElement("div");
+    flame.id="scene-flame";
+    flame.style.cssText=`position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:16px;animation:flameFlicker 0.4s ease infinite;z-index:2`;
+    flame.textContent="🔥";
+    layer.appendChild(flame);
+  }
+
+  // ── Level 5: satellite dish + tank ──
+  if(lv>=5){
+    const dish=document.createElement("div");
+    dish.style.cssText=`position:absolute;top:12px;right:14px;font-size:18px;animation:derrickBob 3s ease infinite;opacity:.8`;
+    dish.textContent="📡";
+    layer.appendChild(dish);
+    const tank=document.createElement("div");
+    tank.style.cssText=`position:absolute;bottom:30px;right:30px;font-size:20px;opacity:.7`;
+    tank.textContent="🛢️";
+    layer.appendChild(tank);
+  }
+
+  // Start periodic animations
+  startSceneAnimations(lv);
+}
+
+function startSceneAnimations(lv){
+  if(smokeTimer) clearInterval(smokeTimer);
+  if(bubbleTimer) clearInterval(bubbleTimer);
+
+  // Regenerate bubbles periodically
+  bubbleTimer=setInterval(()=>{
+    const layer=document.getElementById("scene-layer");
+    if(!layer) return;
+    const area=document.getElementById("drill-area");
+    const W=area?area.offsetWidth:380;
+    const b=document.createElement("div");
+    b.className="oil-bubble";
+    const sz=3+Math.random()*7;
+    b.style.cssText=`width:${sz}px;height:${sz}px;position:absolute;left:${5+Math.random()*85}%;bottom:0;animation:bubbleFloat ${1.5+Math.random()*2.5}s ease-out forwards;opacity:${0.5+Math.random()*0.4}`;
+    layer.appendChild(b);
+    setTimeout(()=>b.remove(),4000);
+  }, lv>=3?600:1200);
+
+  // Smoke from chimneys at higher levels
+  if(lv>=4){
+    smokeTimer=setInterval(()=>{
+      const layer=document.getElementById("scene-layer");
+      if(!layer) return;
+      const area=document.getElementById("drill-area");
+      const W=area?area.offsetWidth:380, H=area?area.offsetHeight:220;
+      [W*0.07, W*0.87].forEach(sx=>{
+        const s=document.createElement("div");
+        s.className="smoke-puff";
+        const sz=8+Math.random()*12;
+        s.style.cssText=`width:${sz}px;height:${sz}px;position:absolute;left:${sx}px;top:${H*0.12}px;background:rgba(120,100,70,${0.3+Math.random()*0.3});animation-duration:${2+Math.random()}s`;
+        layer.appendChild(s);
+        setTimeout(()=>s.remove(),3500);
+      });
+    },1800);
   }
 }
 
-// ═══════════════════════════════════════════════════════════
+// Sparks on tap
+function spawnSparks(x,y){
+  const layer=document.getElementById("particles");
+  for(let i=0;i<6;i++){
+    const sp=document.createElement("div");
+    sp.className="spark";
+    const angle=Math.random()*Math.PI*2;
+    const dist=20+Math.random()*40;
+    sp.style.cssText=`left:${x}px;top:${y+50}px;--sx:${Math.cos(angle)*dist}px;--sy:${Math.sin(angle)*dist}px`;
+    layer.appendChild(sp);
+    setTimeout(()=>sp.remove(),800);
+  }
+}
+
+// Dollar float on sell
+function spawnDollarFloat(){
+  const area=document.getElementById("drill-area");
+  const W=area?area.offsetWidth:380, H=area?area.offsetHeight:220;
+  for(let i=0;i<4;i++){
+    const d=document.createElement("div");
+    d.className="dollar-float";
+    d.textContent="💵";
+    d.style.cssText=`left:${20+Math.random()*60}%;top:${30+Math.random()*40}%;animation-delay:${i*150}ms`;
+    area.appendChild(d);
+    setTimeout(()=>d.remove(),1700);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════════════════════════
+function spawnParticles(x,y,power){
+  const container=document.getElementById("particles");
+  for(let i=0;i<5;i++){
+    const p=document.createElement("div"); p.className="particle";
+    p.style.left=(x+(Math.random()-.5)*50)+"px";
+    p.style.top=(y+45+(Math.random()-.5)*30)+"px";
+    p.textContent=Math.random()>.6?"+"+Math.ceil(power):(Math.random()>.5?"🛢️":"💧");
+    p.style.animation="floatUp 1.3s ease forwards";
+    container.appendChild(p);
+    setTimeout(()=>p.remove(),1300);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 // ACTIONS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 function handleTap(e){
   e.preventDefault();
-  const power = tapPower();
-  G.barrels += power;
-  G.processed += power*0.8;
-  oilLevel = Math.min(100, oilLevel + power*0.15);
-
-  // combo
+  sfxDrill();
+  const power=tapPower();
+  G.barrels+=power; G.processed+=power*0.8;
+  oilLevel=Math.min(100,oilLevel+power*0.15);
   comboCount++;
   if(comboTimer) clearTimeout(comboTimer);
-  comboTimer = setTimeout(()=>{ comboCount=0; updateCombo(); }, 1500);
+  comboTimer=setTimeout(()=>{ comboCount=0; updateCombo(); },1500);
   updateCombo();
+  if(comboCount>5) sfxCombo();
 
-  // drill anim
-  const btn = document.getElementById("drill-btn");
-  const svg = document.getElementById("drill-svg");
-  btn.style.animation = "none";
-  btn.style.transform = "scale(0.91)";
-  svg.style.transform = "translateY(3px) scale(.96)";
-  svg.style.filter = "drop-shadow(0 0 12px rgba(245,166,35,.9))";
-  setTimeout(()=>{
-    btn.style.transform = "";
-    svg.style.transform = "";
-    svg.style.filter = "drop-shadow(0 0 8px rgba(245,166,35,.5))";
-    btn.style.animation = "opulse 2.2s ease infinite";
-  }, 130);
+  const btn=document.getElementById("drill-btn");
+  const svg=document.getElementById("drill-svg");
+  btn.style.animation="none"; btn.style.transform="scale(0.91)";
+  svg.style.transform="translateY(3px) scale(.96)";
+  svg.style.filter="drop-shadow(0 0 12px rgba(245,166,35,.9))";
+  setTimeout(()=>{ btn.style.transform=""; svg.style.transform=""; svg.style.filter="drop-shadow(0 0 8px rgba(245,166,35,.5))"; btn.style.animation="opulse 2.2s ease infinite"; },130);
 
-  // particles
-  const rect = btn.getBoundingClientRect();
-  const cx = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
-  const cy = (e.touches?.[0]?.clientY ?? e.clientY) - rect.top;
-  spawnParticles(cx, cy, power);
-
+  const rect=btn.getBoundingClientRect();
+  const cx=(e.touches?.[0]?.clientX??e.clientX)-rect.left;
+  const cy=(e.touches?.[0]?.clientY??e.clientY)-rect.top;
+  spawnParticles(cx,cy,power);
+  if(getSceneLevel()>=4) spawnSparks(cx,cy);
   updateStats();
 }
 
 function handleSell(){
   if(G.processed<1) return;
-  const price = sellPrice();
-  const earned = Math.floor(G.processed) * price * G.rebirthMult;
-  G.dollars += earned;
-  G.totalEarned += earned;
-  G.processed = 0;
-  oilLevel = 0;
+  sfxSell();
+  const price=sellPrice();
+  const earned=Math.floor(G.processed)*price*G.rebirthMult;
+  G.dollars+=earned; G.totalEarned+=earned;
+  G.processed=0; oilLevel=0;
   flash("+$"+fmt(earned));
-  checkMilestones();
-  updateStats();
-  renderTab();
-
-  const btn = document.getElementById("sell-btn");
-  btn.style.transform = "translateY(2px)";
-  btn.style.boxShadow = "none";
-  setTimeout(()=>{ btn.style.transform=""; btn.style.boxShadow=""; }, 400);
+  spawnDollarFloat();
+  checkMilestones(); updateStats(); renderTab();
+  const btn=document.getElementById("sell-btn");
+  btn.style.transform="translateY(2px)"; btn.style.boxShadow="none";
+  setTimeout(()=>{ btn.style.transform=""; btn.style.boxShadow=""; },400);
 }
 
 function handleBuy(id){
-  const u = UPGRADES.find(x=>x.id===id);
-  if(!u) return;
-  const cost = upgradeCost(u);
-  if(G.dollars<cost){ flash(t().notEnough,"#e53935"); return; }
-  G.dollars -= cost;
-  G.upgrades[u.id] = (G.upgrades[u.id]||0)+1;
+  const u=UPGRADES.find(x=>x.id===id); if(!u) return;
+  const cost=upgradeCost(u);
+  if(G.dollars<cost){ sfxError(); flash(t().notEnough,"#e53935"); return; }
+  sfxBuy();
+  G.dollars-=cost; G.upgrades[u.id]=(G.upgrades[u.id]||0)+1;
   flash("⬆️ "+(G.lang==="en"?u.en:u.es));
-  updateStats();
-  renderTab();
-  updateRebirthUI();
+  // Rebuild scene if level changed
+  const newLv=getSceneLevel();
+  if(newLv!==sceneLevel){ sceneLevel=newLv; buildScene(); }
+  updateStats(); renderTab(); updateRebirthUI();
 }
 
 function handleRebirth(){
-  if(!canRebirth()){ flash(G.lang==="es"?"¡Requisitos no cumplidos!":"Requirements not met!","#e53935"); return; }
-  const nc = G.rebirths+1;
-  const pp = Math.max(2, Math.floor(Math.log2(Math.max(G.totalEarned/1e6,2))));
-  G.rebirths = nc;
-  G.rebirthMult = Math.pow(1.2, nc);
-  G.pp = (G.pp||0)+pp;
+  if(!canRebirth()){ sfxError(); flash(G.lang==="es"?"¡Requisitos no cumplidos!":"Requirements not met!","#e53935"); return; }
+  sfxRebirth();
+  const nc=G.rebirths+1;
+  const pp=Math.max(2,Math.floor(Math.log2(Math.max(G.totalEarned/1e6,2))));
+  G.rebirths=nc; G.rebirthMult=Math.pow(1.2,nc); G.pp=(G.pp||0)+pp;
   G.barrels=0; G.processed=0; G.dollars=0; G.totalEarned=0; oilLevel=0;
   G.seenMilestones=[];
   UPGRADES.forEach(u=>{ G.upgrades[u.id]=0; });
-  closeModal();
-  flash("🌟 REBIRTH! ×"+G.rebirthMult.toFixed(2),"#ffd700");
+  closeModal(); flash("🌟 REBIRTH! ×"+G.rebirthMult.toFixed(2),"#ffd700");
+  sceneLevel=0; buildScene();
   updateStats(); renderTab(); updateRebirthUI();
 }
 
 function handlePrestigeBuy(id){
-  const pu = PRESTIGE_UPGRADES.find(x=>x.id===id);
+  const pu=PRESTIGE_UPGRADES.find(x=>x.id===id);
   if(!pu||G.prestigeBought.includes(id)) return;
-  if((G.pp||0)<pu.cost){ flash(t().notEnough,"#e53935"); return; }
-  G.pp -= pu.cost;
-  G.prestigeBought.push(id);
+  if((G.pp||0)<pu.cost){ sfxError(); flash(t().notEnough,"#e53935"); return; }
+  sfxPrestige();
+  G.pp-=pu.cost; G.prestigeBought.push(id);
   flash("🌟 "+(G.lang==="en"?pu.en:pu.es),"#ce93d8");
   updateStats(); renderTab();
 }
 
 function handleBoost(){
-  const dur = G.prestigeBought.includes("megaboost") ? 20*60*1000 : 10*60*1000;
-  G.boostActive = true;
-  G.boostEnd = Date.now()+dur;
-  G.barrels *= 3;
-  closeModal();
-  flash("🚀 BOOST ×3!","#64b5f6");
-  updateStats();
+  sfxBoost();
+  const dur=G.prestigeBought.includes("megaboost")?20*60*1000:10*60*1000;
+  G.boostActive=true; G.boostEnd=Date.now()+dur;
+  G.barrels*=3; closeModal();
+  flash("🚀 BOOST ×3!","#64b5f6"); updateStats();
 }
 
-// ═══════════════════════════════════════════════════════════
-// MILESTONE CHECK
-// ═══════════════════════════════════════════════════════════
 function checkMilestones(){
   MILESTONES.forEach(m=>{
-    if(!G.seenMilestones.includes(m.money) && G.totalEarned>=m.money){
+    if(!G.seenMilestones.includes(m.money)&&G.totalEarned>=m.money){
       G.seenMilestones.push(m.money);
+      sfxMilestone();
       flash("🏆 "+(G.lang==="en"?m.en:m.es),"#ffd700");
     }
   });
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // GAME LOOP
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 function gameLoop(){
-  const now = Date.now();
-  const dt  = Math.min((now-lastTime)/1000, 0.5);
-  lastTime  = now;
-
-  const bps = totalBPS();
-  if(bps>0){
-    const g = bps*dt;
-    G.barrels   += g;
-    G.processed += g*0.8;
-    oilLevel = Math.min(100, oilLevel+g*0.02);
-  }
-
-  if(G.boostActive && now>G.boostEnd){
-    G.boostActive=false;
-    updateBoostBtn();
-  }
-
-  updateStats();
-  updateOilFill();
-  updateRebirthUI();
-  checkMilestones();
-
-  animFrame = requestAnimationFrame(gameLoop);
+  const now=Date.now(), dt=Math.min((now-lastTime)/1000,0.5); lastTime=now;
+  const bps=totalBPS();
+  if(bps>0){ const g=bps*dt; G.barrels+=g; G.processed+=g*0.8; oilLevel=Math.min(100,oilLevel+g*0.02); }
+  if(G.boostActive&&now>G.boostEnd){ G.boostActive=false; updateBoostBtn(); }
+  updateStats(); updateOilFill(); updateRebirthUI(); checkMilestones();
+  requestAnimationFrame(gameLoop);
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // UI UPDATES
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 function updateStats(){
-  const bps = totalBPS();
-  document.getElementById("stat-barrels").textContent = fmt(G.barrels);
-  document.getElementById("stat-proc").textContent    = fmt(G.processed);
-  document.getElementById("stat-dollars").textContent = "$"+fmt(G.dollars);
-  document.getElementById("stat-total").textContent   = "$"+fmt(G.totalEarned)+" total";
-
-  if(bps>0){
-    document.getElementById("stat-bps").textContent = "+"+fmt(bps)+t().perSec;
-    document.getElementById("bps-text").textContent = "⚡"+fmt(bps)+t().perSec;
-  } else {
-    document.getElementById("stat-bps").textContent = "";
-    document.getElementById("bps-text").textContent = "";
-  }
-
-  const price = sellPrice();
-  document.getElementById("sell-sub").textContent =
-    fmt(G.processed)+" × $"+Math.floor(price);
-
+  const bps=totalBPS();
+  document.getElementById("stat-barrels").textContent=fmt(G.barrels);
+  document.getElementById("stat-proc").textContent=fmt(G.processed);
+  document.getElementById("stat-dollars").textContent="$"+fmt(G.dollars);
+  document.getElementById("stat-total").textContent="$"+fmt(G.totalEarned)+" total";
+  if(bps>0){ document.getElementById("stat-bps").textContent="+"+fmt(bps)+t().perSec; document.getElementById("bps-text").textContent="⚡"+fmt(bps)+t().perSec; }
+  else { document.getElementById("stat-bps").textContent=""; document.getElementById("bps-text").textContent=""; }
+  const price=sellPrice();
+  document.getElementById("sell-sub").textContent=fmt(G.processed)+" × $"+Math.floor(price);
   updateBoostBtn();
 }
-
 function updateBoostBtn(){
-  const btn = document.getElementById("boost-btn");
-  const hbtn = document.getElementById("boost-hbtn");
-  if(G.boostActive && Date.now()<G.boostEnd){
-    const rem = fmtTime(G.boostEnd-Date.now());
-    btn.innerHTML = "🚀 ACTIVO<br>"+rem;
-    btn.className = "active";
-    hbtn.textContent = "🚀"+rem;
-    hbtn.style.color = "#64b5f6";
-    hbtn.style.borderColor = "#1565c0";
+  const btn=document.getElementById("boost-btn"), hbtn=document.getElementById("boost-hbtn");
+  if(G.boostActive&&Date.now()<G.boostEnd){
+    const rem=fmtTime(G.boostEnd-Date.now());
+    btn.innerHTML="🚀 ACTIVO<br>"+rem; btn.className="active";
+    hbtn.textContent="🚀"+rem; hbtn.style.color="#64b5f6"; hbtn.style.borderColor="#1565c0";
   } else {
-    btn.innerHTML = "🚀 "+t().adsTitle;
-    btn.className = "";
-    hbtn.textContent = "🚀";
-    hbtn.style.color = "";
-    hbtn.style.borderColor = "";
+    btn.innerHTML="🚀 "+t().adsTitle; btn.className="";
+    hbtn.textContent="🚀"; hbtn.style.color=""; hbtn.style.borderColor="";
   }
 }
-
 function updateCombo(){
-  const el = document.getElementById("combo-text");
-  if(comboCount>3){
-    el.style.display="block";
-    document.getElementById("combo-num").textContent = comboCount;
-  } else {
-    el.style.display="none";
-  }
+  const el=document.getElementById("combo-text");
+  if(comboCount>3){ el.style.display="block"; document.getElementById("combo-num").textContent=comboCount; }
+  else el.style.display="none";
 }
-
-function updateOilFill(){
-  document.getElementById("oil-fill").style.height = oilLevel+"%";
-}
-
+function updateOilFill(){ document.getElementById("oil-fill").style.height=oilLevel+"%"; }
 function updateRebirthUI(){
-  const btn = document.getElementById("rebirth-btn");
-  const ready = canRebirth();
-
-  if(ready){
-    btn.classList.add("unlocked");
-  } else {
-    btn.classList.remove("unlocked");
-  }
-
-  // Progress bar in drill area
-  const pct = rebirthMoneyPct();
-  const rpBar = document.getElementById("rebirth-progress-bar");
-  const rpReady = document.getElementById("rebirth-ready-text");
-  if(ready){
-    rpBar.style.display="none";
-    rpReady.style.display="block";
-  } else if(pct>0.1){
-    rpBar.style.display="block";
-    rpReady.style.display="none";
-    document.getElementById("rp-label").textContent =
-      "🌟 $"+fmt(G.dollars)+" / $500M";
-    document.getElementById("rp-fill").style.width = (pct*100)+"%";
-  } else {
-    rpBar.style.display="none";
-    rpReady.style.display="none";
-  }
+  const btn=document.getElementById("rebirth-btn");
+  const ready=canRebirth();
+  if(ready) btn.classList.add("unlocked"); else btn.classList.remove("unlocked");
+  const pct=rebirthMoneyPct();
+  const rpBar=document.getElementById("rebirth-progress-bar");
+  const rpReady=document.getElementById("rebirth-ready-text");
+  if(ready){ rpBar.style.display="none"; rpReady.style.display="block"; }
+  else if(pct>0.1){ rpBar.style.display="block"; rpReady.style.display="none"; document.getElementById("rp-label").textContent="🌟 $"+fmt(G.dollars)+" / $500M"; document.getElementById("rp-fill").style.width=(pct*100)+"%"; }
+  else { rpBar.style.display="none"; rpReady.style.display="none"; }
 }
-
 function updateLang(){
-  const tt = t();
-  document.getElementById("title").textContent    = tt.title;
-  document.getElementById("drill-label").textContent = tt.tap;
-  document.getElementById("lbl-barrels").textContent = tt.barrels;
-  document.getElementById("lbl-proc").textContent    = tt.proc;
-  document.getElementById("lbl-dollars").textContent = tt.dollars;
-  document.getElementById("lbl-price").textContent   = tt.sellPrice;
-  document.getElementById("sell-btn").childNodes[0].textContent = "💰 "+tt.sell;
-  document.getElementById("tab-upg").textContent  = "⬆️ "+tt.upgrades;
-  document.getElementById("tab-pres").textContent = "🌟 "+tt.prestige;
+  const tt=t();
+  document.getElementById("title").textContent=tt.title;
+  document.getElementById("drill-label").textContent=tt.tap;
+  document.getElementById("lbl-barrels").textContent=tt.barrels;
+  document.getElementById("lbl-proc").textContent=tt.proc;
+  document.getElementById("lbl-dollars").textContent=tt.dollars;
+  document.getElementById("lbl-price").textContent=tt.sellPrice;
+  document.getElementById("sell-btn").childNodes[0].textContent="💰 "+tt.sell;
+  document.getElementById("tab-upg").textContent="⬆️ "+tt.upgrades;
+  document.getElementById("tab-pres").textContent="🌟 "+tt.prestige;
   renderTab();
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // TABS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 function setTab(name){
   currentTab=name;
-  document.getElementById("tab-upg").className  = "tab-btn"+(name==="upgrades"?" active":"");
-  document.getElementById("tab-pres").className = "tab-btn"+(name==="prestige"?" active":"");
+  document.getElementById("tab-upg").className="tab-btn"+(name==="upgrades"?" active":"");
+  document.getElementById("tab-pres").className="tab-btn"+(name==="prestige"?" active":"");
   renderTab();
 }
-
 function renderTab(){
-  const container = document.getElementById("tab-content");
-  if(currentTab==="upgrades") renderUpgrades(container);
-  else renderPrestige(container);
+  const c=document.getElementById("tab-content");
+  if(currentTab==="upgrades") renderUpgrades(c); else renderPrestige(c);
 }
-
-function renderUpgrades(container){
-  let html = "";
+function renderUpgrades(c){
+  let html="";
   UPGRADES.forEach(u=>{
-    const level  = G.upgrades[u.id]||0;
-    const cost   = upgradeCost(u);
-    const afford = G.dollars>=cost;
-    const maxed  = level>=u.max;
-    const name   = G.lang==="en"?u.en:u.es;
-    const pct    = (level/u.max*100).toFixed(1);
-    const barCol = maxed?"#4caf50":"#f5a623";
-    const cardCls = "upg-card"+(maxed?" maxed":afford?" afford":"");
-    const btnCls  = "upg-buy-btn"+(maxed?" maxed":afford?" afford":"");
-    const btnTxt  = maxed?("✓ "+t().maxed):(t().buy+"<br>$"+fmt(cost));
-    const nameCls = "upg-name"+(maxed?" maxed":"");
-    const lvlCls  = "upg-lvl"+(maxed?" maxed":"");
-    const statTxt = (u.bps>0?"+"+u.bps+"bps ":"")+(u.tap>0?"+"+u.tap+" tap":"");
-    html+=`<div class="${cardCls}">
-      <div class="upg-icon">${u.icon}</div>
-      <div class="upg-info">
-        <div class="upg-row">
-          <span class="${nameCls}">${name}</span>
-          <span class="${lvlCls}">${level}/${u.max}</span>
-        </div>
-        <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${barCol}"></div></div>
-        <div class="upg-stat">${statTxt}</div>
-      </div>
-      <button class="${btnCls}" onclick="${maxed?"":("handleBuy('"+u.id+"')")}">${btnTxt}</button>
-    </div>`;
+    const level=G.upgrades[u.id]||0, cost=upgradeCost(u);
+    const afford=G.dollars>=cost, maxed=level>=u.max;
+    const name=G.lang==="en"?u.en:u.es;
+    const pct=(level/u.max*100).toFixed(1);
+    const barCol=maxed?"#4caf50":"#f5a623";
+    const cardCls="upg-card"+(maxed?" maxed":afford?" afford":"");
+    const btnCls="upg-buy-btn"+(maxed?" maxed":afford?" afford":"");
+    const btnTxt=maxed?("✓ "+t().maxed):(t().buy+"<br>$"+fmt(cost));
+    const statTxt=(u.bps>0?"+"+u.bps+"bps ":"")+(u.tap>0?"+"+u.tap+" tap":"");
+    html+=`<div class="${cardCls}"><div class="upg-icon">${u.icon}</div><div class="upg-info"><div class="upg-row"><span class="upg-name${maxed?" maxed":""}">${name}</span><span class="upg-lvl${maxed?" maxed":""}">${level}/${u.max}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${barCol}"></div></div><div class="upg-stat">${statTxt}</div></div><button class="${btnCls}" onclick="${maxed?"":("handleBuy('"+u.id+"')")}">${btnTxt}</button></div>`;
   });
-  container.innerHTML = html;
+  c.innerHTML=html;
 }
-
-function renderPrestige(container){
-  const tt = t();
-  const itemsPct = (rebirthItemsPct()*100).toFixed(1);
-  const moneyPct = (rebirthMoneyPct()*100).toFixed(1);
-  const ready = canRebirth();
-  const itemsDone = UPGRADES.filter(u=>(G.upgrades[u.id]||0)>=u.max).length;
-  const itemsColor = allMaxed()?"#4caf50":"#888";
-  const moneyColor = G.dollars>=REBIRTH_MONEY?"#4caf50":"#ffd700";
-  const cardCls = "rebirth-req-card"+(ready?" can-rebirth":"");
-  const titleCls = "rr-title"+(ready?" can":"");
-  const btnCls = "rebirth-action-btn"+(ready?" can":"");
-  const btnTxt = ready?("🌟 "+tt.rebirthConfirm):tt.rebirthLocked;
-  const btnClick = ready?"openModal('rebirth')":`flash('${tt.rebirthLocked.replace("🔒 ","")}','#e53935')`;
-
-  let html = `
-  <div id="pp-card">
-    <div id="pp-label">Prestige Points</div>
-    <div id="pp-val">⭐ ${G.pp||0}</div>
-    <div id="pp-sub">Rebirths: ${G.rebirths} · Mult: ×${G.rebirthMult.toFixed(2)}</div>
-  </div>
-  <div class="${cardCls}" id="rebirth-req-card">
-    <div class="${titleCls}" id="rr-title">🌟 ${tt.rebirthTitle}</div>
-    <div class="rr-desc" id="rr-desc">${tt.rebirthDesc}</div>
-    <div class="rr-req-row"><span class="rr-req-label${allMaxed()?" done":""}">${allMaxed()?"✓":"("+itemsDone+"/"+UPGRADES.length+")"} ${tt.rebirthReqItems}</span></div>
-    <div class="req-prog"><div class="req-prog-fill" style="width:${itemsPct}%;background:${itemsColor}"></div></div>
-    <div class="rr-req-row" style="margin-top:4px"><span class="rr-req-label${G.dollars>=REBIRTH_MONEY?" done":""}">${G.dollars>=REBIRTH_MONEY?"✓":"$"+fmt(G.dollars)+" / $500M"} ${tt.rebirthReqMoney}</span></div>
-    <div class="req-prog"><div class="req-prog-fill" style="width:${moneyPct}%;background:${moneyColor}"></div></div>
-    <button class="${btnCls}" id="rebirth-action-btn" onclick="${btnClick}">${btnTxt}</button>
-  </div>`;
-
+function renderPrestige(c){
+  const tt=t();
+  const itemsPct=(rebirthItemsPct()*100).toFixed(1), moneyPct=(rebirthMoneyPct()*100).toFixed(1);
+  const ready=canRebirth();
+  const itemsDone=UPGRADES.filter(u=>(G.upgrades[u.id]||0)>=u.max).length;
+  const itemsColor=allMaxed()?"#4caf50":"#888", moneyColor=G.dollars>=REBIRTH_MONEY?"#4caf50":"#ffd700";
+  const cardCls="rebirth-req-card"+(ready?" can-rebirth":"");
+  const btnCls="rebirth-action-btn"+(ready?" can":"");
+  const btnTxt=ready?("🌟 "+tt.rebirthConfirm):tt.rebirthLocked;
+  const btnClick=ready?"openModal('rebirth')":`sfxError();flash('${tt.rebirthLocked.replace("🔒 ","")}','#e53935')`;
+  let html=`<div id="pp-card"><div id="pp-label">Prestige Points</div><div id="pp-val">⭐ ${G.pp||0}</div><div id="pp-sub">Rebirths: ${G.rebirths} · Mult: ×${G.rebirthMult.toFixed(2)}</div></div>
+  <div class="${cardCls}"><div class="rr-title${ready?" can":""}">🌟 ${tt.rebirthTitle}</div><div class="rr-desc">${tt.rebirthDesc}</div>
+  <div class="rr-req-row"><span class="rr-req-label${allMaxed()?" done":""}">${allMaxed()?"✓":"("+itemsDone+"/"+UPGRADES.length+")"} ${tt.rebirthReqItems}</span></div>
+  <div class="req-prog"><div class="req-prog-fill" style="width:${itemsPct}%;background:${itemsColor}"></div></div>
+  <div class="rr-req-row" style="margin-top:4px"><span class="rr-req-label${G.dollars>=REBIRTH_MONEY?" done":""}">${G.dollars>=REBIRTH_MONEY?"✓":"$"+fmt(G.dollars)+" / $500M"} ${tt.rebirthReqMoney}</span></div>
+  <div class="req-prog"><div class="req-prog-fill" style="width:${moneyPct}%;background:${moneyColor}"></div></div>
+  <button class="${btnCls}" onclick="${btnClick}">${btnTxt}</button></div>`;
   PRESTIGE_UPGRADES.forEach(pu=>{
-    const owned  = G.prestigeBought.includes(pu.id);
-    const afford = (G.pp||0)>=pu.cost;
-    const name   = G.lang==="en"?pu.en:pu.es;
-    const desc   = G.lang==="en"?pu.en_d:pu.es_d;
-    const btnCls2 = "prest-buy-btn"+(afford?" afford":"");
-    html+=`<div class="prest-card${owned?" owned":""}">
-      <div class="prest-inner">
-        <span class="prest-icon">${pu.icon}</span>
-        <div style="flex:1">
-          <div class="prest-name" style="color:${owned?"#ce93d8":"#e8e0d0"}">${name} ${owned?"✓":""}</div>
-          <div class="prest-desc">${desc}</div>
-        </div>
-        ${!owned?`<button class="${btnCls2}" onclick="handlePrestigeBuy('${pu.id}')">⭐${pu.cost}</button>`:""}
-      </div>
-    </div>`;
+    const owned=G.prestigeBought.includes(pu.id), afford=(G.pp||0)>=pu.cost;
+    const name=G.lang==="en"?pu.en:pu.es, desc=G.lang==="en"?pu.en_d:pu.es_d;
+    html+=`<div class="prest-card${owned?" owned":""}"><div class="prest-inner"><span class="prest-icon">${pu.icon}</span><div style="flex:1"><div class="prest-name" style="color:${owned?"#ce93d8":"#e8e0d0"}">${name} ${owned?"✓":""}</div><div class="prest-desc">${desc}</div></div>${!owned?`<button class="prest-buy-btn${afford?" afford":""}" onclick="handlePrestigeBuy('${pu.id}')">⭐${pu.cost}</button>`:""}</div></div>`;
   });
-
-  container.innerHTML = html;
+  c.innerHTML=html;
 }
 
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // MODALS
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 function openModal(type){
   currentModal=type;
-  const box = document.getElementById("modal-box");
-  const tt  = t();
-
+  const box=document.getElementById("modal-box"), tt=t();
   if(type==="rebirth"){
-    const nextMult = Math.pow(1.2,G.rebirths+1);
-    const ppGain   = Math.max(2,Math.floor(Math.log2(Math.max(G.totalEarned/1e6,2))));
-    box.innerHTML=`
-      <div class="modal-title gold">🌟 ${tt.rebirthTitle}</div>
-      <div class="modal-desc">${tt.rebirthDesc}</div>
-      <div class="modal-row"><span class="modal-row-label">${tt.rebirthCount}:</span><span style="color:#ffd700">${G.rebirths} → ${G.rebirths+1}</span></div>
-      <div class="modal-row"><span class="modal-row-label">${tt.rebirthBonus}:</span><span style="color:#4caf50">×${G.rebirthMult.toFixed(2)} → ×${nextMult.toFixed(2)}</span></div>
-      <div class="modal-row"><span class="modal-row-label">Prestige Points:</span><span style="color:#ce93d8">+${ppGain} PP</span></div>
-      <div class="btn-row" style="margin-top:12px">
-        <button class="btn-sec" onclick="closeModal()">${tt.rebirthCancel}</button>
-        <button class="btn-gold" onclick="handleRebirth()">${tt.rebirthConfirm}</button>
-      </div>`;
+    const nextMult=Math.pow(1.2,G.rebirths+1);
+    const ppGain=Math.max(2,Math.floor(Math.log2(Math.max(G.totalEarned/1e6,2))));
+    box.innerHTML=`<div class="modal-title gold">🌟 ${tt.rebirthTitle}</div><div class="modal-desc">${tt.rebirthDesc}</div><div class="modal-row"><span class="modal-row-label">${tt.rebirthCount}:</span><span style="color:#ffd700">${G.rebirths} → ${G.rebirths+1}</span></div><div class="modal-row"><span class="modal-row-label">${tt.rebirthBonus}:</span><span style="color:#4caf50">×${G.rebirthMult.toFixed(2)} → ×${nextMult.toFixed(2)}</span></div><div class="modal-row"><span class="modal-row-label">Prestige Points:</span><span style="color:#ce93d8">+${ppGain} PP</span></div><div class="btn-row" style="margin-top:12px"><button class="btn-sec" onclick="closeModal()">${tt.rebirthCancel}</button><button class="btn-gold" onclick="handleRebirth()">${tt.rebirthConfirm}</button></div>`;
+  } else if(type==="boost"){
+    const active=G.boostActive&&Date.now()<G.boostEnd;
+    box.innerHTML=`<div class="modal-title blue">🚀 ${tt.adsTitle}</div><div class="modal-desc">${tt.adsDesc}</div>${active?`<div style="text-align:center;color:#4caf50;font-size:10px;margin-bottom:12px">${tt.adsActive}: ${fmtTime(G.boostEnd-Date.now())}</div>`:""}<div class="btn-row"><button class="btn-sec" onclick="closeModal()">${tt.close}</button>${!active?`<button class="btn-blue" onclick="handleBoost()">${tt.adsWatch}</button>`:""}</div>`;
+  } else if(type==="settings"){
+    box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div><div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div><div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div><div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Saved!','#4caf50');closeModal()">💾</button></div><div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div><div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
   }
-  else if(type==="boost"){
-    const active = G.boostActive && Date.now()<G.boostEnd;
-    box.innerHTML=`
-      <div class="modal-title blue">🚀 ${tt.adsTitle}</div>
-      <div class="modal-desc">${tt.adsDesc}</div>
-      ${active?`<div style="text-align:center;color:#4caf50;font-size:10px;margin-bottom:12px">${tt.adsActive}: ${fmtTime(G.boostEnd-Date.now())}</div>`:""}
-      <div class="btn-row">
-        <button class="btn-sec" onclick="closeModal()">${tt.close}</button>
-        ${!active?`<button class="btn-blue" onclick="handleBoost()">${tt.adsWatch}</button>`:""}
-      </div>`;
-  }
-  else if(type==="settings"){
-    box.innerHTML=`
-      <div class="modal-title">⚙️ ${tt.settings}</div>
-      <div class="settings-row">
-        <span class="settings-label">${tt.language}:</span>
-        <div style="display:flex;gap:6px">
-          <button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button>
-          <button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button>
-        </div>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">${tt.tutorial}:</span>
-        <button class="small-btn" onclick="openTutorial()">📖</button>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">${tt.save}:</span>
-        <button class="small-btn" onclick="saveGame();flash('💾 Saved!','#4caf50');closeModal()">💾</button>
-      </div>
-      <div class="settings-row">
-        <span class="settings-label">${tt.reset}:</span>
-        <button class="danger-btn" onclick="confirmReset()">🗑️</button>
-      </div>
-      <div style="text-align:center;margin-top:8px">
-        <button class="btn-primary" onclick="closeModal()">${tt.close}</button>
-      </div>`;
-  }
-
   document.getElementById("modal-overlay").classList.add("show");
 }
-
-function openOfflineModal(ms, barrels){
-  const tt=t();
-  currentModal="offline";
-  const box=document.getElementById("modal-box");
-  box.innerHTML=`
-    <div class="modal-title">${tt.offline_title}</div>
-    <div class="modal-desc">${tt.offline_away} <span style="color:#f5a623">${fmtTime(ms)}</span><br><br>${tt.offline_earned}<br><span class="offline-barrel">🛢️ ${fmt(barrels)}</span></div>
-    <div class="btn-row">
-      <button class="btn-primary" onclick="claimOffline(${barrels})">${tt.offline_claim}</button>
-    </div>`;
+function openOfflineModal(ms,barrels){
+  const tt=t(); currentModal="offline";
+  document.getElementById("modal-box").innerHTML=`<div class="modal-title">${tt.offline_title}</div><div class="modal-desc">${tt.offline_away} <span style="color:#f5a623">${fmtTime(ms)}</span><br><br>${tt.offline_earned}<br><span class="offline-barrel">🛢️ ${fmt(barrels)}</span></div><div class="btn-row"><button class="btn-primary" onclick="claimOffline(${barrels})">${tt.offline_claim}</button></div>`;
   document.getElementById("modal-overlay").classList.add("show");
   if(!G.tutDone) setTimeout(showTutorial,500);
 }
+function claimOffline(barrels){ G.barrels+=barrels; closeModal(); updateStats(); }
+function closeModal(){ document.getElementById("modal-overlay").classList.remove("show"); currentModal=null; }
+function closeModalIfBackdrop(e){ if(e.target===document.getElementById("modal-overlay")||e.target===document.getElementById("modal-backdrop")) closeModal(); }
+function confirmReset(){ if(confirm("¿Borrar todo el progreso?\nReset all progress?")){ localStorage.removeItem(SAVE_KEY); location.reload(); } }
+function setLang(l){ G.lang=l; closeModal(); updateLang(); updateStats(); }
 
-function claimOffline(barrels){
-  G.barrels += barrels;
-  closeModal();
-  updateStats();
-}
-
-function closeModal(){
-  document.getElementById("modal-overlay").classList.remove("show");
-  currentModal=null;
-}
-
-function closeModalIfBackdrop(e){
-  if(e.target===document.getElementById("modal-overlay") ||
-     e.target===document.getElementById("modal-backdrop")) closeModal();
-}
-
-function confirmReset(){
-  if(confirm("¿Borrar todo el progreso?\nReset all progress?")){
-    localStorage.removeItem(SAVE_KEY);
-    location.reload();
-  }
-}
-
-function setLang(l){
-  G.lang=l;
-  closeModal();
-  updateLang();
-  updateStats();
-}
-
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // TUTORIAL
-// ═══════════════════════════════════════════════════════════
-function showTutorial(){
-  tutStep=0;
-  renderTutStep();
-  document.getElementById("tutorial-overlay").classList.add("show");
-}
-
-function openTutorial(){
-  closeModal();
-  showTutorial();
-}
-
+// ══════════════════════════════════════════════════════════════
+function showTutorial(){ tutStep=0; renderTutStep(); document.getElementById("tutorial-overlay").classList.add("show"); }
+function openTutorial(){ closeModal(); showTutorial(); }
 function renderTutStep(){
-  const steps = t().tuts;
-  const s = steps[tutStep];
-  document.getElementById("tut-step").textContent = (tutStep+1)+" / "+steps.length;
-  document.getElementById("tut-title").textContent = s.t;
-  document.getElementById("tut-desc").textContent  = s.d;
-  const nextBtn = document.getElementById("tut-next-btn");
+  const steps=t().tuts, s=steps[tutStep];
+  document.getElementById("tut-step").textContent=(tutStep+1)+" / "+steps.length;
+  document.getElementById("tut-title").textContent=s.t;
+  document.getElementById("tut-desc").textContent=s.d;
   const tt=t();
-  nextBtn.textContent = tutStep===steps.length-1 ? tt.tutorial_done : tt.tutorial_next;
-  document.getElementById("tut-skip-btn").textContent = tt.tutorial_skip;
+  document.getElementById("tut-next-btn").textContent=tutStep===steps.length-1?tt.tutorial_done:tt.tutorial_next;
+  document.getElementById("tut-skip-btn").textContent=tt.tutorial_skip;
 }
+function tutNext(){ const steps=t().tuts; if(tutStep<steps.length-1){ tutStep++; renderTutStep(); } else tutSkip(); }
+function tutSkip(){ G.tutDone=true; document.getElementById("tutorial-overlay").classList.remove("show"); }
 
-function tutNext(){
-  const steps = t().tuts;
-  if(tutStep<steps.length-1){ tutStep++; renderTutStep(); }
-  else tutSkip();
-}
-
-function tutSkip(){
-  G.tutDone=true;
-  document.getElementById("tutorial-overlay").classList.remove("show");
-}
-
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 loadGame();
 updateLang();
 updateStats();
 renderTab();
-setInterval(saveGame, 10000);
+sceneLevel=getSceneLevel();
+buildScene();
+setInterval(saveGame,10000);
 gameLoop();
 </script>
 </body>
