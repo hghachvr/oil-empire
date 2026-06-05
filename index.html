@@ -11,25 +11,34 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <!-- APP ICON (512x512 pixel art oil derrick) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icon.png" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { 
-      height: 100%; 
-      background: #0a0a0a; 
-      overflow: hidden;
-      -webkit-text-size-adjust: 100%;
-      touch-action: manipulation;
+    html, body {
+      height: 100%; background: #0a0a0a; overflow: hidden;
+      -webkit-text-size-adjust: 100%; touch-action: manipulation;
     }
     #root { height: 100%; }
     @keyframes flashIn {
-      0% { opacity: 0; transform: translateX(-50%) translateY(-60%); }
-      20% { opacity: 1; transform: translateX(-50%) translateY(-50%); }
-      80% { opacity: 1; transform: translateX(-50%) translateY(-50%); }
-      100% { opacity: 0; transform: translateX(-50%) translateY(-40%); }
+      0%   { opacity:0; transform:translateX(-50%) translateY(-60%); }
+      20%  { opacity:1; transform:translateX(-50%) translateY(-50%); }
+      80%  { opacity:1; transform:translateX(-50%) translateY(-50%); }
+      100% { opacity:0; transform:translateX(-50%) translateY(-40%); }
     }
     @keyframes oilPulse {
       0%,100% { box-shadow: 0 0 20px rgba(245,166,35,0.4), inset 0 0 20px rgba(0,0,0,0.5); }
-      50% { box-shadow: 0 0 35px rgba(245,166,35,0.7), 0 0 60px rgba(245,166,35,0.2), inset 0 0 20px rgba(0,0,0,0.5); }
+      50%     { box-shadow: 0 0 40px rgba(245,166,35,0.8), 0 0 70px rgba(245,166,35,0.25), inset 0 0 20px rgba(0,0,0,0.5); }
+    }
+    @keyframes rebirthGlow {
+      0%,100% { box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+      50%     { box-shadow: 0 0 25px rgba(255,215,0,1), 0 0 50px rgba(255,215,0,0.4); }
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-3px)} 40%{transform:translateX(3px)} 60%{transform:translateX(-2px)} 80%{transform:translateX(2px)}
     }
     ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: #111; }
@@ -39,98 +48,143 @@
 </head>
 <body>
   <div id="root"></div>
-
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <script type="text/babel">
-const { useState, useEffect, useRef, useCallback } = React;
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-// ─── TRANSLATIONS ────────────────────────────────────────────────────────────
+// ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
 const T = {
   en: {
-    title: "OIL EMPIRE", tap: "TAP TO DRILL!", barrels: "Barrels",
-    processed: "Processed", dollars: "Dollars", sell: "SELL ALL",
-    upgrades: "UPGRADES", rebirth: "REBIRTH", settings: "SETTINGS",
-    tutorial: "TUTORIAL", close: "CLOSE", language: "Language",
-    perSecond: "/sec", rebirthTitle: "REBIRTH",
-    rebirthDesc: "Reset progress for a permanent x1.2 multiplier!",
-    rebirthBonus: "Current Bonus", rebirthCount: "Rebirths",
-    rebirthConfirm: "REBIRTH NOW", rebirthCancel: "CANCEL",
-    adsTitle: "BOOST x3", adsDesc: "Watch an ad and get x3 resources for 10 min!",
-    adsWatch: "WATCH AD", adsActive: "BOOST ACTIVE", adsRemaining: "remaining",
-    upgradeOwned: "owned", upgradeBuy: "BUY", maxed: "MAX",
-    notEnough: "Not enough $!", sell_price: "$90 / barrel",
-    tutorial_next: "NEXT", tutorial_skip: "SKIP", tutorial_done: "DONE!",
-    tut0_title: "Welcome to Oil Empire!",
-    tut0_desc: "Build the biggest oil empire in the world! Tap the drill to extract oil.",
-    tut1_title: "Tap to Extract!",
-    tut1_desc: "Tap the drill button to extract crude oil barrels. More taps = more oil!",
-    tut2_title: "Process & Sell",
-    tut2_desc: "Barrels get processed automatically. Then sell them for $90 each!",
-    tut3_title: "Buy Upgrades",
-    tut3_desc: "Spend your dollars on machinery, workers and tech to auto-produce oil.",
-    tut4_title: "Rebirth System",
-    tut4_desc: "Once you're rich enough, REBIRTH to reset and earn a permanent x1.2 bonus!",
-    tut5_title: "Watch Ads for Boost",
-    tut5_desc: "Watch a short ad to get a x3 resource boost for 10 minutes!",
-    tut6_title: "You're Ready!",
-    tut6_desc: "Now build your Oil Empire and become the richest tycoon on Earth!",
-    prestige_shop: "PRESTIGE", offline_title: "Welcome Back!",
-    offline_desc: "You were away for", offline_earned: "You earned",
-    offline_claim: "CLAIM!", combo_tap: "COMBO!",
+    title:"OIL EMPIRE", tap:"TAP TO DRILL!", barrels:"Barrels",
+    processed:"Processed", dollars:"Dollars", sell:"SELL ALL",
+    upgrades:"UPGRADES", rebirth:"REBIRTH", settings:"SETTINGS",
+    tutorial:"TUTORIAL", close:"CLOSE", language:"Language",
+    perSecond:"/sec", rebirthTitle:"REBIRTH",
+    rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",
+    rebirthBonus:"Earnings Bonus", rebirthCount:"Rebirths",
+    rebirthConfirm:"REBIRTH NOW", rebirthCancel:"CANCEL",
+    rebirthLocked:"LOCKED",
+    rebirthReq:"Requirements to Rebirth:",
+    rebirthReqItems:"All upgrades at MAX level",
+    rebirthReqMoney:"$500,000,000 in cash",
+    rebirthProgress:"Progress",
+    adsTitle:"BOOST ×3", adsDesc:"Watch an ad and get ×3 resources for 10 min!",
+    adsWatch:"WATCH AD", adsActive:"BOOST ACTIVE", adsRemaining:"remaining",
+    upgradeOwned:"owned", upgradeBuy:"BUY", maxed:"MAX",
+    notEnough:"Not enough $!", sell_price:"$90/barrel",
+    tutorial_next:"NEXT", tutorial_skip:"SKIP", tutorial_done:"DONE!",
+    tut0_title:"Welcome to Oil Empire!",
+    tut0_desc:"Build the biggest oil empire on Earth! Tap the drill to extract crude oil.",
+    tut1_title:"Tap to Extract!",
+    tut1_desc:"Tap the drill to get barrels. Build a COMBO by tapping fast for bonus power!",
+    tut2_title:"Process & Sell",
+    tut2_desc:"Barrels auto-process into refined oil. Sell them all for $90 each!",
+    tut3_title:"Buy Upgrades",
+    tut3_desc:"Spend dollars on machinery and workers to produce oil automatically 24/7.",
+    tut4_title:"Rebirth System",
+    tut4_desc:"MAX all upgrades + reach $500M to REBIRTH and earn a permanent ×1.2 bonus!",
+    tut5_title:"Watch Ads for Boost",
+    tut5_desc:"Watch a short ad to get ×3 everything for 10 minutes. Very powerful!",
+    tut6_title:"You're Ready!",
+    tut6_desc:"Build your Oil Empire and dominate the global energy market!",
+    prestige_shop:"PRESTIGE",
+    offline_title:"Welcome Back!",
+    offline_desc:"You were away for",
+    offline_earned:"Offline earnings:",
+    offline_claim:"CLAIM!",
+    combo_tap:"COMBO!",
+    req_not_met:"Requirements not met!",
+    milestone:"MILESTONE!",
   },
   es: {
-    title: "IMPERIO PETROLERO", tap: "¡TOCA PARA TALADRAR!", barrels: "Barriles",
-    processed: "Procesados", dollars: "Dólares", sell: "VENDER TODO",
-    upgrades: "MEJORAS", rebirth: "RENACIMIENTO", settings: "AJUSTES",
-    tutorial: "TUTORIAL", close: "CERRAR", language: "Idioma",
-    perSecond: "/seg", rebirthTitle: "RENACIMIENTO",
-    rebirthDesc: "¡Reinicia el progreso y obtén un multiplicador permanente x1.2!",
-    rebirthBonus: "Bono Actual", rebirthCount: "Renacimientos",
-    rebirthConfirm: "RENACER AHORA", rebirthCancel: "CANCELAR",
-    adsTitle: "IMPULSO x3", adsDesc: "¡Mira un anuncio y obtén x3 recursos por 10 min!",
-    adsWatch: "VER ANUNCIO", adsActive: "IMPULSO ACTIVO", adsRemaining: "restante",
-    upgradeOwned: "poseídos", upgradeBuy: "COMPRAR", maxed: "MAX",
-    notEnough: "¡No hay suficiente $!", sell_price: "$90 / barril",
-    tutorial_next: "SIGUIENTE", tutorial_skip: "OMITIR", tutorial_done: "¡LISTO!",
-    tut0_title: "¡Bienvenido a Imperio Petrolero!",
-    tut0_desc: "¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo.",
-    tut1_title: "¡Toca para Extraer!",
-    tut1_desc: "Toca el botón del taladro para extraer barriles de petróleo crudo. ¡Más toques = más petróleo!",
-    tut2_title: "Procesar y Vender",
-    tut2_desc: "Los barriles se procesan automáticamente. ¡Luego véndelos a $90 cada uno!",
-    tut3_title: "Compra Mejoras",
-    tut3_desc: "Gasta tus dólares en maquinaria, trabajadores y tecnología para producir petróleo automáticamente.",
-    tut4_title: "Sistema de Renacimiento",
-    tut4_desc: "Una vez que seas lo suficientemente rico, ¡RENACE para reiniciar y ganar un bono permanente de x1.2!",
-    tut5_title: "Mira Anuncios para Impulso",
-    tut5_desc: "Mira un breve anuncio para obtener un impulso x3 de recursos por 10 minutos. ¡Úsalo sabiamente!",
-    tut6_title: "¡Estás Listo!",
-    tut6_desc: "¡Ahora construye tu Imperio Petrolero y conviértete en el magnate más rico de la Tierra!",
-    prestige_shop: "PRESTIGIO", offline_title: "¡Bienvenido de nuevo!",
-    offline_desc: "Estuviste fuera por", offline_earned: "Ganaste",
-    offline_claim: "¡RECLAMAR!", combo_tap: "¡COMBO!",
+    title:"IMPERIO PETROLERO", tap:"¡TOCA PARA TALADRAR!", barrels:"Barriles",
+    processed:"Procesados", dollars:"Dólares", sell:"VENDER TODO",
+    upgrades:"MEJORAS", rebirth:"RENACIMIENTO", settings:"AJUSTES",
+    tutorial:"TUTORIAL", close:"CERRAR", language:"Idioma",
+    perSecond:"/seg", rebirthTitle:"RENACIMIENTO",
+    rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",
+    rebirthBonus:"Bono de Ganancias", rebirthCount:"Renacimientos",
+    rebirthConfirm:"RENACER AHORA", rebirthCancel:"CANCELAR",
+    rebirthLocked:"BLOQUEADO",
+    rebirthReq:"Requisitos para Renacer:",
+    rebirthReqItems:"Todas las mejoras al nivel MAX",
+    rebirthReqMoney:"$500,000,000 en efectivo",
+    rebirthProgress:"Progreso",
+    adsTitle:"IMPULSO ×3", adsDesc:"¡Mira un anuncio y obtén ×3 recursos por 10 min!",
+    adsWatch:"VER ANUNCIO", adsActive:"IMPULSO ACTIVO", adsRemaining:"restante",
+    upgradeOwned:"poseídos", upgradeBuy:"COMPRAR", maxed:"MAX",
+    notEnough:"¡No hay suficiente $!", sell_price:"$90/barril",
+    tutorial_next:"SIGUIENTE", tutorial_skip:"OMITIR", tutorial_done:"¡LISTO!",
+    tut0_title:"¡Bienvenido a Imperio Petrolero!",
+    tut0_desc:"¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo.",
+    tut1_title:"¡Toca para Extraer!",
+    tut1_desc:"Toca el taladro para obtener barriles. ¡Toca rápido para construir COMBOS y más poder!",
+    tut2_title:"Procesar y Vender",
+    tut2_desc:"Los barriles se procesan solos. ¡Luego véndelos todos a $90 cada uno!",
+    tut3_title:"Compra Mejoras",
+    tut3_desc:"Gasta dólares en maquinaria y trabajadores para producir petróleo automáticamente.",
+    tut4_title:"Sistema de Renacimiento",
+    tut4_desc:"¡Lleva todas las mejoras al MAX + acumula $500M para RENACER y ganar un bono permanente ×1.2!",
+    tut5_title:"Mira Anuncios para Impulso",
+    tut5_desc:"Mira un breve anuncio para obtener ×3 a todo por 10 minutos. ¡Muy poderoso!",
+    tut6_title:"¡Estás Listo!",
+    tut6_desc:"¡Construye tu Imperio Petrolero y domina el mercado energético global!",
+    prestige_shop:"PRESTIGIO",
+    offline_title:"¡Bienvenido de nuevo!",
+    offline_desc:"Estuviste fuera por",
+    offline_earned:"Ganancias offline:",
+    offline_claim:"¡RECLAMAR!",
+    combo_tap:"¡COMBO!",
+    req_not_met:"¡Requisitos no cumplidos!",
+    milestone:"¡LOGRO!",
   },
 };
 
+// ─── ECONOMY REBALANCE ────────────────────────────────────────────────────────
+// Goals:
+//   Early game  (~0-30 min):    first few upgrades feel rewarding but take effort
+//   Mid game    (~30min-3h):    upgrades get expensive, requires strategy
+//   Late game   (~3h-8h+):     maxing everything is a real grind toward $500M
+//   Rebirth     (8h+ per run):  meaningful milestone that resets everything
+
 const UPGRADES_CONFIG = [
-  { id:"pickaxe",   icon:"⛏️",  nameEn:"Hand Drill",        nameEs:"Taladro Manual",       baseCost:50,     costMult:1.15, bpsPerLevel:0.2,  tapBonus:1, maxLevel:50 },
-  { id:"pump",      icon:"🔧",  nameEn:"Oil Pump",          nameEs:"Bomba de Petróleo",    baseCost:200,    costMult:1.18, bpsPerLevel:1,    tapBonus:0, maxLevel:50 },
-  { id:"worker",    icon:"👷",  nameEn:"Worker",            nameEs:"Trabajador",           baseCost:500,    costMult:1.2,  bpsPerLevel:3,    tapBonus:0, maxLevel:50 },
-  { id:"refinery",  icon:"🏭",  nameEn:"Mini Refinery",     nameEs:"Mini Refinería",       baseCost:2000,   costMult:1.22, bpsPerLevel:10,   tapBonus:0, maxLevel:40 },
-  { id:"tanker",    icon:"🚛",  nameEn:"Oil Tanker",        nameEs:"Camión Cisterna",      baseCost:8000,   costMult:1.25, bpsPerLevel:35,   tapBonus:0, maxLevel:40 },
-  { id:"platform",  icon:"🛢️",  nameEn:"Sea Platform",      nameEs:"Plataforma Marina",    baseCost:30000,  costMult:1.28, bpsPerLevel:120,  tapBonus:0, maxLevel:30 },
-  { id:"pipeline",  icon:"🔩",  nameEn:"Pipeline Network",  nameEs:"Red de Tuberías",      baseCost:100000, costMult:1.3,  bpsPerLevel:400,  tapBonus:0, maxLevel:25 },
-  { id:"satellite", icon:"🛸",  nameEn:"AI Drillbot",       nameEs:"Robot Taladrador IA",  baseCost:500000, costMult:1.35, bpsPerLevel:1500, tapBonus:0, maxLevel:20 },
+  // baseCost raised ~10-20x, costMult raised, bps lowered relative to cost
+  { id:"pickaxe",   icon:"⛏️",  nameEn:"Hand Drill",        nameEs:"Taladro Manual",       baseCost:500,       costMult:1.18, bpsPerLevel:0.5,    tapBonus:2,  maxLevel:50 },
+  { id:"pump",      icon:"🔧",  nameEn:"Oil Pump",          nameEs:"Bomba de Petróleo",    baseCost:3000,      costMult:1.20, bpsPerLevel:3,       tapBonus:0,  maxLevel:50 },
+  { id:"worker",    icon:"👷",  nameEn:"Worker",            nameEs:"Trabajador",           baseCost:12000,     costMult:1.22, bpsPerLevel:10,      tapBonus:0,  maxLevel:50 },
+  { id:"refinery",  icon:"🏭",  nameEn:"Mini Refinery",     nameEs:"Mini Refinería",       baseCost:75000,     costMult:1.25, bpsPerLevel:40,      tapBonus:0,  maxLevel:40 },
+  { id:"tanker",    icon:"🚛",  nameEn:"Oil Tanker",        nameEs:"Camión Cisterna",      baseCost:400000,    costMult:1.28, bpsPerLevel:150,     tapBonus:0,  maxLevel:40 },
+  { id:"platform",  icon:"🛢️",  nameEn:"Sea Platform",      nameEs:"Plataforma Marina",    baseCost:2500000,   costMult:1.30, bpsPerLevel:600,     tapBonus:0,  maxLevel:30 },
+  { id:"pipeline",  icon:"🔩",  nameEn:"Pipeline Network",  nameEs:"Red de Tuberías",      baseCost:15000000,  costMult:1.33, bpsPerLevel:2500,    tapBonus:0,  maxLevel:25 },
+  { id:"satellite", icon:"🛸",  nameEn:"AI Drillbot",       nameEs:"Robot Taladrador IA",  baseCost:100000000, costMult:1.38, bpsPerLevel:12000,   tapBonus:0,  maxLevel:20 },
 ];
 
+// Max cost sanity check (for rebirth requirement display)
+function getMaxCostOf(u) {
+  return Math.floor(u.baseCost * Math.pow(u.costMult, u.maxLevel - 1));
+}
+
 const PRESTIGE_UPGRADES = [
-  { id:"golden_drill", icon:"🪙", nameEn:"Golden Drill",   nameEs:"Taladro Dorado",        cost:3,  descEn:"+50% tap power",          descEs:"+50% fuerza de toque" },
-  { id:"oil_rush",     icon:"💨", nameEn:"Oil Rush",       nameEs:"Fiebre del Petróleo",   cost:5,  descEn:"+100% auto production",   descEs:"+100% producción auto" },
-  { id:"black_gold",   icon:"⚫", nameEn:"Black Gold",     nameEs:"Oro Negro",             cost:8,  descEn:"+25% sell price",         descEs:"+25% precio de venta" },
-  { id:"mega_boost",   icon:"🚀", nameEn:"Mega Boost",     nameEs:"Mega Impulso",          cost:12, descEn:"Ad boost lasts 20min",    descEs:"Impulso de anuncio 20min" },
+  { id:"golden_drill", icon:"🪙", nameEn:"Golden Drill",      nameEs:"Taladro Dorado",        cost:3,  descEn:"+75% tap power",             descEs:"+75% fuerza de toque" },
+  { id:"oil_rush",     icon:"💨", nameEn:"Oil Rush",          nameEs:"Fiebre del Petróleo",   cost:5,  descEn:"+150% auto production",      descEs:"+150% producción auto" },
+  { id:"black_gold",   icon:"⚫", nameEn:"Black Gold",        nameEs:"Oro Negro",             cost:8,  descEn:"+35% sell price per barrel", descEs:"+35% precio de venta" },
+  { id:"mega_boost",   icon:"🚀", nameEn:"Mega Boost",        nameEs:"Mega Impulso",          cost:12, descEn:"Ad boost lasts 20 min",      descEs:"Impulso de anuncio 20min" },
+  { id:"deep_drill",   icon:"💎", nameEn:"Deep Core Drill",   nameEs:"Taladro de Núcleo",     cost:20, descEn:"×2 barrels per tap",         descEs:"×2 barriles por toque" },
+];
+
+// ─── REBIRTH REQUIREMENTS ─────────────────────────────────────────────────────
+const REBIRTH_MONEY_REQ = 500_000_000; // $500M
+
+// ─── MILESTONES ───────────────────────────────────────────────────────────────
+const MILESTONES = [
+  { id:"m1", money:1000,      textEn:"First $1,000!",        textEs:"¡Primeros $1,000!" },
+  { id:"m2", money:100000,    textEn:"$100K reached!",       textEs:"¡$100K alcanzados!" },
+  { id:"m3", money:1000000,   textEn:"MILLIONAIRE!",         textEs:"¡MILLONARIO!" },
+  { id:"m4", money:10000000,  textEn:"$10M Empire!",         textEs:"¡Imperio de $10M!" },
+  { id:"m5", money:100000000, textEn:"$100M Tycoon!",        textEs:"¡Magnate de $100M!" },
+  { id:"m6", money:500000000, textEn:"REBIRTH UNLOCKED!",    textEs:"¡RENACIMIENTO DESBLOQUEADO!" },
 ];
 
 const PF = "'Press Start 2P', monospace";
@@ -140,8 +194,11 @@ function fmt(n) {
   if (n >= 1e12) return (n/1e12).toFixed(2)+"T";
   if (n >= 1e9)  return (n/1e9).toFixed(2)+"B";
   if (n >= 1e6)  return (n/1e6).toFixed(2)+"M";
-  if (n >= 1e3)  return (n/1e3).toFixed(2)+"K";
+  if (n >= 1e3)  return (n/1e3).toFixed(1)+"K";
   return Math.floor(n).toString();
+}
+function fmtFull(n) {
+  return Math.floor(n).toLocaleString();
 }
 function fmtTime(ms) {
   const s = Math.ceil(ms/1000), m = Math.floor(s/60), ss = s%60;
@@ -149,48 +206,148 @@ function fmtTime(ms) {
 }
 
 const C = {
-  bg:"#0a0a0a", panel:"#111418", panelBorder:"#1e2832",
+  bg:"#0a0a0a", panel:"#0f1318", panelBorder:"#1e2832",
   accent:"#f5a623", accentDark:"#c47d10", green:"#4caf50",
   red:"#e53935", text:"#e8e0d0", textDim:"#8a7f70",
+  gold:"#ffd700", purple:"#ce93d8",
 };
 
+// ─── PIXEL ART ICON (SVG inline, 512x512 equivalent design) ─────────────────
+// Rendered as a large SVG for use in canvas for icon.png
+const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" shape-rendering="crispEdges">
+  <!-- Sky background -->
+  <rect width="64" height="64" fill="#0a1628"/>
+  <!-- Stars -->
+  <rect x="5"  y="4"  width="1" height="1" fill="#fff" opacity=".8"/>
+  <rect x="15" y="7"  width="1" height="1" fill="#fff" opacity=".6"/>
+  <rect x="55" y="3"  width="1" height="1" fill="#fff" opacity=".9"/>
+  <rect x="48" y="9"  width="1" height="1" fill="#fff" opacity=".5"/>
+  <rect x="28" y="5"  width="1" height="1" fill="#fff" opacity=".7"/>
+  <!-- Ground -->
+  <rect x="0"  y="50" width="64" height="14" fill="#1a0f00"/>
+  <rect x="0"  y="50" width="64" height="2"  fill="#2a1800"/>
+  <!-- Oil puddle -->
+  <rect x="22" y="52" width="20" height="4" fill="#0a1a00" rx="2"/>
+  <rect x="25" y="53" width="14" height="2" fill="#0f2500"/>
+  <!-- Derrick base legs -->
+  <rect x="18" y="44" width="4" height="8"  fill="#3a2800"/>
+  <rect x="42" y="44" width="4" height="8"  fill="#3a2800"/>
+  <rect x="19" y="44" width="2" height="7"  fill="#4a3800"/>
+  <rect x="43" y="44" width="2" height="7"  fill="#4a3800"/>
+  <!-- Cross braces -->
+  <rect x="20" y="36" width="24" height="2" fill="#5a4200"/>
+  <rect x="21" y="36" width="22" height="1" fill="#7a5c00"/>
+  <rect x="22" y="28" width="20" height="2" fill="#5a4200"/>
+  <rect x="23" y="28" width="18" height="1" fill="#7a5c00"/>
+  <rect x="24" y="20" width="16" height="2" fill="#5a4200"/>
+  <rect x="25" y="20" width="14" height="1" fill="#7a5c00"/>
+  <!-- Left leg -->
+  <rect x="19" y="20" width="3" height="26" fill="#4a3800"/>
+  <rect x="20" y="20" width="1" height="26" fill="#6a5200"/>
+  <!-- Right leg -->
+  <rect x="42" y="20" width="3" height="26" fill="#4a3800"/>
+  <rect x="42" y="20" width="1" height="26" fill="#6a5200"/>
+  <!-- Upper tower -->
+  <rect x="22" y="12" width="20" height="2" fill="#5a4200"/>
+  <rect x="23" y="12" width="18" height="1" fill="#7a5c00"/>
+  <rect x="21" y="12" width="3"  height="10" fill="#4a3800"/>
+  <rect x="40" y="12" width="3"  height="10" fill="#4a3800"/>
+  <!-- Crown / top apex -->
+  <rect x="27" y="8"  width="10" height="4" fill="#6a5000"/>
+  <rect x="29" y="6"  width="6"  height="3" fill="#7a6200"/>
+  <rect x="30" y="4"  width="4"  height="3" fill="#8a7200"/>
+  <rect x="31" y="2"  width="2"  height="3" fill="#f5a623"/>
+  <!-- Flame at top -->
+  <rect x="30" y="1"  width="1"  height="2" fill="#ff6600"/>
+  <rect x="32" y="0"  width="1"  height="2" fill="#ffaa00"/>
+  <rect x="31" y="0"  width="2"  height="1" fill="#ffdd00"/>
+  <!-- Pump arm horizontal beam -->
+  <rect x="28" y="24" width="18" height="3" fill="#f5a623"/>
+  <rect x="29" y="24" width="16" height="1" fill="#ffc040"/>
+  <!-- Pump arm pivot box -->
+  <rect x="29" y="22" width="6"  height="6" fill="#c47d10"/>
+  <rect x="30" y="23" width="4"  height="4" fill="#e09020"/>
+  <!-- Pump head (horse head) -->
+  <rect x="42" y="23" width="6"  height="5" fill="#d4820e"/>
+  <rect x="43" y="24" width="4"  height="3" fill="#e89a18"/>
+  <rect x="44" y="22" width="3"  height="2" fill="#f5a623"/>
+  <!-- Drill rod going down -->
+  <rect x="44" y="28" width="2"  height="14" fill="#888"/>
+  <rect x="44" y="28" width="1"  height="14" fill="#aaa"/>
+  <!-- Oil drops from rod -->
+  <rect x="44" y="42" width="2"  height="2" fill="#1a4a00"/>
+  <rect x="44" y="44" width="1"  height="2" fill="#0f3000"/>
+  <rect x="45" y="45" width="1"  height="1" fill="#1a4a00"/>
+  <!-- Oil barrel left -->
+  <rect x="4"  y="44" width="10" height="8" fill="#8B1a1a"/>
+  <rect x="5"  y="44" width="8"  height="7" fill="#a02020"/>
+  <rect x="4"  y="46" width="10" height="1" fill="#c03030" opacity=".6"/>
+  <rect x="4"  y="49" width="10" height="1" fill="#c03030" opacity=".6"/>
+  <rect x="8"  y="44" width="2"  height="8" fill="#7a1010" opacity=".4"/>
+  <!-- Oil barrel right -->
+  <rect x="50" y="44" width="10" height="8" fill="#8B1a1a"/>
+  <rect x="51" y="44" width="8"  height="7" fill="#a02020"/>
+  <rect x="50" y="46" width="10" height="1" fill="#c03030" opacity=".6"/>
+  <rect x="50" y="49" width="10" height="1" fill="#c03030" opacity=".6"/>
+  <rect x="54" y="44" width="2"  height="8" fill="#7a1010" opacity=".4"/>
+  <!-- Oil labels on barrels -->
+  <rect x="6"  y="47" width="6" height="3" fill="#600000" opacity=".5"/>
+  <rect x="52" y="47" width="6" height="3" fill="#600000" opacity=".5"/>
+  <!-- Dollar signs on barrels -->
+  <rect x="8"  y="47" width="1" height="1" fill="#ffd700"/>
+  <rect x="9"  y="47" width="1" height="1" fill="#ffd700"/>
+  <rect x="8"  y="48" width="1" height="1" fill="#ffd700"/>
+  <rect x="9"  y="48" width="1" height="1" fill="#ffd700"/>
+  <rect x="54" y="47" width="1" height="1" fill="#ffd700"/>
+  <rect x="55" y="47" width="1" height="1" fill="#ffd700"/>
+  <rect x="54" y="48" width="1" height="1" fill="#ffd700"/>
+  <rect x="55" y="48" width="1" height="1" fill="#ffd700"/>
+  <!-- Ground cracks / oil seep -->
+  <rect x="30" y="51" width="1" height="2" fill="#0f2500"/>
+  <rect x="32" y="50" width="2" height="3" fill="#0a1a00"/>
+  <rect x="35" y="51" width="1" height="2" fill="#0f2500"/>
+  <!-- Ambient glow under derrick -->
+  <rect x="24" y="49" width="16" height="1" fill="#1a3800" opacity=".7"/>
+</svg>`;
+
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 function OilEmpire() {
-  const [lang, setLang] = useState("es");
+  const [lang, setLang]                 = useState("es");
   const t = T[lang];
 
   const [barrels, setBarrels]           = useState(0);
   const [processed, setProcessed]       = useState(0);
   const [dollars, setDollars]           = useState(0);
   const [totalEarned, setTotalEarned]   = useState(0);
-  const [upgrades, setUpgrades]         = useState(() => Object.fromEntries(UPGRADES_CONFIG.map(u=>[u.id,0])));
+  const [upgrades, setUpgrades]         = useState(() =>
+    Object.fromEntries(UPGRADES_CONFIG.map(u=>[u.id,0])));
   const [rebirths, setRebirths]         = useState(0);
   const [rebirthMult, setRebirthMult]   = useState(1.0);
   const [prestigePoints, setPrestigePoints] = useState(0);
   const [prestigeBought, setPrestigeBought] = useState([]);
+  const [seenMilestones, setSeenMilestones] = useState([]);
 
-  const [tab, setTab]           = useState("upgrades");
-  const [modal, setModal]       = useState(null);
-  const [tutStep, setTutStep]   = useState(0);
-  const [tutDone, setTutDone]   = useState(false);
+  const [tab, setTab]         = useState("upgrades");
+  const [modal, setModal]     = useState(null);
+  const [tutStep, setTutStep] = useState(0);
+  const [tutDone, setTutDone] = useState(false);
   const [particles, setParticles] = useState([]);
   const [drillAnim, setDrillAnim] = useState(false);
-  const [flashMsg, setFlashMsg] = useState(null);
+  const [flashMsg, setFlashMsg]   = useState(null);
   const [comboCount, setComboCount] = useState(0);
   const comboTimerRef = useRef(null);
   const [boostActive, setBoostActive] = useState(false);
   const [boostEnd, setBoostEnd]       = useState(0);
   const [sellAnim, setSellAnim]       = useState(false);
   const [oilLevel, setOilLevel]       = useState(0);
+  const [rebirthShake, setRebirthShake] = useState(false);
   const lastTimeRef = useRef(Date.now());
 
   const tutSteps = [
-    { tk:"tut0_title", dk:"tut0_desc" },
-    { tk:"tut1_title", dk:"tut1_desc" },
-    { tk:"tut2_title", dk:"tut2_desc" },
-    { tk:"tut3_title", dk:"tut3_desc" },
-    { tk:"tut4_title", dk:"tut4_desc" },
-    { tk:"tut5_title", dk:"tut5_desc" },
-    { tk:"tut6_title", dk:"tut6_desc" },
+    {tk:"tut0_title",dk:"tut0_desc"},{tk:"tut1_title",dk:"tut1_desc"},
+    {tk:"tut2_title",dk:"tut2_desc"},{tk:"tut3_title",dk:"tut3_desc"},
+    {tk:"tut4_title",dk:"tut4_desc"},{tk:"tut5_title",dk:"tut5_desc"},
+    {tk:"tut6_title",dk:"tut6_desc"},
   ];
 
   // ── Computed ──
@@ -198,7 +355,7 @@ function OilEmpire() {
     let bps = 0;
     UPGRADES_CONFIG.forEach(u => { bps += u.bpsPerLevel * (upgrades[u.id]||0); });
     const boost = boostActive && Date.now() < boostEnd ? 3 : 1;
-    const prest = prestigeBought.includes("oil_rush") ? 2 : 1;
+    const prest = prestigeBought.includes("oil_rush") ? 2.5 : 1;
     return bps * rebirthMult * boost * prest;
   }, [upgrades, rebirthMult, boostActive, boostEnd, prestigeBought]);
 
@@ -206,9 +363,10 @@ function OilEmpire() {
     let tp = 1;
     UPGRADES_CONFIG.forEach(u => { if(u.tapBonus) tp += u.tapBonus*(upgrades[u.id]||0); });
     const boost = boostActive && Date.now() < boostEnd ? 3 : 1;
-    const combo = 1 + Math.min(comboCount * 0.1, 1.0);
-    const prest = prestigeBought.includes("golden_drill") ? 1.5 : 1;
-    return tp * rebirthMult * boost * combo * prest;
+    const combo = 1 + Math.min(comboCount * 0.08, 1.5);
+    const prest1 = prestigeBought.includes("golden_drill") ? 1.75 : 1;
+    const prest2 = prestigeBought.includes("deep_drill") ? 2 : 1;
+    return tp * rebirthMult * boost * combo * prest1 * prest2;
   }, [upgrades, rebirthMult, boostActive, boostEnd, comboCount, prestigeBought]);
 
   const getUpgradeCost = useCallback((u) => {
@@ -216,23 +374,39 @@ function OilEmpire() {
   }, [upgrades]);
 
   const getSellPrice = useCallback(() => {
-    return 90 * (prestigeBought.includes("black_gold") ? 1.25 : 1);
+    return 90 * (prestigeBought.includes("black_gold") ? 1.35 : 1);
   }, [prestigeBought]);
+
+  // ── Rebirth requirements ──
+  const allMaxed = useMemo(() =>
+    UPGRADES_CONFIG.every(u => (upgrades[u.id]||0) >= u.maxLevel),
+    [upgrades]);
+
+  const canRebirth = allMaxed && dollars >= REBIRTH_MONEY_REQ;
+
+  const rebirthProgress = useMemo(() => {
+    const moneyPct = Math.min(1, dollars / REBIRTH_MONEY_REQ);
+    const itemsDone = UPGRADES_CONFIG.filter(u => (upgrades[u.id]||0) >= u.maxLevel).length;
+    const itemsPct  = itemsDone / UPGRADES_CONFIG.length;
+    return { moneyPct, itemsPct, itemsDone, total: UPGRADES_CONFIG.length };
+  }, [dollars, upgrades]);
 
   // ── Save/Load ──
   const buildSave = useCallback(() => ({
     barrels, processed, dollars, totalEarned, upgrades,
     rebirths, rebirthMult, prestigePoints, prestigeBought,
-    tutDone, lang, savedAt: Date.now(),
-  }), [barrels, processed, dollars, totalEarned, upgrades, rebirths, rebirthMult, prestigePoints, prestigeBought, tutDone, lang]);
+    tutDone, lang, seenMilestones, savedAt: Date.now(),
+  }), [barrels, processed, dollars, totalEarned, upgrades,
+       rebirths, rebirthMult, prestigePoints, prestigeBought,
+       tutDone, lang, seenMilestones]);
 
   const saveGame = useCallback(() => {
-    try { localStorage.setItem("oilempire_save", JSON.stringify(buildSave())); } catch {}
+    try { localStorage.setItem("oilempire2_save", JSON.stringify(buildSave())); } catch {}
   }, [buildSave]);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("oilempire_save");
+      const raw = localStorage.getItem("oilempire2_save");
       if (raw) {
         const s = JSON.parse(raw);
         setBarrels(s.barrels||0); setProcessed(s.processed||0);
@@ -241,15 +415,16 @@ function OilEmpire() {
         setRebirths(s.rebirths||0); setRebirthMult(s.rebirthMult||1);
         setPrestigePoints(s.prestigePoints||0); setPrestigeBought(s.prestigeBought||[]);
         setTutDone(s.tutDone||false); setLang(s.lang||"es");
+        setSeenMilestones(s.seenMilestones||[]);
         if (s.savedAt) {
           const offSec = (Date.now()-s.savedAt)/1000;
           if (offSec > 30) {
             const bpsV = UPGRADES_CONFIG.reduce((a,u)=>a+u.bpsPerLevel*(s.upgrades?.[u.id]||0),0);
-            const ob = Math.floor(bpsV*offSec*(s.rebirthMult||1)*0.5);
-            if (ob > 0) setModal({type:"offline", ms:Date.now()-s.savedAt, barrels:ob});
-            else if (!s.tutDone) setModal("tutorial");
-          } else if (!s.tutDone) setModal("tutorial");
-        } else if (!s.tutDone) setModal("tutorial");
+            const ob = Math.floor(bpsV * offSec * (s.rebirthMult||1) * 0.5);
+            if (ob > 0) { setModal({type:"offline",ms:Date.now()-s.savedAt,barrels:ob}); return; }
+          }
+        }
+        if (!s.tutDone) setModal("tutorial");
       } else { setModal("tutorial"); }
     } catch { setModal("tutorial"); }
   }, []);
@@ -264,54 +439,68 @@ function OilEmpire() {
     let frame;
     const loop = () => {
       const now = Date.now();
-      const dt = Math.min((now - lastTimeRef.current)/1000, 0.5);
+      const dt  = Math.min((now - lastTimeRef.current)/1000, 0.5);
       lastTimeRef.current = now;
       const bps = getTotalBPS();
       if (bps > 0) {
         const g = bps * dt;
         setBarrels(b => b+g);
         setProcessed(p => p+g*0.8);
-        setOilLevel(l => Math.min(100, l+g*0.05));
+        setOilLevel(l => Math.min(100, l+g*0.02));
       }
       if (boostActive && now > boostEnd) setBoostActive(false);
-      setParticles(ps => ps.filter(p => now-p.born < 1200));
+      setParticles(ps => ps.filter(p => now-p.born < 1300));
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frame);
   }, [getTotalBPS, boostActive, boostEnd]);
 
-  // ── Flash helper ──
-  const flash = (msg) => {
-    setFlashMsg(msg);
-    setTimeout(() => setFlashMsg(null), 1500);
+  // ── Milestone checker ──
+  useEffect(() => {
+    MILESTONES.forEach(m => {
+      if (!seenMilestones.includes(m.id) && totalEarned >= m.money) {
+        setSeenMilestones(sm => [...sm, m.id]);
+        flash(`🏆 ${lang==="en"?m.textEn:m.textEs}`, "#ffd700");
+      }
+    });
+  }, [totalEarned, seenMilestones, lang]);
+
+  // ── Flash ──
+  const flashRef = useRef(null);
+  const flash = (msg, color) => {
+    setFlashMsg({msg, color: color||C.accent});
+    if (flashRef.current) clearTimeout(flashRef.current);
+    flashRef.current = setTimeout(() => setFlashMsg(null), 1800);
   };
 
   // ── Actions ──
   const handleTap = useCallback((e) => {
+    e.preventDefault();
     const power = getTapPower();
     setBarrels(b=>b+power);
     setProcessed(p=>p+power*0.8);
-    setOilLevel(l=>Math.min(100,l+power*0.3));
+    setOilLevel(l=>Math.min(100,l+power*0.15));
     setDrillAnim(true);
-    setTimeout(()=>setDrillAnim(false),150);
+    setTimeout(()=>setDrillAnim(false),130);
     setComboCount(c=>c+1);
     if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
     comboTimerRef.current = setTimeout(()=>setComboCount(0),1500);
-    const el = e.currentTarget;
-    const rect = el.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     const cx = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
     const cy = (e.touches?.[0]?.clientY ?? e.clientY) - rect.top;
-    const newPs = Array.from({length:4}, ()=>({
-      id:pid++, x:cx+(Math.random()-.5)*40, y:cy+(Math.random()-.5)*20,
-      born:Date.now(), text: Math.random()>.65 ? `+${Math.ceil(power)}` : "🛢️",
+    const newPs = Array.from({length:5}, ()=>({
+      id:pid++, x:cx+(Math.random()-.5)*50, y:cy+(Math.random()-.5)*30,
+      born:Date.now(),
+      text: Math.random()>.6 ? `+${Math.ceil(power)}` : (Math.random()>.5?"🛢️":"💧"),
     }));
-    setParticles(ps=>[...ps.slice(-25),...newPs]);
+    setParticles(ps=>[...ps.slice(-30),...newPs]);
   }, [getTapPower]);
 
   const handleSell = useCallback(() => {
     if (processed < 1) return;
-    const earned = Math.floor(processed) * getSellPrice() * rebirthMult;
+    const price = getSellPrice();
+    const earned = Math.floor(processed) * price * rebirthMult;
     setDollars(d=>d+earned);
     setTotalEarned(te=>te+earned);
     setProcessed(0); setOilLevel(0);
@@ -321,33 +510,39 @@ function OilEmpire() {
 
   const handleBuy = useCallback((upg) => {
     const cost = getUpgradeCost(upg);
-    if (dollars < cost) { flash(t.notEnough); return; }
+    if (dollars < cost) { flash(t.notEnough, C.red); return; }
     setDollars(d=>d-cost);
     setUpgrades(u=>({...u,[upg.id]:(u[upg.id]||0)+1}));
-    flash(`⬆️ ${lang==="en"?upg.nameEn:upg.nameEs}`);
+    const name = lang==="en"?upg.nameEn:upg.nameEs;
+    flash(`⬆️ ${name}`);
   }, [dollars, getUpgradeCost, lang, t]);
 
   const handleRebirth = useCallback(() => {
+    if (!canRebirth) { flash(t.req_not_met, C.red); return; }
     const nc = rebirths+1;
-    setRebirths(nc); setRebirthMult(Math.pow(1.2,nc));
-    setPrestigePoints(pp=>pp+Math.max(1,Math.floor(Math.log10(Math.max(totalEarned,10)))));
+    const pp = Math.max(2, Math.floor(Math.log2(Math.max(totalEarned/1000000,2))));
+    setRebirths(nc);
+    setRebirthMult(Math.pow(1.2, nc));
+    setPrestigePoints(pv=>pv+pp);
     setBarrels(0); setProcessed(0); setDollars(0); setTotalEarned(0); setOilLevel(0);
+    setSeenMilestones([]);
     setUpgrades(Object.fromEntries(UPGRADES_CONFIG.map(u=>[u.id,0])));
-    setModal(null); flash("🌟 REBIRTH!");
-  }, [rebirths, totalEarned]);
+    setModal(null);
+    flash("🌟 REBIRTH! ×"+Math.pow(1.2,nc).toFixed(2), C.gold);
+  }, [canRebirth, rebirths, totalEarned, t]);
 
   const handlePrestigeBuy = useCallback((pu) => {
     if (prestigeBought.includes(pu.id)) return;
-    if (prestigePoints < pu.cost) { flash(t.notEnough); return; }
+    if (prestigePoints < pu.cost) { flash(t.notEnough, C.red); return; }
     setPrestigePoints(pp=>pp-pu.cost);
     setPrestigeBought(pb=>[...pb,pu.id]);
-    flash(`🌟 ${lang==="en"?pu.nameEn:pu.nameEs}`);
+    flash(`🌟 ${lang==="en"?pu.nameEn:pu.nameEs}`, C.purple);
   }, [prestigeBought, prestigePoints, lang, t]);
 
   const handleBoostAd = useCallback(() => {
     const dur = prestigeBought.includes("mega_boost") ? 20*60*1000 : 10*60*1000;
     setBoostActive(true); setBoostEnd(Date.now()+dur);
-    setBarrels(b=>b*3); flash("🚀 BOOST x3!"); setModal(null);
+    setBarrels(b=>b*3); flash("🚀 BOOST ×3!", "#64b5f6"); setModal(null);
   }, [prestigeBought]);
 
   const tutNext = () => {
@@ -356,165 +551,269 @@ function OilEmpire() {
   };
   const tutSkip = () => { setTutDone(true); setModal(null); };
 
-  const bps = getTotalBPS();
+  const bps     = getTotalBPS();
   const boostRem = boostActive ? boostEnd - Date.now() : 0;
 
-  // ── Oil Pump SVG ──
-  const OilPump = ({anim}) => (
-    <svg width="64" height="64" viewBox="0 0 16 16" style={{imageRendering:"pixelated",filter:`drop-shadow(0 0 8px rgba(245,166,35,0.6))`,transform:`translateY(${anim?4:0}px)`,transition:"transform 0.08s"}}>
-      <rect x="1" y="13" width="14" height="2" fill="#3a2400"/>
-      <rect x="2" y="13" width="12" height="1" fill="#4a3000"/>
-      <rect x="6" y="5" width="2" height="8" fill="#5a4200"/>
-      <rect x="7" y="5" width="1" height="8" fill="#6a5000"/>
-      <rect x="2" y="4" width="11" height="2" fill="#7a6000"/>
-      <rect x="3" y="4" width="9" height="1" fill="#8a7000"/>
-      <rect x="2" y={2+( anim?3:0)} width="5" height="2" fill="#f5a623"/>
-      <rect x="3" y={2+( anim?3:0)} width="3" height="1" fill="#ffcc60"/>
-      <rect x="3" y={4+( anim?3:0)} width="2" height="4" fill="#f5a623"/>
-      {anim && <><rect x="3" y="10" width="1" height="1" fill="#2d5a00"/><rect x="4" y="11" width="1" height="1" fill="#1a3800"/><rect x="1" y={2+(anim?3:0)} width="1" height="1" fill="#fff" opacity="0.9"/><rect x="8" y={1+(anim?3:0)} width="1" height="1" fill="#ffcc00" opacity="0.9"/></>}
-    </svg>
+  // ── Oil Pump Pixel Art ──
+  const OilPump = ({anim}) => {
+    const yo = anim ? 3 : 0;
+    return (
+      <svg width="72" height="72" viewBox="0 0 18 18"
+        style={{imageRendering:"pixelated",
+          filter:`drop-shadow(0 0 8px rgba(245,166,35,${anim?0.9:0.5}))`,
+          transform:`translateY(${anim?3:0}px) scale(${anim?0.96:1})`,
+          transition:"transform 0.09s"}}>
+        {/* Base platform */}
+        <rect x="0" y="15" width="18" height="3" fill="#2a1800"/>
+        <rect x="1" y="15" width="16" height="2" fill="#3a2400"/>
+        {/* Left leg */}
+        <rect x="2"  y="6" width="2" height="10" fill="#4a3200"/>
+        <rect x="2"  y="6" width="1" height="10" fill="#5a4200"/>
+        {/* Right leg */}
+        <rect x="14" y="6" width="2" height="10" fill="#4a3200"/>
+        <rect x="15" y="6" width="1" height="10" fill="#5a4200"/>
+        {/* Cross brace bottom */}
+        <rect x="2" y="12" width="14" height="1" fill="#5a4200"/>
+        {/* Cross brace mid */}
+        <rect x="3" y="9"  width="12" height="1" fill="#5a4200"/>
+        {/* Tower top */}
+        <rect x="4"  y="3" width="10" height="1" fill="#6a5200"/>
+        <rect x="7"  y="1" width="4"  height="3" fill="#7a6200"/>
+        <rect x="8"  y="0" width="2"  height="2" fill="#f5a623"/>
+        {/* Flame */}
+        <rect x="8"  y="0" width="1"  height="1" fill="#ff4400" opacity=".9"/>
+        <rect x="9"  y="0" width="1"  height="1" fill="#ffaa00" opacity=".9"/>
+        {/* Pump beam (horizontal bar) */}
+        <rect x="3" y={4+yo}  width="12" height="2" fill="#f5a623"/>
+        <rect x="4" y={4+yo}  width="10" height="1" fill="#ffc84a"/>
+        {/* Pivot block */}
+        <rect x="7" y={3+yo}  width="4" height="4" fill="#c47d10"/>
+        <rect x="8" y={4+yo}  width="2" height="2" fill="#e09020"/>
+        {/* Pump head right */}
+        <rect x="13" y={4+yo} width="4" height="3" fill="#d4820e"/>
+        <rect x="13" y={4+yo} width="3" height="2" fill="#e89218"/>
+        {/* Drill rod */}
+        <rect x="14" y={6+yo} width="2" height="9-yo} fill="#777"/>
+        <rect x="14" y={6+yo} width="1" height={9-yo} fill="#999"/>
+        {/* Oil drops when animating */}
+        {anim && <>
+          <rect x="14" y="14" width="1" height="1" fill="#1a4500"/>
+          <rect x="15" y="15" width="1" height="1" fill="#0f2e00"/>
+          <rect x="5"  y={3+yo} width="1" height="1" fill="#fff" opacity=".8"/>
+          <rect x="12" y={3+yo} width="1" height="1" fill="#ffe066" opacity=".9"/>
+        </>}
+      </svg>
+    );
+  };
+
+  // ── Progress bar helper ──
+  const ProgressBar = ({pct, color, bg}) => (
+    <div style={{background:bg||"#1a1a1a",borderRadius:2,height:8,overflow:"hidden",border:"1px solid #333"}}>
+      <div style={{height:"100%",width:`${Math.min(100,pct*100).toFixed(1)}%`,background:color||C.accent,transition:"width 0.4s ease",borderRadius:2}}/>
+    </div>
   );
 
-  // ── Inline styles ──
-  const root = {fontFamily:PF,background:C.bg,height:"100dvh",maxWidth:440,margin:"0 auto",color:C.text,userSelect:"none",WebkitUserSelect:"none",display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"};
+  // ── Root style ──
+  const rootStyle = {
+    fontFamily:PF, background:C.bg, height:"100dvh",
+    maxWidth:440, margin:"0 auto", color:C.text,
+    userSelect:"none", WebkitUserSelect:"none",
+    display:"flex", flexDirection:"column", overflow:"hidden", position:"relative",
+  };
 
-  // ── RENDER ──
+  // ─── RENDER ──────────────────────────────────────────────────────────────────
   return (
-    <div style={root}>
+    <div style={rootStyle}>
+
       {/* HEADER */}
-      <div style={{background:"linear-gradient(180deg,#1a0a00,#0a0a0a)",borderBottom:`2px solid ${C.accent}`,padding:"env(safe-area-inset-top,8px) 12px 8px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
-        <div style={{fontSize:12,color:C.accent,letterSpacing:2,textShadow:`0 0 12px ${C.accent}80`}}>{t.title}</div>
+      <div style={{background:"linear-gradient(180deg,#1a0a00,#08080a)",borderBottom:`2px solid ${C.accent}`,padding:"env(safe-area-inset-top,6px) 12px 7px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+        <div style={{fontSize:11,color:C.accent,letterSpacing:1.5,textShadow:`0 0 14px ${C.accent}90`}}>{t.title}</div>
         <div style={{display:"flex",gap:4}}>
-          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:boostActive?"#ce93d8":C.textDim,padding:"5px 8px",fontSize:9,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("boost")}>
-            {boostActive ? `🚀${fmtTime(boostRem)}` : "🚀"}
+          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:boostActive?"#64b5f6":C.textDim,padding:"5px 7px",fontSize:8,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("boost")}>
+            {boostActive?`🚀${fmtTime(boostRem)}`:"🚀"}
           </button>
-          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:C.textDim,padding:"5px 8px",fontSize:9,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("rebirth")}>🌟</button>
-          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:C.textDim,padding:"5px 8px",fontSize:9,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("settings")}>⚙️</button>
+          <button
+            style={{background:"none",border:`1px solid ${canRebirth?"#ffd700":C.panelBorder}`,color:canRebirth?"#ffd700":C.textDim,padding:"5px 7px",fontSize:8,fontFamily:PF,borderRadius:2,animation:canRebirth?"rebirthGlow 1.5s ease infinite":"none"}}
+            onClick={()=>setModal("rebirth")}>🌟</button>
+          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:C.textDim,padding:"5px 7px",fontSize:8,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("settings")}>⚙️</button>
         </div>
       </div>
 
       {/* STATS BAR */}
-      <div style={{background:C.panel,borderBottom:`1px solid ${C.panelBorder}`,padding:"8px 12px",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4,flexShrink:0}}>
+      <div style={{background:C.panel,borderBottom:`1px solid ${C.panelBorder}`,padding:"7px 12px",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4,flexShrink:0}}>
         {[
-          {label:`🛢️ ${t.barrels}`, val:fmt(barrels), sub:bps>0?`+${fmt(bps)}${t.perSecond}`:null, subColor:"#4caf50"},
-          {label:`⚗️ ${t.processed}`, val:fmt(processed), sub:t.sell_price, subColor:C.textDim},
-          {label:`💵 ${t.dollars}`, val:`$${fmt(dollars)}`, valColor:C.accent, sub:`$${fmt(totalEarned)}`, subColor:C.textDim},
+          {label:`🛢️ ${t.barrels}`, val:fmt(barrels), sub:bps>0?`+${fmt(bps)}${t.perSecond}`:null, sc:"#4caf50"},
+          {label:`⚗️ ${t.processed}`, val:fmt(processed), sub:t.sell_price, sc:C.textDim},
+          {label:`💵 ${t.dollars}`, val:`$${fmt(dollars)}`, vc:C.accent, sub:`$${fmt(totalEarned)} total`, sc:C.textDim},
         ].map((s,i)=>(
           <div key={i} style={{textAlign:"center"}}>
-            <span style={{fontSize:6,color:C.textDim,display:"block",marginBottom:2}}>{s.label}</span>
-            <span style={{fontSize:10,color:s.valColor||C.text,display:"block"}}>{s.val}</span>
-            {s.sub && <span style={{fontSize:6,color:s.subColor,display:"block"}}>{s.sub}</span>}
+            <span style={{fontSize:6,color:C.textDim,display:"block",marginBottom:1}}>{s.label}</span>
+            <span style={{fontSize:10,color:s.vc||C.text,display:"block"}}>{s.val}</span>
+            {s.sub&&<span style={{fontSize:6,color:s.sc,display:"block"}}>{s.sub}</span>}
           </div>
         ))}
       </div>
 
       {/* DRILL AREA */}
-      <div style={{position:"relative",height:220,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",flexShrink:0}}>
-        {/* Background */}
-        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 20% 80%,#0d2000,transparent 50%),radial-gradient(ellipse at 80% 20%,#1a1000,transparent 50%),linear-gradient(180deg,#0a0a0a,#0a0f00)"}}/>
-        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(245,166,35,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,0.03) 1px,transparent 1px)",backgroundSize:"16px 16px"}}/>
-        <div style={{position:"absolute",bottom:0,left:0,right:0,height:`${oilLevel}%`,background:"linear-gradient(0deg,#0d2a00,#1a4a0080)",transition:"height 0.4s ease"}}/>
+      <div style={{position:"relative",height:210,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",flexShrink:0}}>
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 25% 75%,#0d2000,transparent 55%),radial-gradient(ellipse at 75% 20%,#1a1000,transparent 55%),linear-gradient(180deg,#090909,#0a0d04)"}}/>
+        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(245,166,35,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,0.025) 1px,transparent 1px)",backgroundSize:"16px 16px"}}/>
+        <div style={{position:"absolute",bottom:0,left:0,right:0,height:`${oilLevel}%`,background:"linear-gradient(0deg,#0c2200,#1a4a0070)",transition:"height 0.5s ease"}}/>
 
-        {comboCount>2 && <div style={{position:"absolute",top:10,left:12,fontSize:9,color:"#ff6b35",zIndex:2,textShadow:"0 0 8px #ff6b35",fontFamily:PF}}>{t.combo_tap} x{comboCount}</div>}
-        {bps>0 && <div style={{position:"absolute",top:10,right:12,fontSize:7,color:C.textDim,zIndex:2,fontFamily:PF}}>⚡{fmt(bps)}{t.perSecond}</div>}
+        {comboCount>3&&<div style={{position:"absolute",top:8,left:10,fontSize:8,color:"#ff6b35",zIndex:3,textShadow:"0 0 10px #ff6b35",fontFamily:PF}}>{t.combo_tap} ×{comboCount}</div>}
+        {bps>0&&<div style={{position:"absolute",top:8,right:10,fontSize:6,color:C.textDim,zIndex:3,fontFamily:PF}}>⚡{fmt(bps)}{t.perSecond}</div>}
 
-        {/* Drill Button */}
+        {/* Rebirth progress bar if close */}
+        {rebirthProgress.moneyPct > 0.1 && !canRebirth && (
+          <div style={{position:"absolute",bottom:6,left:12,right:12,zIndex:3}}>
+            <div style={{fontSize:6,color:C.textDim,marginBottom:2,fontFamily:PF}}>🌟 {fmt(dollars)}/{fmt(REBIRTH_MONEY_REQ)}</div>
+            <ProgressBar pct={rebirthProgress.moneyPct} color="#ffd700" bg="#1a1400"/>
+          </div>
+        )}
+        {canRebirth && (
+          <div style={{position:"absolute",bottom:6,left:12,right:12,zIndex:3,textAlign:"center"}}>
+            <div style={{fontSize:7,color:"#ffd700",fontFamily:PF,animation:"rebirthGlow 1s ease infinite"}}>⚡ {t.rebirthConfirm} ⚡</div>
+          </div>
+        )}
+
+        {/* DRILL BUTTON */}
         <button
-          style={{position:"relative",zIndex:2,width:140,height:140,borderRadius:"50%",border:`4px solid ${C.accent}`,background:"radial-gradient(circle at 40% 35%,#3a2800,#1a1000)",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",transition:"transform 0.08s",transform:drillAnim?"scale(0.92)":"scale(1)",animation:drillAnim?"none":"oilPulse 2s ease infinite",WebkitTapHighlightColor:"transparent",outline:"none",touchAction:"manipulation"}}
+          style={{position:"relative",zIndex:2,width:138,height:138,borderRadius:"50%",border:`4px solid ${C.accent}`,background:"radial-gradient(circle at 38% 32%,#3e2c00,#150f00)",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",transition:"transform 0.08s",transform:drillAnim?"scale(0.91)":"scale(1)",animation:drillAnim?"none":"oilPulse 2.2s ease infinite",WebkitTapHighlightColor:"transparent",outline:"none",touchAction:"manipulation"}}
           onPointerDown={handleTap}
         >
           <OilPump anim={drillAnim}/>
-          <div style={{fontSize:6,color:C.accentDark,marginTop:4,textAlign:"center",fontFamily:PF}}>{t.tap}</div>
+          <div style={{fontSize:5,color:C.accentDark,marginTop:3,textAlign:"center",fontFamily:PF,letterSpacing:.5}}>{t.tap}</div>
         </button>
 
         {/* Particles */}
-        {particles.map(p => {
-          const age = (Date.now()-p.born)/1200;
+        {particles.map(p=>{
+          const age=(Date.now()-p.born)/1300;
           return (
-            <div key={p.id} style={{position:"absolute",left:p.x,top:p.y+50,fontSize:9,color:C.accent,fontFamily:PF,pointerEvents:"none",zIndex:10,opacity:Math.max(0,1-age),transform:`translateY(${-age*55}px) scale(${Math.max(0.3,1-age*0.4)})`,fontWeight:"bold"}}>
+            <div key={p.id} style={{position:"absolute",left:p.x,top:p.y+45,fontSize:8,color:C.accent,fontFamily:PF,pointerEvents:"none",zIndex:10,opacity:Math.max(0,1-age),transform:`translateY(${-age*65}px) scale(${Math.max(0.2,1-age*0.5)})`,fontWeight:"bold"}}>
               {p.text}
             </div>
           );
         })}
 
-        {flashMsg && <div style={{position:"absolute",top:"45%",left:"50%",transform:"translateX(-50%) translateY(-50%)",background:"rgba(0,0,0,0.85)",border:`1px solid ${C.accent}`,padding:"7px 14px",fontSize:9,color:C.accent,borderRadius:3,pointerEvents:"none",zIndex:50,whiteSpace:"nowrap",fontFamily:PF,animation:"flashIn 1.5s ease forwards"}}>{flashMsg}</div>}
+        {/* Flash */}
+        {flashMsg&&<div style={{position:"absolute",top:"42%",left:"50%",transform:"translateX(-50%) translateY(-50%)",background:"rgba(0,0,0,0.88)",border:`1px solid ${flashMsg.color}`,padding:"7px 14px",fontSize:8,color:flashMsg.color,borderRadius:3,pointerEvents:"none",zIndex:50,whiteSpace:"nowrap",fontFamily:PF,animation:"flashIn 1.8s ease forwards"}}>{flashMsg.msg}</div>}
       </div>
 
       {/* SELL ROW */}
       <div style={{padding:"6px 12px",display:"flex",gap:8,flexShrink:0}}>
         <button
-          style={{flex:1,padding:"11px 4px",background:`linear-gradient(180deg,${C.green},#2e7d32)`,border:"2px solid #81c784",color:"#fff",fontSize:8,fontFamily:PF,borderRadius:3,boxShadow:sellAnim?"none":"0 3px 0 #1b5e20",transform:sellAnim?"translateY(2px)":"translateY(0)",transition:"transform 0.1s,box-shadow 0.1s",touchAction:"manipulation"}}
+          style={{flex:1,padding:"10px 4px",background:`linear-gradient(180deg,${C.green},#2e7d32)`,border:"2px solid #81c784",color:"#fff",fontSize:7,fontFamily:PF,borderRadius:3,boxShadow:sellAnim?"none":"0 3px 0 #1b5e20",transform:sellAnim?"translateY(2px)":"translateY(0)",transition:"transform .1s,box-shadow .1s",touchAction:"manipulation"}}
           onClick={handleSell}
         >
-          💰 {t.sell} ({fmt(processed)}×${getSellPrice()%1===0?getSellPrice():getSellPrice().toFixed(1)})
+          💰 {t.sell}<br/><span style={{fontSize:6,opacity:.8}}>{fmt(processed)} × ${getSellPrice()%1===0?getSellPrice():getSellPrice().toFixed(0)}</span>
         </button>
         <button
-          style={{padding:"11px 10px",background:boostActive?"linear-gradient(180deg,#7b1fa2,#4a148c)":"linear-gradient(180deg,#1565c0,#0d47a1)",border:`2px solid ${boostActive?"#ce93d8":"#64b5f6"}`,color:"#fff",fontSize:7,fontFamily:PF,borderRadius:3,textAlign:"center",lineHeight:1.5,boxShadow:boostActive?"0 3px 0 #38006b":"0 3px 0 #002171",touchAction:"manipulation"}}
+          style={{padding:"10px 10px",background:boostActive?"linear-gradient(180deg,#4a148c,#1a0050)":"linear-gradient(180deg,#0d47a1,#060d2e)",border:`2px solid ${boostActive?"#ce93d8":"#1565c0"}`,color:"#fff",fontSize:6,fontFamily:PF,borderRadius:3,textAlign:"center",lineHeight:1.6,boxShadow:boostActive?"0 3px 0 #12003d":"0 3px 0 #001040",touchAction:"manipulation",minWidth:70}}
           onClick={()=>setModal("boost")}
         >
-          {boostActive ? <>🚀 {t.adsActive}<br/>{fmtTime(boostRem)}</> : <>🚀 {t.adsTitle}</>}
+          {boostActive?<>🚀 ACTIVE<br/>{fmtTime(boostRem)}</>:<>🚀 {t.adsTitle}</>}
         </button>
       </div>
 
       {/* TAB BAR */}
       <div style={{display:"flex",borderBottom:`2px solid ${C.panelBorder}`,background:C.panel,flexShrink:0}}>
         {[["upgrades","⬆️ "+t.upgrades],["prestige","🌟 "+t.prestige_shop]].map(([key,label])=>(
-          <button key={key} style={{flex:1,padding:"9px 4px",background:tab===key?C.panelBorder:"none",border:"none",borderBottom:tab===key?`2px solid ${C.accent}`:"2px solid transparent",color:tab===key?C.accent:C.textDim,fontSize:7,fontFamily:PF,cursor:"pointer",touchAction:"manipulation"}} onClick={()=>setTab(key)}>
+          <button key={key} style={{flex:1,padding:"8px 4px",background:tab===key?C.panelBorder:"none",border:"none",borderBottom:tab===key?`2px solid ${C.accent}`:"2px solid transparent",color:tab===key?C.accent:C.textDim,fontSize:7,fontFamily:PF,cursor:"pointer",touchAction:"manipulation"}} onClick={()=>setTab(key)}>
             {label}
           </button>
         ))}
       </div>
 
       {/* TAB CONTENT */}
-      <div style={{flex:1,overflowY:"auto",padding:"8px",WebkitOverflowScrolling:"touch"}}>
+      <div style={{flex:1,overflowY:"auto",padding:"8px 8px 12px",WebkitOverflowScrolling:"touch"}}>
+
+        {/* ── UPGRADES TAB ── */}
         {tab==="upgrades" && UPGRADES_CONFIG.map(upg => {
-          const level = upgrades[upg.id]||0;
-          const cost = getUpgradeCost(upg);
-          const afford = dollars>=cost;
-          const maxed = level>=upg.maxLevel;
-          const name = lang==="en"?upg.nameEn:upg.nameEs;
+          const level   = upgrades[upg.id]||0;
+          const cost    = getUpgradeCost(upg);
+          const afford  = dollars >= cost;
+          const maxed   = level >= upg.maxLevel;
+          const name    = lang==="en"?upg.nameEn:upg.nameEs;
+          const pct     = level/upg.maxLevel;
           return (
-            <div key={upg.id} style={{background:C.panel,border:`1px solid ${afford&&!maxed?C.panelBorder:"#1a1a1a"}`,borderRadius:4,padding:"8px 10px",marginBottom:6,display:"flex",alignItems:"center",gap:8,opacity:afford||maxed?1:0.65}}>
-              <div style={{fontSize:22,width:30,textAlign:"center",flexShrink:0}}>{upg.icon}</div>
+            <div key={upg.id} style={{background:C.panel,border:`1px solid ${maxed?"#2a5a00":afford?"#2a2a2a":"#141414"}`,borderRadius:4,padding:"8px 10px",marginBottom:6,display:"flex",alignItems:"center",gap:8,opacity:maxed?1:afford?1:0.6,transition:"opacity 0.2s"}}>
+              <div style={{fontSize:20,width:28,textAlign:"center",flexShrink:0}}>{upg.icon}</div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:7,color:C.text,marginBottom:2,fontFamily:PF}}>{name}</div>
-                <div style={{fontSize:6,color:C.textDim,fontFamily:PF}}>
-                  {upg.bpsPerLevel>0&&`+${upg.bpsPerLevel}bps · `}{upg.tapBonus>0&&`+${upg.tapBonus}tap · `}{t.upgradeOwned}: {level}
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
+                  <span style={{fontSize:6,color:maxed?C.green:C.text,fontFamily:PF}}>{name}</span>
+                  <span style={{fontSize:6,color:maxed?C.green:C.textDim,fontFamily:PF}}>{level}/{upg.maxLevel}</span>
+                </div>
+                <ProgressBar pct={pct} color={maxed?"#4caf50":C.accent} bg="#0a0a0a"/>
+                <div style={{fontSize:5,color:C.textDim,fontFamily:PF,marginTop:2}}>
+                  {upg.bpsPerLevel>0&&`+${upg.bpsPerLevel}bps `}{upg.tapBonus>0&&`+${upg.tapBonus}tap`}
                 </div>
               </div>
               <button
-                style={{padding:"6px 7px",background:maxed?"linear-gradient(180deg,#555,#333)":afford?`linear-gradient(180deg,${C.accent},${C.accentDark})`:"linear-gradient(180deg,#2a2a2a,#111)",border:`1px solid ${maxed?"#666":afford?C.accentDark:"#2a2a2a"}`,color:maxed?"#888":afford?"#000":"#444",fontSize:6,fontFamily:PF,borderRadius:2,flexShrink:0,textAlign:"center",lineHeight:1.7,boxShadow:afford&&!maxed?`0 2px 0 ${C.accentDark}`:"none",touchAction:"manipulation"}}
+                style={{padding:"7px 6px",minWidth:52,background:maxed?"linear-gradient(180deg,#1a3a00,#0f2000)":afford?`linear-gradient(180deg,${C.accent},${C.accentDark})`:"linear-gradient(180deg,#1e1e1e,#0f0f0f)",border:`1px solid ${maxed?"#2a5a00":afford?C.accentDark:"#222"}`,color:maxed?C.green:afford?"#000":"#3a3a3a",fontSize:6,fontFamily:PF,borderRadius:2,flexShrink:0,textAlign:"center",lineHeight:1.7,boxShadow:afford&&!maxed?`0 2px 0 ${C.accentDark}`:"none",touchAction:"manipulation"}}
                 onClick={()=>!maxed&&handleBuy(upg)}
               >
-                {maxed?t.maxed:<>{t.upgradeBuy}<br/>${fmt(cost)}</>}
+                {maxed?<>✓ MAX</>:<>{t.upgradeBuy}<br/>${fmt(cost)}</>}
               </button>
             </div>
           );
         })}
 
+        {/* ── PRESTIGE TAB ── */}
         {tab==="prestige" && (
           <>
-            <div style={{background:"#1a0a2e",border:"1px solid #7b1fa2",borderRadius:4,padding:10,marginBottom:10,textAlign:"center"}}>
-              <div style={{fontSize:7,color:"#ce93d8",marginBottom:4,fontFamily:PF}}>Prestige Points</div>
-              <div style={{fontSize:22,color:"#e040fb"}}>⭐ {prestigePoints}</div>
-              <div style={{fontSize:6,color:C.textDim,marginTop:4,fontFamily:PF}}>Rebirths: {rebirths} · Mult: x{rebirthMult.toFixed(2)}</div>
+            {/* Prestige points card */}
+            <div style={{background:"#100820",border:"1px solid #4a1a7a",borderRadius:4,padding:10,marginBottom:8,textAlign:"center"}}>
+              <div style={{fontSize:7,color:"#ce93d8",marginBottom:3,fontFamily:PF}}>Prestige Points</div>
+              <div style={{fontSize:20,color:"#e040fb"}}>⭐ {prestigePoints}</div>
+              <div style={{fontSize:6,color:C.textDim,marginTop:3,fontFamily:PF}}>Rebirths: {rebirths} · Mult: ×{rebirthMult.toFixed(2)}</div>
             </div>
-            <button style={{width:"100%",padding:"11px",background:"linear-gradient(180deg,#7b1fa2,#4a148c)",border:"2px solid #ce93d8",color:"#fff",fontSize:9,fontFamily:PF,borderRadius:3,marginBottom:8,boxShadow:"0 3px 0 #38006b",touchAction:"manipulation"}} onClick={()=>setModal("rebirth")}>
-              🌟 {t.rebirth}
-            </button>
+
+            {/* Rebirth button with requirements */}
+            <div style={{background:canRebirth?"#1a1200":"#0f0c00",border:`2px solid ${canRebirth?"#ffd700":"#2a2000"}`,borderRadius:4,padding:10,marginBottom:8,animation:canRebirth?"rebirthGlow 1.5s ease infinite":"none"}}>
+              <div style={{fontSize:8,color:canRebirth?"#ffd700":"#6a5a00",fontFamily:PF,marginBottom:6,textAlign:"center"}}>🌟 {t.rebirthTitle}</div>
+              <div style={{fontSize:6,color:C.textDim,fontFamily:PF,marginBottom:8,lineHeight:1.9}}>{t.rebirthDesc}</div>
+
+              {/* Requirements */}
+              <div style={{fontSize:6,color:C.textDim,fontFamily:PF,marginBottom:4}}>{t.rebirthReq}</div>
+              {/* Items progress */}
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:6,fontFamily:PF,marginBottom:3}}>
+                <span style={{color:allMaxed?C.green:"#888"}}>
+                  {allMaxed?"✓":rebirthProgress.itemsDone+"/"+rebirthProgress.total} {t.rebirthReqItems}
+                </span>
+              </div>
+              <ProgressBar pct={rebirthProgress.itemsPct} color={allMaxed?"#4caf50":"#888"} bg="#0a0a0a"/>
+              {/* Money progress */}
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:6,fontFamily:PF,margin:"6px 0 3px"}}>
+                <span style={{color:dollars>=REBIRTH_MONEY_REQ?C.green:"#888"}}>
+                  {dollars>=REBIRTH_MONEY_REQ?"✓":"$"+fmt(dollars)+" / $500M"} {t.rebirthReqMoney}
+                </span>
+              </div>
+              <ProgressBar pct={rebirthProgress.moneyPct} color={dollars>=REBIRTH_MONEY_REQ?"#4caf50":"#ffd700"} bg="#0a0a0a"/>
+
+              <button
+                style={{width:"100%",padding:"10px",marginTop:10,background:canRebirth?"linear-gradient(180deg,#b8860b,#7a5c00)":"linear-gradient(180deg,#1a1a1a,#0d0d0d)",border:`1px solid ${canRebirth?"#ffd700":"#333"}`,color:canRebirth?"#ffd700":"#333",fontSize:8,fontFamily:PF,borderRadius:3,cursor:canRebirth?"pointer":"not-allowed",touchAction:"manipulation",boxShadow:canRebirth?"0 3px 0 #5a4000":"none"}}
+                onClick={()=>canRebirth&&setModal("rebirth")}
+              >
+                {canRebirth?"🌟 "+t.rebirthConfirm:"🔒 "+t.rebirthLocked}
+              </button>
+            </div>
+
+            {/* Prestige upgrades */}
             {PRESTIGE_UPGRADES.map(pu => {
-              const owned = prestigeBought.includes(pu.id);
-              const afford = prestigePoints>=pu.cost;
+              const owned  = prestigeBought.includes(pu.id);
+              const afford = prestigePoints >= pu.cost;
               return (
-                <div key={pu.id} style={{background:C.panel,border:`1px solid ${owned?"#7b1fa2":afford?"#444":"#1a1a1a"}`,borderRadius:4,padding:10,marginBottom:6,opacity:owned?0.75:1}}>
+                <div key={pu.id} style={{background:C.panel,border:`1px solid ${owned?"#4a1a7a":afford?"#333":"#141414"}`,borderRadius:4,padding:10,marginBottom:6,opacity:owned?0.7:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <span style={{fontSize:20}}>{pu.icon}</span>
+                    <span style={{fontSize:18}}>{pu.icon}</span>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:7,color:owned?"#ce93d8":C.text,fontFamily:PF}}>{lang==="en"?pu.nameEn:pu.nameEs} {owned?"✓":""}</div>
-                      <div style={{fontSize:6,color:C.textDim,fontFamily:PF,marginTop:2}}>{lang==="en"?pu.descEn:pu.descEs}</div>
+                      <div style={{fontSize:6,color:owned?"#ce93d8":C.text,fontFamily:PF}}>{lang==="en"?pu.nameEn:pu.nameEs} {owned?"✓":""}</div>
+                      <div style={{fontSize:5,color:C.textDim,fontFamily:PF,marginTop:2}}>{lang==="en"?pu.descEn:pu.descEs}</div>
                     </div>
-                    {!owned && (
-                      <button style={{padding:"6px 8px",background:afford?"linear-gradient(180deg,#7b1fa2,#4a148c)":"linear-gradient(180deg,#222,#111)",border:`1px solid ${afford?"#ce93d8":"#333"}`,color:afford?"#fff":"#555",fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>handlePrestigeBuy(pu)}>
+                    {!owned&&(
+                      <button
+                        style={{padding:"6px 8px",background:afford?"linear-gradient(180deg,#6a1fa2,#3a0870)":"linear-gradient(180deg,#1a1a1a,#0d0d0d)",border:`1px solid ${afford?"#ce93d8":"#2a2a2a"}`,color:afford?"#fff":"#3a3a3a",fontSize:6,fontFamily:PF,borderRadius:2,touchAction:"manipulation",boxShadow:afford?"0 2px 0 #2a0050":"none"}}
+                        onClick={()=>handlePrestigeBuy(pu)}>
                         ⭐{pu.cost}
                       </button>
                     )}
@@ -527,108 +826,138 @@ function OilEmpire() {
       </div>
 
       {/* SAFE AREA BOTTOM */}
-      <div style={{height:"env(safe-area-inset-bottom,0px)",background:C.bg,flexShrink:0}}/>
+      <div style={{height:"env(safe-area-inset-bottom,0)",background:C.bg,flexShrink:0}}/>
 
-      {/* ── MODALS ── */}
+      {/* ══ MODALS ══ */}
       {modal && modal!=="tutorial" && (
         <div style={{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.87)"}} onClick={()=>typeof modal==="string"&&setModal(null)}/>
-          <div style={{position:"relative",zIndex:1,background:C.panel,border:`2px solid ${C.accent}`,borderRadius:4,padding:22,maxWidth:340,width:"90%",boxShadow:`0 0 30px ${C.accent}30`,fontFamily:PF}}>
+          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.88)"}} onClick={()=>typeof modal==="string"&&setModal(null)}/>
+          <div style={{position:"relative",zIndex:1,background:"#0f1318",border:`2px solid ${C.accent}`,borderRadius:4,padding:22,maxWidth:340,width:"92%",boxShadow:`0 0 35px ${C.accent}25`,fontFamily:PF}}>
 
-            {typeof modal==="object"&&modal.type==="offline" && <>
-              <div style={{fontSize:12,color:C.accent,marginBottom:12,textAlign:"center"}}>{t.offline_title}</div>
+            {/* OFFLINE MODAL */}
+            {typeof modal==="object"&&modal.type==="offline"&&<>
+              <div style={{fontSize:11,color:C.accent,marginBottom:12,textAlign:"center"}}>{t.offline_title}</div>
               <div style={{fontSize:8,color:C.textDim,lineHeight:2,marginBottom:16,textAlign:"center"}}>
                 {t.offline_desc} <span style={{color:C.accent}}>{fmtTime(modal.ms)}</span><br/><br/>
-                {t.offline_earned} <span style={{color:C.green,fontSize:11}}>🛢️ {fmt(modal.barrels)}</span>
+                {t.offline_earned}<br/><span style={{color:C.green,fontSize:13}}>🛢️ {fmt(modal.barrels)}</span>
               </div>
               <div style={{display:"flex",justifyContent:"center"}}>
-                <button style={{padding:"10px 24px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:9,fontFamily:PF,borderRadius:2,boxShadow:`0 3px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={()=>{setBarrels(b=>b+modal.barrels);setModal(null);}}>
+                <button style={{padding:"10px 28px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:9,fontFamily:PF,borderRadius:2,boxShadow:`0 3px 0 ${C.accentDark}`,touchAction:"manipulation"}}
+                  onClick={()=>{setBarrels(b=>b+modal.barrels);setModal(null);}}>
                   {t.offline_claim}
                 </button>
               </div>
             </>}
 
-            {modal==="rebirth" && <>
-              <div style={{fontSize:11,color:C.accent,marginBottom:10,textAlign:"center"}}>🌟 {t.rebirthTitle}</div>
-              <div style={{fontSize:8,color:C.textDim,lineHeight:1.9,marginBottom:14,textAlign:"center"}}>{t.rebirthDesc}</div>
+            {/* REBIRTH MODAL */}
+            {modal==="rebirth"&&<>
+              <div style={{fontSize:11,color:"#ffd700",marginBottom:10,textAlign:"center",textShadow:"0 0 14px #ffd700"}}>🌟 {t.rebirthTitle}</div>
+              <div style={{fontSize:7,color:C.textDim,lineHeight:2,marginBottom:12,textAlign:"center"}}>{t.rebirthDesc}</div>
               {[
-                [t.rebirthCount, `${rebirths} → ${rebirths+1}`, C.accent],
-                [t.rebirthBonus, `x${rebirthMult.toFixed(2)} → x${Math.pow(1.2,rebirths+1).toFixed(2)}`, C.green],
-                ["Prestige Points", `+${Math.max(1,Math.floor(Math.log10(Math.max(totalEarned,10))))} PP`, "#ce93d8"],
+                [t.rebirthCount,`${rebirths} → ${rebirths+1}`,"#ffd700"],
+                [t.rebirthBonus,`×${rebirthMult.toFixed(2)} → ×${Math.pow(1.2,rebirths+1).toFixed(2)}`,C.green],
+                ["Prestige Points",`+${Math.max(2,Math.floor(Math.log2(Math.max(totalEarned/1e6,2))))} PP`,"#ce93d8"],
               ].map(([k,v,vc])=>(
-                <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:8}}>
+                <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:7,fontSize:7}}>
                   <span style={{color:C.textDim}}>{k}:</span>
                   <span style={{color:vc}}>{v}</span>
                 </div>
               ))}
-              <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:6}}>
-                <button style={{padding:"10px 18px",background:"linear-gradient(180deg,#333,#1a1a1a)",border:"2px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.rebirthCancel}</button>
-                <button style={{padding:"10px 18px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,boxShadow:`0 3px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={handleRebirth}>{t.rebirthConfirm}</button>
+              <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:10}}>
+                <button style={{padding:"9px 16px",background:"linear-gradient(180deg,#1e1e1e,#0f0f0f)",border:"2px solid #333",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.rebirthCancel}</button>
+                <button style={{padding:"9px 16px",background:"linear-gradient(180deg,#b8860b,#7a5c00)",border:"2px solid #ffd700",color:"#ffd700",fontSize:8,fontFamily:PF,borderRadius:2,boxShadow:"0 3px 0 #4a3800",touchAction:"manipulation"}} onClick={handleRebirth}>{t.rebirthConfirm}</button>
               </div>
             </>}
 
-            {modal==="boost" && <>
-              <div style={{fontSize:11,color:C.accent,marginBottom:10,textAlign:"center"}}>🚀 {t.adsTitle}</div>
-              <div style={{fontSize:8,color:C.textDim,lineHeight:1.9,marginBottom:14,textAlign:"center"}}>{t.adsDesc}</div>
-              {boostActive
-                ? <div style={{textAlign:"center",color:C.green,fontSize:10,marginBottom:12}}>{t.adsActive}: {fmtTime(boostRem)}</div>
-                : null}
+            {/* BOOST MODAL */}
+            {modal==="boost"&&<>
+              <div style={{fontSize:11,color:"#64b5f6",marginBottom:10,textAlign:"center"}}>🚀 {t.adsTitle}</div>
+              <div style={{fontSize:7,color:C.textDim,lineHeight:2,marginBottom:14,textAlign:"center"}}>{t.adsDesc}</div>
+              {boostActive&&<div style={{textAlign:"center",color:C.green,fontSize:10,marginBottom:12}}>{t.adsActive}: {fmtTime(boostRem)}</div>}
               <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-                <button style={{padding:"10px 18px",background:"linear-gradient(180deg,#333,#1a1a1a)",border:"2px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.close}</button>
-                {!boostActive && <button style={{padding:"10px 18px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={handleBoostAd}>{t.adsWatch}</button>}
+                <button style={{padding:"9px 16px",background:"linear-gradient(180deg,#1e1e1e,#0f0f0f)",border:"2px solid #333",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.close}</button>
+                {!boostActive&&<button style={{padding:"9px 16px",background:"linear-gradient(180deg,#1565c0,#0d47a1)",border:"2px solid #64b5f6",color:"#fff",fontSize:8,fontFamily:PF,borderRadius:2,boxShadow:"0 3px 0 #002171",touchAction:"manipulation"}} onClick={handleBoostAd}>{t.adsWatch}</button>}
               </div>
             </>}
 
-            {modal==="settings" && <>
-              <div style={{fontSize:11,color:C.accent,marginBottom:14,textAlign:"center"}}>⚙️ {t.settings}</div>
+            {/* SETTINGS MODAL */}
+            {modal==="settings"&&<>
+              <div style={{fontSize:10,color:C.accent,marginBottom:14,textAlign:"center"}}>⚙️ {t.settings}</div>
               {[
-                [t.language, <div style={{display:"flex",gap:6}}>
-                  {["es","en"].map(l=>(
-                    <button key={l} style={{padding:"6px 14px",background:lang===l?C.accent:"#222",border:`1px solid ${lang===l?C.accentDark:"#444"}`,color:lang===l?"#000":C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setLang(l)}>
-                      {l==="es"?"🇪🇸 ES":"🇺🇸 EN"}
-                    </button>
-                  ))}
-                </div>],
-                ["Tutorial", <button style={{padding:"6px 14px",background:"#222",border:"1px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{setTutStep(0);setModal("tutorial");}}>📖 Ver</button>],
-                ["Save", <button style={{padding:"6px 14px",background:"#222",border:"1px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{saveGame();flash("💾 Saved!");setModal(null);}}>💾 Guardar</button>],
-                ["Reset", <button style={{padding:"6px 14px",background:"#1a0000",border:`1px solid ${C.red}`,color:C.red,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{if(confirm("¿Borrar todo el progreso?/"+"Reset all progress?")){localStorage.removeItem("oilempire_save");location.reload();}}}>🗑️ Reset</button>],
+                [t.language,
+                  <div style={{display:"flex",gap:6}}>
+                    {["es","en"].map(l=>(
+                      <button key={l} style={{padding:"6px 12px",background:lang===l?C.accent:"#1a1a1a",border:`1px solid ${lang===l?C.accentDark:"#333"}`,color:lang===l?"#000":C.textDim,fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setLang(l)}>
+                        {l==="es"?"🇪🇸 ES":"🇺🇸 EN"}
+                      </button>
+                    ))}
+                  </div>
+                ],
+                ["Tutorial",<button style={{padding:"6px 12px",background:"#1a1a1a",border:"1px solid #333",color:C.textDim,fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{setTutStep(0);setModal("tutorial");}}>📖 Ver</button>],
+                ["Save",<button style={{padding:"6px 12px",background:"#1a1a1a",border:"1px solid #333",color:C.textDim,fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{saveGame();flash("💾 Saved!",C.green);setModal(null);}}>💾</button>],
+                ["Reset",<button style={{padding:"6px 12px",background:"#1a0000",border:`1px solid ${C.red}`,color:C.red,fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{if(confirm("¿Borrar todo el progreso?\nReset all progress?")){localStorage.removeItem("oilempire2_save");location.reload();}}}>🗑️</button>],
               ].map(([lbl,ctrl])=>(
-                <div key={lbl} style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                <div key={lbl} style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:11}}>
                   <span style={{fontSize:7,color:C.textDim}}>{lbl}:</span>
                   {ctrl}
                 </div>
               ))}
               <div style={{textAlign:"center",marginTop:6}}>
-                <button style={{padding:"10px 24px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:9,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.close}</button>
+                <button style={{padding:"9px 24px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.close}</button>
               </div>
             </>}
           </div>
         </div>
       )}
 
-      {/* ── TUTORIAL ── */}
-      {modal==="tutorial" && (
+      {/* ══ TUTORIAL ══ */}
+      {modal==="tutorial"&&(
         <div style={{position:"fixed",inset:0,zIndex:200,pointerEvents:"none"}}>
-          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.90)",pointerEvents:"none"}}/>
-          <div style={{position:"fixed",bottom:70,left:"50%",transform:"translateX(-50%)",zIndex:210,background:C.panel,border:`2px solid ${C.accent}`,borderRadius:4,padding:18,maxWidth:330,width:"90%",boxShadow:`0 0 30px ${C.accent}40`,pointerEvents:"auto",fontFamily:PF}}>
-            <div style={{fontSize:7,color:C.textDim,marginBottom:6}}>{tutStep+1} / {tutSteps.length}</div>
-            <div style={{fontSize:10,color:C.accent,marginBottom:10,textShadow:`0 0 8px ${C.accent}`,lineHeight:1.6}}>{t[tutSteps[tutStep].tk]}</div>
-            <div style={{fontSize:8,color:C.textDim,lineHeight:2,marginBottom:16}}>{t[tutSteps[tutStep].dk]}</div>
+          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.91)"}}/>
+          <div style={{position:"fixed",bottom:65,left:"50%",transform:"translateX(-50%)",zIndex:210,background:"#0f1318",border:`2px solid ${C.accent}`,borderRadius:4,padding:18,maxWidth:330,width:"90%",boxShadow:`0 0 35px ${C.accent}40`,pointerEvents:"auto",fontFamily:PF}}>
+            <div style={{fontSize:6,color:C.textDim,marginBottom:5}}>{tutStep+1} / {tutSteps.length}</div>
+            <div style={{fontSize:10,color:C.accent,marginBottom:9,textShadow:`0 0 10px ${C.accent}`,lineHeight:1.7}}>{t[tutSteps[tutStep].tk]}</div>
+            <div style={{fontSize:7,color:C.textDim,lineHeight:2.1,marginBottom:16}}>{t[tutSteps[tutStep].dk]}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button style={{padding:"9px 16px",background:"linear-gradient(180deg,#333,#1a1a1a)",border:"2px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={tutSkip}>{t.tutorial_skip}</button>
-              <button style={{padding:"9px 16px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,boxShadow:`0 2px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={tutNext}>
+              <button style={{padding:"8px 14px",background:"linear-gradient(180deg,#1e1e1e,#0f0f0f)",border:"2px solid #333",color:C.textDim,fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={tutSkip}>{t.tutorial_skip}</button>
+              <button style={{padding:"8px 14px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:7,fontFamily:PF,borderRadius:2,boxShadow:`0 2px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={tutNext}>
                 {tutStep===tutSteps.length-1?t.tutorial_done:t.tutorial_next}
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<OilEmpire />);
+ReactDOM.createRoot(document.getElementById("root")).render(<OilEmpire/>);
+  </script>
+
+  <!-- Generate pixel art icon into canvas and set as apple-touch-icon -->
+  <script>
+    (function(){
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512; canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" shape-rendering="crispEdges"><rect width="64" height="64" fill="#0a1628"/><rect x="5" y="4" width="1" height="1" fill="#fff" opacity=".8"/><rect x="15" y="7" width="1" height="1" fill="#fff" opacity=".6"/><rect x="55" y="3" width="1" height="1" fill="#fff" opacity=".9"/><rect x="48" y="9" width="1" height="1" fill="#fff" opacity=".5"/><rect x="28" y="5" width="1" height="1" fill="#fff" opacity=".7"/><rect x="0" y="50" width="64" height="14" fill="#1a0f00"/><rect x="0" y="50" width="64" height="2" fill="#2a1800"/><rect x="22" y="52" width="20" height="4" fill="#0a1a00"/><rect x="25" y="53" width="14" height="2" fill="#0f2500"/><rect x="18" y="44" width="4" height="8" fill="#3a2800"/><rect x="42" y="44" width="4" height="8" fill="#3a2800"/><rect x="19" y="44" width="2" height="7" fill="#4a3800"/><rect x="43" y="44" width="2" height="7" fill="#4a3800"/><rect x="20" y="36" width="24" height="2" fill="#5a4200"/><rect x="21" y="36" width="22" height="1" fill="#7a5c00"/><rect x="22" y="28" width="20" height="2" fill="#5a4200"/><rect x="23" y="28" width="18" height="1" fill="#7a5c00"/><rect x="24" y="20" width="16" height="2" fill="#5a4200"/><rect x="25" y="20" width="14" height="1" fill="#7a5c00"/><rect x="19" y="20" width="3" height="26" fill="#4a3800"/><rect x="20" y="20" width="1" height="26" fill="#6a5200"/><rect x="42" y="20" width="3" height="26" fill="#4a3800"/><rect x="42" y="20" width="1" height="26" fill="#6a5200"/><rect x="22" y="12" width="20" height="2" fill="#5a4200"/><rect x="23" y="12" width="18" height="1" fill="#7a5c00"/><rect x="21" y="12" width="3" height="10" fill="#4a3800"/><rect x="40" y="12" width="3" height="10" fill="#4a3800"/><rect x="27" y="8" width="10" height="4" fill="#6a5000"/><rect x="29" y="6" width="6" height="3" fill="#7a6200"/><rect x="30" y="4" width="4" height="3" fill="#8a7200"/><rect x="31" y="2" width="2" height="3" fill="#f5a623"/><rect x="30" y="1" width="1" height="2" fill="#ff6600"/><rect x="32" y="0" width="1" height="2" fill="#ffaa00"/><rect x="31" y="0" width="2" height="1" fill="#ffdd00"/><rect x="28" y="24" width="18" height="3" fill="#f5a623"/><rect x="29" y="24" width="16" height="1" fill="#ffc040"/><rect x="29" y="22" width="6" height="6" fill="#c47d10"/><rect x="30" y="23" width="4" height="4" fill="#e09020"/><rect x="42" y="23" width="6" height="5" fill="#d4820e"/><rect x="43" y="24" width="4" height="3" fill="#e89a18"/><rect x="44" y="22" width="3" height="2" fill="#f5a623"/><rect x="44" y="28" width="2" height="14" fill="#888"/><rect x="44" y="28" width="1" height="14" fill="#aaa"/><rect x="44" y="42" width="2" height="2" fill="#1a4a00"/><rect x="44" y="44" width="1" height="2" fill="#0f3000"/><rect x="45" y="45" width="1" height="1" fill="#1a4a00"/><rect x="4" y="44" width="10" height="8" fill="#8B1a1a"/><rect x="5" y="44" width="8" height="7" fill="#a02020"/><rect x="4" y="46" width="10" height="1" fill="#c03030" opacity=".6"/><rect x="4" y="49" width="10" height="1" fill="#c03030" opacity=".6"/><rect x="8" y="44" width="2" height="8" fill="#7a1010" opacity=".4"/><rect x="50" y="44" width="10" height="8" fill="#8B1a1a"/><rect x="51" y="44" width="8" height="7" fill="#a02020"/><rect x="50" y="46" width="10" height="1" fill="#c03030" opacity=".6"/><rect x="50" y="49" width="10" height="1" fill="#c03030" opacity=".6"/><rect x="54" y="44" width="2" height="8" fill="#7a1010" opacity=".4"/><rect x="30" y="51" width="1" height="2" fill="#0f2500"/><rect x="32" y="50" width="2" height="3" fill="#0a1a00"/><rect x="35" y="51" width="1" height="2" fill="#0f2500"/><rect x="24" y="49" width="16" height="1" fill="#1a3800" opacity=".7"/></svg>`;
+        const blob = new Blob([svg], {type:'image/svg+xml'});
+        const url  = URL.createObjectURL(blob);
+        img.onload = function(){
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(img, 0, 0, 512, 512);
+          const dataUrl = canvas.toDataURL('image/png');
+          let link = document.querySelector('link[rel="apple-touch-icon"]');
+          if(!link){ link = document.createElement('link'); link.rel='apple-touch-icon'; document.head.appendChild(link); }
+          link.href = dataUrl;
+          URL.revokeObjectURL(url);
+        };
+        img.src = url;
+      } catch(e){}
+    })();
   </script>
 </body>
 </html>
