@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Oil Empire" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>Oil Empire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { 
+      height: 100%; 
+      background: #0a0a0a; 
+      overflow: hidden;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+    #root { height: 100%; }
+    @keyframes flashIn {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-60%); }
+      20% { opacity: 1; transform: translateX(-50%) translateY(-50%); }
+      80% { opacity: 1; transform: translateX(-50%) translateY(-50%); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-40%); }
+    }
+    @keyframes oilPulse {
+      0%,100% { box-shadow: 0 0 20px rgba(245,166,35,0.4), inset 0 0 20px rgba(0,0,0,0.5); }
+      50% { box-shadow: 0 0 35px rgba(245,166,35,0.7), 0 0 60px rgba(245,166,35,0.2), inset 0 0 20px rgba(0,0,0,0.5); }
+    }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    button { -webkit-appearance: none; -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ─── TRANSLATIONS ────────────────────────────────────────────────────────────
+const T = {
+  en: {
+    title: "OIL EMPIRE", tap: "TAP TO DRILL!", barrels: "Barrels",
+    processed: "Processed", dollars: "Dollars", sell: "SELL ALL",
+    upgrades: "UPGRADES", rebirth: "REBIRTH", settings: "SETTINGS",
+    tutorial: "TUTORIAL", close: "CLOSE", language: "Language",
+    perSecond: "/sec", rebirthTitle: "REBIRTH",
+    rebirthDesc: "Reset progress for a permanent x1.2 multiplier!",
+    rebirthBonus: "Current Bonus", rebirthCount: "Rebirths",
+    rebirthConfirm: "REBIRTH NOW", rebirthCancel: "CANCEL",
+    adsTitle: "BOOST x3", adsDesc: "Watch an ad and get x3 resources for 10 min!",
+    adsWatch: "WATCH AD", adsActive: "BOOST ACTIVE", adsRemaining: "remaining",
+    upgradeOwned: "owned", upgradeBuy: "BUY", maxed: "MAX",
+    notEnough: "Not enough $!", sell_price: "$90 / barrel",
+    tutorial_next: "NEXT", tutorial_skip: "SKIP", tutorial_done: "DONE!",
+    tut0_title: "Welcome to Oil Empire!",
+    tut0_desc: "Build the biggest oil empire in the world! Tap the drill to extract oil.",
+    tut1_title: "Tap to Extract!",
+    tut1_desc: "Tap the drill button to extract crude oil barrels. More taps = more oil!",
+    tut2_title: "Process & Sell",
+    tut2_desc: "Barrels get processed automatically. Then sell them for $90 each!",
+    tut3_title: "Buy Upgrades",
+    tut3_desc: "Spend your dollars on machinery, workers and tech to auto-produce oil.",
+    tut4_title: "Rebirth System",
+    tut4_desc: "Once you're rich enough, REBIRTH to reset and earn a permanent x1.2 bonus!",
+    tut5_title: "Watch Ads for Boost",
+    tut5_desc: "Watch a short ad to get a x3 resource boost for 10 minutes!",
+    tut6_title: "You're Ready!",
+    tut6_desc: "Now build your Oil Empire and become the richest tycoon on Earth!",
+    prestige_shop: "PRESTIGE", offline_title: "Welcome Back!",
+    offline_desc: "You were away for", offline_earned: "You earned",
+    offline_claim: "CLAIM!", combo_tap: "COMBO!",
+  },
+  es: {
+    title: "IMPERIO PETROLERO", tap: "¡TOCA PARA TALADRAR!", barrels: "Barriles",
+    processed: "Procesados", dollars: "Dólares", sell: "VENDER TODO",
+    upgrades: "MEJORAS", rebirth: "RENACIMIENTO", settings: "AJUSTES",
+    tutorial: "TUTORIAL", close: "CERRAR", language: "Idioma",
+    perSecond: "/seg", rebirthTitle: "RENACIMIENTO",
+    rebirthDesc: "¡Reinicia el progreso y obtén un multiplicador permanente x1.2!",
+    rebirthBonus: "Bono Actual", rebirthCount: "Renacimientos",
+    rebirthConfirm: "RENACER AHORA", rebirthCancel: "CANCELAR",
+    adsTitle: "IMPULSO x3", adsDesc: "¡Mira un anuncio y obtén x3 recursos por 10 min!",
+    adsWatch: "VER ANUNCIO", adsActive: "IMPULSO ACTIVO", adsRemaining: "restante",
+    upgradeOwned: "poseídos", upgradeBuy: "COMPRAR", maxed: "MAX",
+    notEnough: "¡No hay suficiente $!", sell_price: "$90 / barril",
+    tutorial_next: "SIGUIENTE", tutorial_skip: "OMITIR", tutorial_done: "¡LISTO!",
+    tut0_title: "¡Bienvenido a Imperio Petrolero!",
+    tut0_desc: "¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo.",
+    tut1_title: "¡Toca para Extraer!",
+    tut1_desc: "Toca el botón del taladro para extraer barriles de petróleo crudo. ¡Más toques = más petróleo!",
+    tut2_title: "Procesar y Vender",
+    tut2_desc: "Los barriles se procesan automáticamente. ¡Luego véndelos a $90 cada uno!",
+    tut3_title: "Compra Mejoras",
+    tut3_desc: "Gasta tus dólares en maquinaria, trabajadores y tecnología para producir petróleo automáticamente.",
+    tut4_title: "Sistema de Renacimiento",
+    tut4_desc: "Una vez que seas lo suficientemente rico, ¡RENACE para reiniciar y ganar un bono permanente de x1.2!",
+    tut5_title: "Mira Anuncios para Impulso",
+    tut5_desc: "Mira un breve anuncio para obtener un impulso x3 de recursos por 10 minutos. ¡Úsalo sabiamente!",
+    tut6_title: "¡Estás Listo!",
+    tut6_desc: "¡Ahora construye tu Imperio Petrolero y conviértete en el magnate más rico de la Tierra!",
+    prestige_shop: "PRESTIGIO", offline_title: "¡Bienvenido de nuevo!",
+    offline_desc: "Estuviste fuera por", offline_earned: "Ganaste",
+    offline_claim: "¡RECLAMAR!", combo_tap: "¡COMBO!",
+  },
+};
+
+const UPGRADES_CONFIG = [
+  { id:"pickaxe",   icon:"⛏️",  nameEn:"Hand Drill",        nameEs:"Taladro Manual",       baseCost:50,     costMult:1.15, bpsPerLevel:0.2,  tapBonus:1, maxLevel:50 },
+  { id:"pump",      icon:"🔧",  nameEn:"Oil Pump",          nameEs:"Bomba de Petróleo",    baseCost:200,    costMult:1.18, bpsPerLevel:1,    tapBonus:0, maxLevel:50 },
+  { id:"worker",    icon:"👷",  nameEn:"Worker",            nameEs:"Trabajador",           baseCost:500,    costMult:1.2,  bpsPerLevel:3,    tapBonus:0, maxLevel:50 },
+  { id:"refinery",  icon:"🏭",  nameEn:"Mini Refinery",     nameEs:"Mini Refinería",       baseCost:2000,   costMult:1.22, bpsPerLevel:10,   tapBonus:0, maxLevel:40 },
+  { id:"tanker",    icon:"🚛",  nameEn:"Oil Tanker",        nameEs:"Camión Cisterna",      baseCost:8000,   costMult:1.25, bpsPerLevel:35,   tapBonus:0, maxLevel:40 },
+  { id:"platform",  icon:"🛢️",  nameEn:"Sea Platform",      nameEs:"Plataforma Marina",    baseCost:30000,  costMult:1.28, bpsPerLevel:120,  tapBonus:0, maxLevel:30 },
+  { id:"pipeline",  icon:"🔩",  nameEn:"Pipeline Network",  nameEs:"Red de Tuberías",      baseCost:100000, costMult:1.3,  bpsPerLevel:400,  tapBonus:0, maxLevel:25 },
+  { id:"satellite", icon:"🛸",  nameEn:"AI Drillbot",       nameEs:"Robot Taladrador IA",  baseCost:500000, costMult:1.35, bpsPerLevel:1500, tapBonus:0, maxLevel:20 },
+];
+
+const PRESTIGE_UPGRADES = [
+  { id:"golden_drill", icon:"🪙", nameEn:"Golden Drill",   nameEs:"Taladro Dorado",        cost:3,  descEn:"+50% tap power",          descEs:"+50% fuerza de toque" },
+  { id:"oil_rush",     icon:"💨", nameEn:"Oil Rush",       nameEs:"Fiebre del Petróleo",   cost:5,  descEn:"+100% auto production",   descEs:"+100% producción auto" },
+  { id:"black_gold",   icon:"⚫", nameEn:"Black Gold",     nameEs:"Oro Negro",             cost:8,  descEn:"+25% sell price",         descEs:"+25% precio de venta" },
+  { id:"mega_boost",   icon:"🚀", nameEn:"Mega Boost",     nameEs:"Mega Impulso",          cost:12, descEn:"Ad boost lasts 20min",    descEs:"Impulso de anuncio 20min" },
+];
+
+const PF = "'Press Start 2P', monospace";
+let pid = 0;
+
+function fmt(n) {
+  if (n >= 1e12) return (n/1e12).toFixed(2)+"T";
+  if (n >= 1e9)  return (n/1e9).toFixed(2)+"B";
+  if (n >= 1e6)  return (n/1e6).toFixed(2)+"M";
+  if (n >= 1e3)  return (n/1e3).toFixed(2)+"K";
+  return Math.floor(n).toString();
+}
+function fmtTime(ms) {
+  const s = Math.ceil(ms/1000), m = Math.floor(s/60), ss = s%60;
+  return `${m}:${ss.toString().padStart(2,"0")}`;
+}
+
+const C = {
+  bg:"#0a0a0a", panel:"#111418", panelBorder:"#1e2832",
+  accent:"#f5a623", accentDark:"#c47d10", green:"#4caf50",
+  red:"#e53935", text:"#e8e0d0", textDim:"#8a7f70",
+};
+
+function OilEmpire() {
+  const [lang, setLang] = useState("es");
+  const t = T[lang];
+
+  const [barrels, setBarrels]           = useState(0);
+  const [processed, setProcessed]       = useState(0);
+  const [dollars, setDollars]           = useState(0);
+  const [totalEarned, setTotalEarned]   = useState(0);
+  const [upgrades, setUpgrades]         = useState(() => Object.fromEntries(UPGRADES_CONFIG.map(u=>[u.id,0])));
+  const [rebirths, setRebirths]         = useState(0);
+  const [rebirthMult, setRebirthMult]   = useState(1.0);
+  const [prestigePoints, setPrestigePoints] = useState(0);
+  const [prestigeBought, setPrestigeBought] = useState([]);
+
+  const [tab, setTab]           = useState("upgrades");
+  const [modal, setModal]       = useState(null);
+  const [tutStep, setTutStep]   = useState(0);
+  const [tutDone, setTutDone]   = useState(false);
+  const [particles, setParticles] = useState([]);
+  const [drillAnim, setDrillAnim] = useState(false);
+  const [flashMsg, setFlashMsg] = useState(null);
+  const [comboCount, setComboCount] = useState(0);
+  const comboTimerRef = useRef(null);
+  const [boostActive, setBoostActive] = useState(false);
+  const [boostEnd, setBoostEnd]       = useState(0);
+  const [sellAnim, setSellAnim]       = useState(false);
+  const [oilLevel, setOilLevel]       = useState(0);
+  const lastTimeRef = useRef(Date.now());
+
+  const tutSteps = [
+    { tk:"tut0_title", dk:"tut0_desc" },
+    { tk:"tut1_title", dk:"tut1_desc" },
+    { tk:"tut2_title", dk:"tut2_desc" },
+    { tk:"tut3_title", dk:"tut3_desc" },
+    { tk:"tut4_title", dk:"tut4_desc" },
+    { tk:"tut5_title", dk:"tut5_desc" },
+    { tk:"tut6_title", dk:"tut6_desc" },
+  ];
+
+  // ── Computed ──
+  const getTotalBPS = useCallback(() => {
+    let bps = 0;
+    UPGRADES_CONFIG.forEach(u => { bps += u.bpsPerLevel * (upgrades[u.id]||0); });
+    const boost = boostActive && Date.now() < boostEnd ? 3 : 1;
+    const prest = prestigeBought.includes("oil_rush") ? 2 : 1;
+    return bps * rebirthMult * boost * prest;
+  }, [upgrades, rebirthMult, boostActive, boostEnd, prestigeBought]);
+
+  const getTapPower = useCallback(() => {
+    let tp = 1;
+    UPGRADES_CONFIG.forEach(u => { if(u.tapBonus) tp += u.tapBonus*(upgrades[u.id]||0); });
+    const boost = boostActive && Date.now() < boostEnd ? 3 : 1;
+    const combo = 1 + Math.min(comboCount * 0.1, 1.0);
+    const prest = prestigeBought.includes("golden_drill") ? 1.5 : 1;
+    return tp * rebirthMult * boost * combo * prest;
+  }, [upgrades, rebirthMult, boostActive, boostEnd, comboCount, prestigeBought]);
+
+  const getUpgradeCost = useCallback((u) => {
+    return Math.floor(u.baseCost * Math.pow(u.costMult, upgrades[u.id]||0));
+  }, [upgrades]);
+
+  const getSellPrice = useCallback(() => {
+    return 90 * (prestigeBought.includes("black_gold") ? 1.25 : 1);
+  }, [prestigeBought]);
+
+  // ── Save/Load ──
+  const buildSave = useCallback(() => ({
+    barrels, processed, dollars, totalEarned, upgrades,
+    rebirths, rebirthMult, prestigePoints, prestigeBought,
+    tutDone, lang, savedAt: Date.now(),
+  }), [barrels, processed, dollars, totalEarned, upgrades, rebirths, rebirthMult, prestigePoints, prestigeBought, tutDone, lang]);
+
+  const saveGame = useCallback(() => {
+    try { localStorage.setItem("oilempire_save", JSON.stringify(buildSave())); } catch {}
+  }, [buildSave]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("oilempire_save");
+      if (raw) {
+        const s = JSON.parse(raw);
+        setBarrels(s.barrels||0); setProcessed(s.processed||0);
+        setDollars(s.dollars||0); setTotalEarned(s.totalEarned||0);
+        setUpgrades(s.upgrades||Object.fromEntries(UPGRADES_CONFIG.map(u=>[u.id,0])));
+        setRebirths(s.rebirths||0); setRebirthMult(s.rebirthMult||1);
+        setPrestigePoints(s.prestigePoints||0); setPrestigeBought(s.prestigeBought||[]);
+        setTutDone(s.tutDone||false); setLang(s.lang||"es");
+        if (s.savedAt) {
+          const offSec = (Date.now()-s.savedAt)/1000;
+          if (offSec > 30) {
+            const bpsV = UPGRADES_CONFIG.reduce((a,u)=>a+u.bpsPerLevel*(s.upgrades?.[u.id]||0),0);
+            const ob = Math.floor(bpsV*offSec*(s.rebirthMult||1)*0.5);
+            if (ob > 0) setModal({type:"offline", ms:Date.now()-s.savedAt, barrels:ob});
+            else if (!s.tutDone) setModal("tutorial");
+          } else if (!s.tutDone) setModal("tutorial");
+        } else if (!s.tutDone) setModal("tutorial");
+      } else { setModal("tutorial"); }
+    } catch { setModal("tutorial"); }
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(saveGame, 10000);
+    return () => clearInterval(id);
+  }, [saveGame]);
+
+  // ── Game Loop ──
+  useEffect(() => {
+    let frame;
+    const loop = () => {
+      const now = Date.now();
+      const dt = Math.min((now - lastTimeRef.current)/1000, 0.5);
+      lastTimeRef.current = now;
+      const bps = getTotalBPS();
+      if (bps > 0) {
+        const g = bps * dt;
+        setBarrels(b => b+g);
+        setProcessed(p => p+g*0.8);
+        setOilLevel(l => Math.min(100, l+g*0.05));
+      }
+      if (boostActive && now > boostEnd) setBoostActive(false);
+      setParticles(ps => ps.filter(p => now-p.born < 1200));
+      frame = requestAnimationFrame(loop);
+    };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [getTotalBPS, boostActive, boostEnd]);
+
+  // ── Flash helper ──
+  const flash = (msg) => {
+    setFlashMsg(msg);
+    setTimeout(() => setFlashMsg(null), 1500);
+  };
+
+  // ── Actions ──
+  const handleTap = useCallback((e) => {
+    const power = getTapPower();
+    setBarrels(b=>b+power);
+    setProcessed(p=>p+power*0.8);
+    setOilLevel(l=>Math.min(100,l+power*0.3));
+    setDrillAnim(true);
+    setTimeout(()=>setDrillAnim(false),150);
+    setComboCount(c=>c+1);
+    if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
+    comboTimerRef.current = setTimeout(()=>setComboCount(0),1500);
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const cx = (e.touches?.[0]?.clientX ?? e.clientX) - rect.left;
+    const cy = (e.touches?.[0]?.clientY ?? e.clientY) - rect.top;
+    const newPs = Array.from({length:4}, ()=>({
+      id:pid++, x:cx+(Math.random()-.5)*40, y:cy+(Math.random()-.5)*20,
+      born:Date.now(), text: Math.random()>.65 ? `+${Math.ceil(power)}` : "🛢️",
+    }));
+    setParticles(ps=>[...ps.slice(-25),...newPs]);
+  }, [getTapPower]);
+
+  const handleSell = useCallback(() => {
+    if (processed < 1) return;
+    const earned = Math.floor(processed) * getSellPrice() * rebirthMult;
+    setDollars(d=>d+earned);
+    setTotalEarned(te=>te+earned);
+    setProcessed(0); setOilLevel(0);
+    setSellAnim(true); setTimeout(()=>setSellAnim(false),500);
+    flash(`+$${fmt(earned)}`);
+  }, [processed, getSellPrice, rebirthMult]);
+
+  const handleBuy = useCallback((upg) => {
+    const cost = getUpgradeCost(upg);
+    if (dollars < cost) { flash(t.notEnough); return; }
+    setDollars(d=>d-cost);
+    setUpgrades(u=>({...u,[upg.id]:(u[upg.id]||0)+1}));
+    flash(`⬆️ ${lang==="en"?upg.nameEn:upg.nameEs}`);
+  }, [dollars, getUpgradeCost, lang, t]);
+
+  const handleRebirth = useCallback(() => {
+    const nc = rebirths+1;
+    setRebirths(nc); setRebirthMult(Math.pow(1.2,nc));
+    setPrestigePoints(pp=>pp+Math.max(1,Math.floor(Math.log10(Math.max(totalEarned,10)))));
+    setBarrels(0); setProcessed(0); setDollars(0); setTotalEarned(0); setOilLevel(0);
+    setUpgrades(Object.fromEntries(UPGRADES_CONFIG.map(u=>[u.id,0])));
+    setModal(null); flash("🌟 REBIRTH!");
+  }, [rebirths, totalEarned]);
+
+  const handlePrestigeBuy = useCallback((pu) => {
+    if (prestigeBought.includes(pu.id)) return;
+    if (prestigePoints < pu.cost) { flash(t.notEnough); return; }
+    setPrestigePoints(pp=>pp-pu.cost);
+    setPrestigeBought(pb=>[...pb,pu.id]);
+    flash(`🌟 ${lang==="en"?pu.nameEn:pu.nameEs}`);
+  }, [prestigeBought, prestigePoints, lang, t]);
+
+  const handleBoostAd = useCallback(() => {
+    const dur = prestigeBought.includes("mega_boost") ? 20*60*1000 : 10*60*1000;
+    setBoostActive(true); setBoostEnd(Date.now()+dur);
+    setBarrels(b=>b*3); flash("🚀 BOOST x3!"); setModal(null);
+  }, [prestigeBought]);
+
+  const tutNext = () => {
+    if (tutStep < tutSteps.length-1) setTutStep(s=>s+1);
+    else { setTutDone(true); setModal(null); }
+  };
+  const tutSkip = () => { setTutDone(true); setModal(null); };
+
+  const bps = getTotalBPS();
+  const boostRem = boostActive ? boostEnd - Date.now() : 0;
+
+  // ── Oil Pump SVG ──
+  const OilPump = ({anim}) => (
+    <svg width="64" height="64" viewBox="0 0 16 16" style={{imageRendering:"pixelated",filter:`drop-shadow(0 0 8px rgba(245,166,35,0.6))`,transform:`translateY(${anim?4:0}px)`,transition:"transform 0.08s"}}>
+      <rect x="1" y="13" width="14" height="2" fill="#3a2400"/>
+      <rect x="2" y="13" width="12" height="1" fill="#4a3000"/>
+      <rect x="6" y="5" width="2" height="8" fill="#5a4200"/>
+      <rect x="7" y="5" width="1" height="8" fill="#6a5000"/>
+      <rect x="2" y="4" width="11" height="2" fill="#7a6000"/>
+      <rect x="3" y="4" width="9" height="1" fill="#8a7000"/>
+      <rect x="2" y={2+( anim?3:0)} width="5" height="2" fill="#f5a623"/>
+      <rect x="3" y={2+( anim?3:0)} width="3" height="1" fill="#ffcc60"/>
+      <rect x="3" y={4+( anim?3:0)} width="2" height="4" fill="#f5a623"/>
+      {anim && <><rect x="3" y="10" width="1" height="1" fill="#2d5a00"/><rect x="4" y="11" width="1" height="1" fill="#1a3800"/><rect x="1" y={2+(anim?3:0)} width="1" height="1" fill="#fff" opacity="0.9"/><rect x="8" y={1+(anim?3:0)} width="1" height="1" fill="#ffcc00" opacity="0.9"/></>}
+    </svg>
+  );
+
+  // ── Inline styles ──
+  const root = {fontFamily:PF,background:C.bg,height:"100dvh",maxWidth:440,margin:"0 auto",color:C.text,userSelect:"none",WebkitUserSelect:"none",display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"};
+
+  // ── RENDER ──
+  return (
+    <div style={root}>
+      {/* HEADER */}
+      <div style={{background:"linear-gradient(180deg,#1a0a00,#0a0a0a)",borderBottom:`2px solid ${C.accent}`,padding:"env(safe-area-inset-top,8px) 12px 8px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+        <div style={{fontSize:12,color:C.accent,letterSpacing:2,textShadow:`0 0 12px ${C.accent}80`}}>{t.title}</div>
+        <div style={{display:"flex",gap:4}}>
+          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:boostActive?"#ce93d8":C.textDim,padding:"5px 8px",fontSize:9,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("boost")}>
+            {boostActive ? `🚀${fmtTime(boostRem)}` : "🚀"}
+          </button>
+          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:C.textDim,padding:"5px 8px",fontSize:9,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("rebirth")}>🌟</button>
+          <button style={{background:"none",border:`1px solid ${C.panelBorder}`,color:C.textDim,padding:"5px 8px",fontSize:9,fontFamily:PF,borderRadius:2}} onClick={()=>setModal("settings")}>⚙️</button>
+        </div>
+      </div>
+
+      {/* STATS BAR */}
+      <div style={{background:C.panel,borderBottom:`1px solid ${C.panelBorder}`,padding:"8px 12px",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4,flexShrink:0}}>
+        {[
+          {label:`🛢️ ${t.barrels}`, val:fmt(barrels), sub:bps>0?`+${fmt(bps)}${t.perSecond}`:null, subColor:"#4caf50"},
+          {label:`⚗️ ${t.processed}`, val:fmt(processed), sub:t.sell_price, subColor:C.textDim},
+          {label:`💵 ${t.dollars}`, val:`$${fmt(dollars)}`, valColor:C.accent, sub:`$${fmt(totalEarned)}`, subColor:C.textDim},
+        ].map((s,i)=>(
+          <div key={i} style={{textAlign:"center"}}>
+            <span style={{fontSize:6,color:C.textDim,display:"block",marginBottom:2}}>{s.label}</span>
+            <span style={{fontSize:10,color:s.valColor||C.text,display:"block"}}>{s.val}</span>
+            {s.sub && <span style={{fontSize:6,color:s.subColor,display:"block"}}>{s.sub}</span>}
+          </div>
+        ))}
+      </div>
+
+      {/* DRILL AREA */}
+      <div style={{position:"relative",height:220,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",flexShrink:0}}>
+        {/* Background */}
+        <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at 20% 80%,#0d2000,transparent 50%),radial-gradient(ellipse at 80% 20%,#1a1000,transparent 50%),linear-gradient(180deg,#0a0a0a,#0a0f00)"}}/>
+        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(245,166,35,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,0.03) 1px,transparent 1px)",backgroundSize:"16px 16px"}}/>
+        <div style={{position:"absolute",bottom:0,left:0,right:0,height:`${oilLevel}%`,background:"linear-gradient(0deg,#0d2a00,#1a4a0080)",transition:"height 0.4s ease"}}/>
+
+        {comboCount>2 && <div style={{position:"absolute",top:10,left:12,fontSize:9,color:"#ff6b35",zIndex:2,textShadow:"0 0 8px #ff6b35",fontFamily:PF}}>{t.combo_tap} x{comboCount}</div>}
+        {bps>0 && <div style={{position:"absolute",top:10,right:12,fontSize:7,color:C.textDim,zIndex:2,fontFamily:PF}}>⚡{fmt(bps)}{t.perSecond}</div>}
+
+        {/* Drill Button */}
+        <button
+          style={{position:"relative",zIndex:2,width:140,height:140,borderRadius:"50%",border:`4px solid ${C.accent}`,background:"radial-gradient(circle at 40% 35%,#3a2800,#1a1000)",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",transition:"transform 0.08s",transform:drillAnim?"scale(0.92)":"scale(1)",animation:drillAnim?"none":"oilPulse 2s ease infinite",WebkitTapHighlightColor:"transparent",outline:"none",touchAction:"manipulation"}}
+          onPointerDown={handleTap}
+        >
+          <OilPump anim={drillAnim}/>
+          <div style={{fontSize:6,color:C.accentDark,marginTop:4,textAlign:"center",fontFamily:PF}}>{t.tap}</div>
+        </button>
+
+        {/* Particles */}
+        {particles.map(p => {
+          const age = (Date.now()-p.born)/1200;
+          return (
+            <div key={p.id} style={{position:"absolute",left:p.x,top:p.y+50,fontSize:9,color:C.accent,fontFamily:PF,pointerEvents:"none",zIndex:10,opacity:Math.max(0,1-age),transform:`translateY(${-age*55}px) scale(${Math.max(0.3,1-age*0.4)})`,fontWeight:"bold"}}>
+              {p.text}
+            </div>
+          );
+        })}
+
+        {flashMsg && <div style={{position:"absolute",top:"45%",left:"50%",transform:"translateX(-50%) translateY(-50%)",background:"rgba(0,0,0,0.85)",border:`1px solid ${C.accent}`,padding:"7px 14px",fontSize:9,color:C.accent,borderRadius:3,pointerEvents:"none",zIndex:50,whiteSpace:"nowrap",fontFamily:PF,animation:"flashIn 1.5s ease forwards"}}>{flashMsg}</div>}
+      </div>
+
+      {/* SELL ROW */}
+      <div style={{padding:"6px 12px",display:"flex",gap:8,flexShrink:0}}>
+        <button
+          style={{flex:1,padding:"11px 4px",background:`linear-gradient(180deg,${C.green},#2e7d32)`,border:"2px solid #81c784",color:"#fff",fontSize:8,fontFamily:PF,borderRadius:3,boxShadow:sellAnim?"none":"0 3px 0 #1b5e20",transform:sellAnim?"translateY(2px)":"translateY(0)",transition:"transform 0.1s,box-shadow 0.1s",touchAction:"manipulation"}}
+          onClick={handleSell}
+        >
+          💰 {t.sell} ({fmt(processed)}×${getSellPrice()%1===0?getSellPrice():getSellPrice().toFixed(1)})
+        </button>
+        <button
+          style={{padding:"11px 10px",background:boostActive?"linear-gradient(180deg,#7b1fa2,#4a148c)":"linear-gradient(180deg,#1565c0,#0d47a1)",border:`2px solid ${boostActive?"#ce93d8":"#64b5f6"}`,color:"#fff",fontSize:7,fontFamily:PF,borderRadius:3,textAlign:"center",lineHeight:1.5,boxShadow:boostActive?"0 3px 0 #38006b":"0 3px 0 #002171",touchAction:"manipulation"}}
+          onClick={()=>setModal("boost")}
+        >
+          {boostActive ? <>🚀 {t.adsActive}<br/>{fmtTime(boostRem)}</> : <>🚀 {t.adsTitle}</>}
+        </button>
+      </div>
+
+      {/* TAB BAR */}
+      <div style={{display:"flex",borderBottom:`2px solid ${C.panelBorder}`,background:C.panel,flexShrink:0}}>
+        {[["upgrades","⬆️ "+t.upgrades],["prestige","🌟 "+t.prestige_shop]].map(([key,label])=>(
+          <button key={key} style={{flex:1,padding:"9px 4px",background:tab===key?C.panelBorder:"none",border:"none",borderBottom:tab===key?`2px solid ${C.accent}`:"2px solid transparent",color:tab===key?C.accent:C.textDim,fontSize:7,fontFamily:PF,cursor:"pointer",touchAction:"manipulation"}} onClick={()=>setTab(key)}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* TAB CONTENT */}
+      <div style={{flex:1,overflowY:"auto",padding:"8px",WebkitOverflowScrolling:"touch"}}>
+        {tab==="upgrades" && UPGRADES_CONFIG.map(upg => {
+          const level = upgrades[upg.id]||0;
+          const cost = getUpgradeCost(upg);
+          const afford = dollars>=cost;
+          const maxed = level>=upg.maxLevel;
+          const name = lang==="en"?upg.nameEn:upg.nameEs;
+          return (
+            <div key={upg.id} style={{background:C.panel,border:`1px solid ${afford&&!maxed?C.panelBorder:"#1a1a1a"}`,borderRadius:4,padding:"8px 10px",marginBottom:6,display:"flex",alignItems:"center",gap:8,opacity:afford||maxed?1:0.65}}>
+              <div style={{fontSize:22,width:30,textAlign:"center",flexShrink:0}}>{upg.icon}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:7,color:C.text,marginBottom:2,fontFamily:PF}}>{name}</div>
+                <div style={{fontSize:6,color:C.textDim,fontFamily:PF}}>
+                  {upg.bpsPerLevel>0&&`+${upg.bpsPerLevel}bps · `}{upg.tapBonus>0&&`+${upg.tapBonus}tap · `}{t.upgradeOwned}: {level}
+                </div>
+              </div>
+              <button
+                style={{padding:"6px 7px",background:maxed?"linear-gradient(180deg,#555,#333)":afford?`linear-gradient(180deg,${C.accent},${C.accentDark})`:"linear-gradient(180deg,#2a2a2a,#111)",border:`1px solid ${maxed?"#666":afford?C.accentDark:"#2a2a2a"}`,color:maxed?"#888":afford?"#000":"#444",fontSize:6,fontFamily:PF,borderRadius:2,flexShrink:0,textAlign:"center",lineHeight:1.7,boxShadow:afford&&!maxed?`0 2px 0 ${C.accentDark}`:"none",touchAction:"manipulation"}}
+                onClick={()=>!maxed&&handleBuy(upg)}
+              >
+                {maxed?t.maxed:<>{t.upgradeBuy}<br/>${fmt(cost)}</>}
+              </button>
+            </div>
+          );
+        })}
+
+        {tab==="prestige" && (
+          <>
+            <div style={{background:"#1a0a2e",border:"1px solid #7b1fa2",borderRadius:4,padding:10,marginBottom:10,textAlign:"center"}}>
+              <div style={{fontSize:7,color:"#ce93d8",marginBottom:4,fontFamily:PF}}>Prestige Points</div>
+              <div style={{fontSize:22,color:"#e040fb"}}>⭐ {prestigePoints}</div>
+              <div style={{fontSize:6,color:C.textDim,marginTop:4,fontFamily:PF}}>Rebirths: {rebirths} · Mult: x{rebirthMult.toFixed(2)}</div>
+            </div>
+            <button style={{width:"100%",padding:"11px",background:"linear-gradient(180deg,#7b1fa2,#4a148c)",border:"2px solid #ce93d8",color:"#fff",fontSize:9,fontFamily:PF,borderRadius:3,marginBottom:8,boxShadow:"0 3px 0 #38006b",touchAction:"manipulation"}} onClick={()=>setModal("rebirth")}>
+              🌟 {t.rebirth}
+            </button>
+            {PRESTIGE_UPGRADES.map(pu => {
+              const owned = prestigeBought.includes(pu.id);
+              const afford = prestigePoints>=pu.cost;
+              return (
+                <div key={pu.id} style={{background:C.panel,border:`1px solid ${owned?"#7b1fa2":afford?"#444":"#1a1a1a"}`,borderRadius:4,padding:10,marginBottom:6,opacity:owned?0.75:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:20}}>{pu.icon}</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:7,color:owned?"#ce93d8":C.text,fontFamily:PF}}>{lang==="en"?pu.nameEn:pu.nameEs} {owned?"✓":""}</div>
+                      <div style={{fontSize:6,color:C.textDim,fontFamily:PF,marginTop:2}}>{lang==="en"?pu.descEn:pu.descEs}</div>
+                    </div>
+                    {!owned && (
+                      <button style={{padding:"6px 8px",background:afford?"linear-gradient(180deg,#7b1fa2,#4a148c)":"linear-gradient(180deg,#222,#111)",border:`1px solid ${afford?"#ce93d8":"#333"}`,color:afford?"#fff":"#555",fontSize:7,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>handlePrestigeBuy(pu)}>
+                        ⭐{pu.cost}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
+
+      {/* SAFE AREA BOTTOM */}
+      <div style={{height:"env(safe-area-inset-bottom,0px)",background:C.bg,flexShrink:0}}/>
+
+      {/* ── MODALS ── */}
+      {modal && modal!=="tutorial" && (
+        <div style={{position:"fixed",inset:0,zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.87)"}} onClick={()=>typeof modal==="string"&&setModal(null)}/>
+          <div style={{position:"relative",zIndex:1,background:C.panel,border:`2px solid ${C.accent}`,borderRadius:4,padding:22,maxWidth:340,width:"90%",boxShadow:`0 0 30px ${C.accent}30`,fontFamily:PF}}>
+
+            {typeof modal==="object"&&modal.type==="offline" && <>
+              <div style={{fontSize:12,color:C.accent,marginBottom:12,textAlign:"center"}}>{t.offline_title}</div>
+              <div style={{fontSize:8,color:C.textDim,lineHeight:2,marginBottom:16,textAlign:"center"}}>
+                {t.offline_desc} <span style={{color:C.accent}}>{fmtTime(modal.ms)}</span><br/><br/>
+                {t.offline_earned} <span style={{color:C.green,fontSize:11}}>🛢️ {fmt(modal.barrels)}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"center"}}>
+                <button style={{padding:"10px 24px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:9,fontFamily:PF,borderRadius:2,boxShadow:`0 3px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={()=>{setBarrels(b=>b+modal.barrels);setModal(null);}}>
+                  {t.offline_claim}
+                </button>
+              </div>
+            </>}
+
+            {modal==="rebirth" && <>
+              <div style={{fontSize:11,color:C.accent,marginBottom:10,textAlign:"center"}}>🌟 {t.rebirthTitle}</div>
+              <div style={{fontSize:8,color:C.textDim,lineHeight:1.9,marginBottom:14,textAlign:"center"}}>{t.rebirthDesc}</div>
+              {[
+                [t.rebirthCount, `${rebirths} → ${rebirths+1}`, C.accent],
+                [t.rebirthBonus, `x${rebirthMult.toFixed(2)} → x${Math.pow(1.2,rebirths+1).toFixed(2)}`, C.green],
+                ["Prestige Points", `+${Math.max(1,Math.floor(Math.log10(Math.max(totalEarned,10))))} PP`, "#ce93d8"],
+              ].map(([k,v,vc])=>(
+                <div key={k} style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:8}}>
+                  <span style={{color:C.textDim}}>{k}:</span>
+                  <span style={{color:vc}}>{v}</span>
+                </div>
+              ))}
+              <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:6}}>
+                <button style={{padding:"10px 18px",background:"linear-gradient(180deg,#333,#1a1a1a)",border:"2px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.rebirthCancel}</button>
+                <button style={{padding:"10px 18px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,boxShadow:`0 3px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={handleRebirth}>{t.rebirthConfirm}</button>
+              </div>
+            </>}
+
+            {modal==="boost" && <>
+              <div style={{fontSize:11,color:C.accent,marginBottom:10,textAlign:"center"}}>🚀 {t.adsTitle}</div>
+              <div style={{fontSize:8,color:C.textDim,lineHeight:1.9,marginBottom:14,textAlign:"center"}}>{t.adsDesc}</div>
+              {boostActive
+                ? <div style={{textAlign:"center",color:C.green,fontSize:10,marginBottom:12}}>{t.adsActive}: {fmtTime(boostRem)}</div>
+                : null}
+              <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+                <button style={{padding:"10px 18px",background:"linear-gradient(180deg,#333,#1a1a1a)",border:"2px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.close}</button>
+                {!boostActive && <button style={{padding:"10px 18px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={handleBoostAd}>{t.adsWatch}</button>}
+              </div>
+            </>}
+
+            {modal==="settings" && <>
+              <div style={{fontSize:11,color:C.accent,marginBottom:14,textAlign:"center"}}>⚙️ {t.settings}</div>
+              {[
+                [t.language, <div style={{display:"flex",gap:6}}>
+                  {["es","en"].map(l=>(
+                    <button key={l} style={{padding:"6px 14px",background:lang===l?C.accent:"#222",border:`1px solid ${lang===l?C.accentDark:"#444"}`,color:lang===l?"#000":C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setLang(l)}>
+                      {l==="es"?"🇪🇸 ES":"🇺🇸 EN"}
+                    </button>
+                  ))}
+                </div>],
+                ["Tutorial", <button style={{padding:"6px 14px",background:"#222",border:"1px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{setTutStep(0);setModal("tutorial");}}>📖 Ver</button>],
+                ["Save", <button style={{padding:"6px 14px",background:"#222",border:"1px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{saveGame();flash("💾 Saved!");setModal(null);}}>💾 Guardar</button>],
+                ["Reset", <button style={{padding:"6px 14px",background:"#1a0000",border:`1px solid ${C.red}`,color:C.red,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>{if(confirm("¿Borrar todo el progreso?/"+"Reset all progress?")){localStorage.removeItem("oilempire_save");location.reload();}}}>🗑️ Reset</button>],
+              ].map(([lbl,ctrl])=>(
+                <div key={lbl} style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+                  <span style={{fontSize:7,color:C.textDim}}>{lbl}:</span>
+                  {ctrl}
+                </div>
+              ))}
+              <div style={{textAlign:"center",marginTop:6}}>
+                <button style={{padding:"10px 24px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:9,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={()=>setModal(null)}>{t.close}</button>
+              </div>
+            </>}
+          </div>
+        </div>
+      )}
+
+      {/* ── TUTORIAL ── */}
+      {modal==="tutorial" && (
+        <div style={{position:"fixed",inset:0,zIndex:200,pointerEvents:"none"}}>
+          <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.90)",pointerEvents:"none"}}/>
+          <div style={{position:"fixed",bottom:70,left:"50%",transform:"translateX(-50%)",zIndex:210,background:C.panel,border:`2px solid ${C.accent}`,borderRadius:4,padding:18,maxWidth:330,width:"90%",boxShadow:`0 0 30px ${C.accent}40`,pointerEvents:"auto",fontFamily:PF}}>
+            <div style={{fontSize:7,color:C.textDim,marginBottom:6}}>{tutStep+1} / {tutSteps.length}</div>
+            <div style={{fontSize:10,color:C.accent,marginBottom:10,textShadow:`0 0 8px ${C.accent}`,lineHeight:1.6}}>{t[tutSteps[tutStep].tk]}</div>
+            <div style={{fontSize:8,color:C.textDim,lineHeight:2,marginBottom:16}}>{t[tutSteps[tutStep].dk]}</div>
+            <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+              <button style={{padding:"9px 16px",background:"linear-gradient(180deg,#333,#1a1a1a)",border:"2px solid #444",color:C.textDim,fontSize:8,fontFamily:PF,borderRadius:2,touchAction:"manipulation"}} onClick={tutSkip}>{t.tutorial_skip}</button>
+              <button style={{padding:"9px 16px",background:`linear-gradient(180deg,${C.accent},${C.accentDark})`,border:"2px solid #ffcc70",color:"#000",fontSize:8,fontFamily:PF,borderRadius:2,boxShadow:`0 2px 0 ${C.accentDark}`,touchAction:"manipulation"}} onClick={tutNext}>
+                {tutStep===tutSteps.length-1?t.tutorial_done:t.tutorial_next}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<OilEmpire />);
+  </script>
+</body>
+</html>
