@@ -23,15 +23,15 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 #rebirth-btn.unlocked{border-color:#ffd700!important;color:#ffd700!important;animation:rglow 1.5s ease infinite}
 
 /* Stats */
-#stats{background:#0f1318;border-bottom:1px solid #1e2832;padding:8px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;flex-shrink:0;text-align:center}
-.stat-label{font-size:7px;color:#8a7f70;display:block;margin-bottom:2px}
-.stat-val{font-size:12px;color:#e8e0d0;display:block;font-weight:bold}
+#stats{background:#0f1318;border-bottom:1px solid #1e2832;padding:6px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;flex-shrink:0;text-align:center}
+.stat-label{font-size:7px;color:#8a7f70;display:block;margin-bottom:1px}
+.stat-val{font-size:11px;color:#e8e0d0;display:block;font-weight:bold}
 .stat-val.gold{color:#f5a623}
-.stat-sub{font-size:7px;color:#8a7f70;display:block;margin-top:1px}
+.stat-sub{font-size:6px;color:#8a7f70;display:block;margin-top:1px}
 .stat-sub.green{color:#4caf50}
 
 /* Drill area — fixed height, NOT flex:1 */
-#drill-area{position:relative;height:240px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#drill-area{position:relative;height:210px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 #drill-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 25% 75%,#0d2000,transparent 55%),radial-gradient(ellipse at 75% 20%,#1a1000,transparent 55%),#090909}
 #grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(245,166,35,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(245,166,35,.025) 1px,transparent 1px);background-size:16px 16px}
 #oil-fill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height .6s ease;background:linear-gradient(0deg,#0c2200,#1a4a0070)}
@@ -63,38 +63,40 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 #flash-msg{position:absolute;top:40%;left:50%;transform:translateX(-50%) translateY(-50%);background:rgba(0,0,0,.88);border:1px solid #f5a623;padding:7px 14px;font-size:8px;color:#f5a623;border-radius:3px;pointer-events:none;z-index:50;white-space:nowrap;display:none;animation:flashIn 1.8s ease forwards}
 
 /* Sell row */
-#sell-row{padding:6px 11px;display:flex;gap:9px;flex-shrink:0}
-#sell-btn{flex:1;padding:11px 5px;background:linear-gradient(180deg,#4caf50,#2e7d32);border:2px solid #81c784;color:#fff;font-size:8px;border-radius:3px;box-shadow:0 3px 0 #1b5e20;line-height:1.6;font-weight:bold}
+#sell-row{padding:5px 10px;display:flex;gap:8px;flex-shrink:0}
+#sell-btn{flex:1;padding:9px 5px;background:linear-gradient(180deg,#4caf50,#2e7d32);border:2px solid #81c784;color:#fff;font-size:8px;border-radius:3px;box-shadow:0 3px 0 #1b5e20;line-height:1.5;font-weight:bold}
 #sell-btn:active{transform:translateY(2px);box-shadow:none}
-#boost-btn{padding:11px 11px;background:linear-gradient(180deg,#0d47a1,#060d2e);border:2px solid #1565c0;color:#fff;font-size:7px;border-radius:3px;text-align:center;line-height:1.8;box-shadow:0 3px 0 #001040;min-width:75px;font-weight:bold}
+#boost-btn{padding:9px 10px;background:linear-gradient(180deg,#0d47a1,#060d2e);border:2px solid #1565c0;color:#fff;font-size:7px;border-radius:3px;text-align:center;line-height:1.7;box-shadow:0 3px 0 #001040;min-width:72px;font-weight:bold}
 #boost-btn.active{background:linear-gradient(180deg,#4a148c,#1a0050);border-color:#ce93d8;box-shadow:0 3px 0 #12003d}
 
 /* Tabs */
-#tab-bar{display:flex;border-bottom:3px solid #1e2832;background:#0f1318;flex-shrink:0}
-.tab-btn{flex:1;padding:10px 4px;background:none;border:none;border-bottom:3px solid transparent;color:#8a7f70;font-size:8px;font-weight:bold}
+#tab-bar{display:flex;border-bottom:2px solid #1e2832;background:#0f1318;flex-shrink:0}
+.tab-btn{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:#8a7f70;font-size:8px;font-weight:bold}
 .tab-btn.active{background:#1e2832;border-bottom-color:#f5a623;color:#f5a623}
 
-/* Tab content — flex:1 fills ALL remaining space */
-#tab-content{flex:1;overflow-y:auto;padding:12px 12px 14px;-webkit-overflow-scrolling:touch;min-height:0}
+/* Tab content — fills all remaining space, flex column */
+#tab-content{flex:1;overflow-y:auto;padding:6px 8px 6px;-webkit-overflow-scrolling:touch;min-height:0;display:flex;flex-direction:column}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:#111}
 ::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 
-/* Upgrade cards */
-.upg-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:border-color .2s,opacity .2s}
+/* Upgrade cards — stretch to fill, no fixed height */
+#upg-list{flex:1;display:flex;flex-direction:column;gap:0;min-height:0}
+.upg-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:0 10px;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:border-color .2s;flex:1;min-height:0}
+.upg-card:last-child{margin-bottom:0}
 .upg-card.afford{border-color:#2a2a2a}
 .upg-card.maxed{border-color:#1a3a00}
-.upg-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+.upg-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
 .upg-info{flex:1;min-width:0}
 .upg-row{display:flex;justify-content:space-between;margin-bottom:3px}
 .upg-name{font-size:7px;color:#e8e0d0;font-weight:bold}
 .upg-name.maxed{color:#4caf50}
-.upg-lvl{font-size:7px;color:#8a7f70;font-weight:bold}
+.upg-lvl{font-size:7px;color:#8a7f70}
 .upg-lvl.maxed{color:#4caf50}
-.prog-bar-bg{background:#0a0a0a;border-radius:2px;height:8px;overflow:hidden;border:1px solid #222}
+.prog-bar-bg{background:#0a0a0a;border-radius:2px;height:7px;overflow:hidden;border:1px solid #222}
 .prog-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
-.upg-stat{font-size:6px;color:#8a7f70;margin-top:3px}
-.upg-buy-btn{padding:8px 7px;min-width:58px;border:1px solid #222;background:linear-gradient(180deg,#1e1e1e,#0f0f0f);color:#3a3a3a;font-size:7px;border-radius:2px;flex-shrink:0;text-align:center;line-height:1.8;font-weight:bold}
+.upg-stat{font-size:5px;color:#8a7f70;margin-top:2px}
+.upg-buy-btn{padding:7px 6px;min-width:56px;border:1px solid #222;background:linear-gradient(180deg,#1e1e1e,#0f0f0f);color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0;text-align:center;line-height:1.8;font-weight:bold}
 .upg-buy-btn.afford{background:linear-gradient(180deg,#f5a623,#c47d10);border-color:#c47d10;color:#000;box-shadow:0 2px 0 #c47d10}
 .upg-buy-btn.maxed{background:linear-gradient(180deg,#1a3a00,#0f2000);border-color:#2a5a00;color:#4caf50}
 
@@ -960,7 +962,7 @@ function renderTab(){
   if(currentTab==="upgrades") renderUpgrades(c); else renderPrestige(c);
 }
 function renderUpgrades(c){
-  let html="";
+  let inner="";
   UPGRADES.forEach(u=>{
     const level=G.upgrades[u.id]||0, cost=upgradeCost(u);
     const afford=G.dollars>=cost, maxed=level>=u.max;
@@ -971,9 +973,9 @@ function renderUpgrades(c){
     const btnCls="upg-buy-btn"+(maxed?" maxed":afford?" afford":"");
     const btnTxt=maxed?("✓ "+t().maxed):(t().buy+"<br>$"+fmt(cost));
     const statTxt=(u.bps>0?"+"+u.bps+"bps ":"")+(u.tap>0?"+"+u.tap+" tap":"");
-    html+=`<div class="${cardCls}"><div class="upg-icon">${u.icon}</div><div class="upg-info"><div class="upg-row"><span class="upg-name${maxed?" maxed":""}">${name}</span><span class="upg-lvl${maxed?" maxed":""}">${level}/${u.max}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${barCol}"></div></div><div class="upg-stat">${statTxt}</div></div><button class="${btnCls}" onclick="${maxed?"":("handleBuy('"+u.id+"')")}">${btnTxt}</button></div>`;
+    inner+=`<div class="${cardCls}"><div class="upg-icon">${u.icon}</div><div class="upg-info"><div class="upg-row"><span class="upg-name${maxed?" maxed":""}">${name}</span><span class="upg-lvl${maxed?" maxed":""}">${level}/${u.max}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${barCol}"></div></div><div class="upg-stat">${statTxt}</div></div><button class="${btnCls}" onclick="${maxed?"":("handleBuy('"+u.id+"')")}">${btnTxt}</button></div>`;
   });
-  c.innerHTML=html;
+  c.innerHTML=`<div id="upg-list">${inner}</div>`;
 }
 function renderPrestige(c){
   const tt=t();
