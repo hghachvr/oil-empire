@@ -10,10 +10,10 @@
 <title>Oil Empire</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;letter-spacing:0}
 html,body{height:100%;background:#0a0a0a;overflow:hidden;touch-action:manipulation;-webkit-text-size-adjust:100%}
-button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:pointer;touch-action:manipulation}
-#app{font-family:'Press Start 2P',monospace;background:#0a0a0a;height:100dvh;max-width:440px;margin:0 auto;color:#e8e0d0;display:flex;flex-direction:column;overflow:hidden;position:relative;user-select:none;-webkit-user-select:none}
+button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:pointer;touch-action:manipulation;letter-spacing:0}
+#app{font-family:'Press Start 2P',monospace;background:#0a0a0a;height:100dvh;max-width:390px;margin:0 auto;color:#e8e0d0;display:flex;flex-direction:column;overflow:hidden;position:relative;user-select:none;-webkit-user-select:none}
 
 /* Header */
 #header{background:linear-gradient(180deg,#1a0a00,#08080a);border-bottom:3px solid #f5a623;padding:max(env(safe-area-inset-top,0px),8px) 14px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;white-space:nowrap}
@@ -54,9 +54,9 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 #rp-label{font-size:7px;color:#8a7f70;margin-bottom:3px;font-weight:bold}
 #rebirth-ready-text{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:9px;color:#ffd700;animation:rglow 1s ease infinite;display:none;z-index:4;font-weight:bold}
 
-#drill-btn{position:relative;z-index:3;width:165px;height:165px;border-radius:50%;border:5px solid #f5a623;background:radial-gradient(circle at 38% 32%,#3e2c00,#150f00);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:opulse 2.2s ease infinite;outline:none;flex-shrink:0}
-#drill-label{font-size:6px;color:#c47d10;margin-top:4px;text-align:center;letter-spacing:.5px}
-#drill-svg{transition:transform .09s,filter .09s;width:80px;height:80px}
+#drill-btn{position:relative;z-index:3;width:155px;height:155px;border-radius:50%;border:4px solid #f5a623;background:radial-gradient(circle at 38% 32%,#3e2c00,#150f00);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:opulse 2.2s ease infinite;outline:none;flex-shrink:0;padding:0 12px}
+#drill-label{font-size:5px;color:#c47d10;margin-top:4px;text-align:center;line-height:1.6;max-width:110px;word-break:break-word;white-space:normal}
+#drill-svg{transition:transform .09s,filter .09s;width:76px;height:76px;flex-shrink:0}
 
 #particles{position:absolute;inset:0;pointer-events:none;z-index:10;overflow:hidden}
 .particle{position:absolute;font-size:8px;color:#f5a623;font-family:'Press Start 2P',monospace;pointer-events:none;font-weight:bold;white-space:nowrap}
@@ -74,29 +74,27 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 .tab-btn{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:#8a7f70;font-size:8px;font-weight:bold}
 .tab-btn.active{background:#1e2832;border-bottom-color:#f5a623;color:#f5a623}
 
-/* Tab content — fills all remaining space, flex column */
-#tab-content{flex:1;overflow-y:auto;padding:6px 8px 6px;-webkit-overflow-scrolling:touch;min-height:0;display:flex;flex-direction:column}
+/* Tab content — scrolls naturally */
+#tab-content{flex:1;overflow-y:auto;padding:8px 8px 10px;-webkit-overflow-scrolling:touch;min-height:0}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:#111}
 ::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
 
-/* Upgrade cards — stretch to fill, no fixed height */
-#upg-list{flex:1;display:flex;flex-direction:column;gap:0;min-height:0}
-.upg-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:0 10px;margin-bottom:4px;display:flex;align-items:center;gap:10px;transition:border-color .2s;flex:1;min-height:0}
-.upg-card:last-child{margin-bottom:0}
+/* Upgrade cards */
+.upg-card{background:#0f1318;border:1px solid #141414;border-radius:4px;padding:9px 10px;margin-bottom:6px;display:flex;align-items:center;gap:9px;transition:border-color .2s}
 .upg-card.afford{border-color:#2a2a2a}
 .upg-card.maxed{border-color:#1a3a00}
 .upg-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
 .upg-info{flex:1;min-width:0}
 .upg-row{display:flex;justify-content:space-between;margin-bottom:3px}
-.upg-name{font-size:7px;color:#e8e0d0;font-weight:bold}
+.upg-name{font-size:7px;color:#e8e0d0;font-weight:bold;letter-spacing:0}
 .upg-name.maxed{color:#4caf50}
 .upg-lvl{font-size:7px;color:#8a7f70}
 .upg-lvl.maxed{color:#4caf50}
-.prog-bar-bg{background:#0a0a0a;border-radius:2px;height:7px;overflow:hidden;border:1px solid #222}
+.prog-bar-bg{background:#0a0a0a;border-radius:2px;height:6px;overflow:hidden;border:1px solid #222}
 .prog-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
 .upg-stat{font-size:5px;color:#8a7f70;margin-top:2px}
-.upg-buy-btn{padding:7px 6px;min-width:56px;border:1px solid #222;background:linear-gradient(180deg,#1e1e1e,#0f0f0f);color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0;text-align:center;line-height:1.8;font-weight:bold}
+.upg-buy-btn{padding:7px 5px;min-width:54px;border:1px solid #222;background:linear-gradient(180deg,#1e1e1e,#0f0f0f);color:#3a3a3a;font-size:6px;border-radius:2px;flex-shrink:0;text-align:center;line-height:1.8}
 .upg-buy-btn.afford{background:linear-gradient(180deg,#f5a623,#c47d10);border-color:#c47d10;color:#000;box-shadow:0 2px 0 #c47d10}
 .upg-buy-btn.maxed{background:linear-gradient(180deg,#1a3a00,#0f2000);border-color:#2a5a00;color:#4caf50}
 
@@ -384,7 +382,7 @@ function sfxPrestige(){
 // ══════════════════════════════════════════════════════════════
 const T = {
   es:{
-    title:"IMPERIO PETROLERO",tap:"¡TOCA PARA TALADRAR!",barrels:"Barriles",
+    title:"IMPERIO PETROLERO",tap:"TOCA PARA TALADRAR",barrels:"Barriles",
     proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",
     upgrades:"MEJORAS",prestige:"PRESTIGIO",settings:"AJUSTES",
     perSec:"/seg",sellPrice:"$102/barril",
@@ -415,7 +413,7 @@ const T = {
     ]
   },
   en:{
-    title:"OIL EMPIRE",tap:"TAP TO DRILL!",barrels:"Barrels",
+    title:"OIL EMPIRE",tap:"TAP TO DRILL",barrels:"Barrels",
     proc:"Processed",dollars:"Dollars",sell:"SELL ALL",
     upgrades:"UPGRADES",prestige:"PRESTIGE",settings:"SETTINGS",
     perSec:"/sec",sellPrice:"$102/barrel",
@@ -962,7 +960,7 @@ function renderTab(){
   if(currentTab==="upgrades") renderUpgrades(c); else renderPrestige(c);
 }
 function renderUpgrades(c){
-  let inner="";
+  let html="";
   UPGRADES.forEach(u=>{
     const level=G.upgrades[u.id]||0, cost=upgradeCost(u);
     const afford=G.dollars>=cost, maxed=level>=u.max;
@@ -973,9 +971,9 @@ function renderUpgrades(c){
     const btnCls="upg-buy-btn"+(maxed?" maxed":afford?" afford":"");
     const btnTxt=maxed?("✓ "+t().maxed):(t().buy+"<br>$"+fmt(cost));
     const statTxt=(u.bps>0?"+"+u.bps+"bps ":"")+(u.tap>0?"+"+u.tap+" tap":"");
-    inner+=`<div class="${cardCls}"><div class="upg-icon">${u.icon}</div><div class="upg-info"><div class="upg-row"><span class="upg-name${maxed?" maxed":""}">${name}</span><span class="upg-lvl${maxed?" maxed":""}">${level}/${u.max}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${barCol}"></div></div><div class="upg-stat">${statTxt}</div></div><button class="${btnCls}" onclick="${maxed?"":("handleBuy('"+u.id+"')")}">${btnTxt}</button></div>`;
+    html+=`<div class="${cardCls}"><div class="upg-icon">${u.icon}</div><div class="upg-info"><div class="upg-row"><span class="upg-name${maxed?" maxed":""}">${name}</span><span class="upg-lvl${maxed?" maxed":""}">${level}/${u.max}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${barCol}"></div></div><div class="upg-stat">${statTxt}</div></div><button class="${btnCls}" onclick="${maxed?"":("handleBuy('"+u.id+"')")}">${btnTxt}</button></div>`;
   });
-  c.innerHTML=`<div id="upg-list">${inner}</div>`;
+  c.innerHTML=html;
 }
 function renderPrestige(c){
   const tt=t();
