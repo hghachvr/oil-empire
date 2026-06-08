@@ -531,7 +531,21 @@ function rebirthItemsPct(){return UPGRADES.filter(u=>(G.upgrades[u.id]||0)>=u.ma
 function rebirthMoneyPct(){return Math.min(1,G.dollars/REBIRTH_MONEY);}
 
 // ══════════════════════ SAVE / LOAD ══════════════════════
-function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({...G,savedAt:Date.now()}));}catch(e){}}
+function saveGame(){
+  // Always clear active event on save so it doesn't persist offline
+  const toSave={...G, activeEvent:null, eventEnd:0, savedAt:Date.now()};
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(toSave));}catch(e){}
+}
+
+function calcOfflineBPS(s){
+  // Reconstruct BPS from saved state (no bonuses that require live state)
+  let bps=0;
+  UPGRADES.forEach(u=>{bps+=u.bps*(s.upgrades?.[u.id]||0);});
+  const prest=s.prestigeBought?.includes("oil_rush")?2.0:1;
+  const pty=s.prestigeBought?.includes("tycoon")?2.0:1;
+  return bps*(s.rebirthMult||1)*prest*pty;
+}
+
 function loadGame(){
   try{
     const raw=localStorage.getItem(SAVE_KEY);
@@ -543,13 +557,26 @@ function loadGame(){
     if(!G.seenMilestones)G.seenMilestones=[];
     if(!G.achievements)G.achievements=[];
     if(!G.investments)G.investments=[];
-    G.totalTaps=G.totalTaps||0; G.maxCombo=G.maxCombo||0; G.eventsUsed=G.eventsUsed||0;
+    G.totalTaps=G.totalTaps||0;G.maxCombo=G.maxCombo||0;G.eventsUsed=G.eventsUsed||0;
+    // Always kill any saved event — events only run while app is open
+    G.activeEvent=null;G.eventEnd=0;
+
     if(s.savedAt){
-      const offSec=(Date.now()-s.savedAt)/1000;
-      if(offSec>30){
-        let bpsV=0;UPGRADES.forEach(u=>{bpsV+=u.bps*(s.upgrades?.[u.id]||0);});
-        const ob=Math.floor(bpsV*offSec*(s.rebirthMult||1)*0.5);
-        if(ob>0){openOfflineModal(Date.now()-s.savedAt,ob);return;}
+      const offSec=Math.min((Date.now()-s.savedAt)/1000, 8*3600); // cap at 8 hours
+      if(offSec>5){
+        const bpsV=calcOfflineBPS(s);
+        const offBarrels=Math.floor(bpsV*offSec);
+        const offProcessed=Math.floor(bpsV*offSec*0.8);
+        if(offBarrels>0){
+          // Apply directly to state (already loaded via Object.assign)
+          G.barrels+=offBarrels;
+          G.processed+=offProcessed;
+          if(offSec>120){
+            // Only show modal if away more than 2 minutes
+            openOfflineModal(Date.now()-s.savedAt, offBarrels, offProcessed);
+            return;
+          }
+        }
       }
     }
     if(!G.tutDone)showTutorial();
@@ -959,13 +986,24 @@ function openModal(type){
   }
   document.getElementById("modal-overlay").classList.add("show");
 }
-function openOfflineModal(ms,barrels){
+function openOfflineModal(ms,barrels,processed){
   const tt=t();currentModal="offline";
-  document.getElementById("modal-box").innerHTML=`<div class="modal-title">${tt.offline_title}</div><div class="modal-desc">${tt.offline_away} <span style="color:#f5a623">${fmtTime(ms)}</span><br><br>${tt.offline_earned}<br><span class="offline-barrel">🛢️ ${fmt(barrels)}</span></div><div class="btn-row"><button class="btn-primary" onclick="claimOffline(${barrels})">${tt.offline_claim}</button></div>`;
+  const hrs=Math.floor(ms/3600000), mins=Math.floor((ms%3600000)/60000);
+  const timeStr=hrs>0?hrs+"h "+mins+"m":mins+"m";
+  document.getElementById("modal-box").innerHTML=`
+    <div class="modal-title">${tt.offline_title}</div>
+    <div class="modal-desc" style="line-height:2.4">
+      ${tt.offline_away} <span style="color:#f5a623">${timeStr}</span><br><br>
+      <span style="color:#8a7f70">${tt.offline_earned}</span><br>
+      <span class="offline-barrel">🛢️ +${fmt(barrels)} barriles</span><br>
+      <span style="color:#64b5f6;font-size:12px">⚗️ +${fmt(processed)} procesados</span>
+    </div>
+    <div class="btn-row"><button class="btn-primary" onclick="claimOffline()">${tt.offline_claim}</button></div>`;
   document.getElementById("modal-overlay").classList.add("show");
   if(!G.tutDone)setTimeout(showTutorial,500);
 }
-function claimOffline(barrels){G.barrels+=barrels;closeModal();updateStats();}
+// Offline resources already applied in loadGame — just close
+function claimOffline(){closeModal();updateStats();}
 function closeModal(){document.getElementById("modal-overlay").classList.remove("show");currentModal=null;}
 function closeModalIfBackdrop(e){if(e.target===document.getElementById("modal-overlay")||e.target===document.getElementById("modal-backdrop"))closeModal();}
 function confirmReset(){if(confirm("¿Borrar todo el progreso?\nReset all progress?")){localStorage.removeItem(SAVE_KEY);location.reload();}}
