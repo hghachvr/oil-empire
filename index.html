@@ -982,7 +982,7 @@ function openModal(type){
     const active=G.boostActive&&Date.now()<G.boostEnd;
     box.innerHTML=`<div class="modal-title blue">🚀 ${tt.adsTitle}</div><div class="modal-desc">${tt.adsDesc}</div>${active?`<div style="text-align:center;color:#4caf50;font-size:10px;margin-bottom:12px">${tt.adsActive}: ${fmtTime(G.boostEnd-Date.now())}</div>`:""}<div class="btn-row"><button class="btn-sec" onclick="closeModal()">${tt.close}</button>${!active?`<button class="btn-blue" onclick="handleBoost()">${tt.adsWatch}</button>`:""}</div>`;
   }else if(type==="settings"){
-    box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div><div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div><div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div><div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div><div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div><div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
+    box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div><div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div><div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div><div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${Notification.permission==='granted'?'border-color:#4caf50;color:#4caf50':''}">${Notification.permission==='granted'?(G.lang==='es'?'🔔 ON':'🔔 ON'):(G.lang==='es'?'🔕 OFF':'🔕 OFF')}</button></div><div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div><div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div><div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
   }
   document.getElementById("modal-overlay").classList.add("show");
 }
@@ -1031,6 +1031,70 @@ sceneLevel=getSceneLevel();buildScene();
 setInterval(saveGame,10000);
 startEventSystem();
 gameLoop();
+initNotifications();
+
+// ══════════════════════ NOTIFICATIONS ══════════════════════
+let swReg = null;
+
+async function initNotifications(){
+  if(!('serviceWorker' in navigator) || !('Notification' in window)) return;
+  try{
+    // Register SW
+    swReg = await navigator.serviceWorker.register('/sw.js');
+
+    // Ask permission on first meaningful interaction (not on load)
+    // We request after the first tap instead of immediately
+    document.getElementById('drill-btn').addEventListener('pointerdown', askNotifPermissionOnce, {once:true});
+
+    // When page hides (user switches app / locks screen): schedule notifications
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden) scheduleOfflineNotifs();
+      else cancelOfflineNotifs();
+    });
+    window.addEventListener('pagehide', scheduleOfflineNotifs);
+    window.addEventListener('pageshow', cancelOfflineNotifs);
+  } catch(e){}
+}
+
+async function askNotifPermissionOnce(){
+  if(Notification.permission === 'granted') return;
+  if(Notification.permission === 'denied')  return;
+  try{
+    const result = await Notification.requestPermission();
+    if(result === 'granted'){
+      flash(G.lang==='es'?'🔔 Notificaciones activadas':'🔔 Notifications enabled','#4caf50');
+    }
+  } catch(e){}
+}
+
+function scheduleOfflineNotifs(){
+  if(!swReg || Notification.permission !== 'granted') return;
+  const bps = totalBPS();
+  swReg.active?.postMessage({ type:'SCHEDULE_NOTIFICATIONS', lang:G.lang, bps });
+}
+
+function cancelOfflineNotifs(){
+  if(!swReg) return;
+  swReg.active?.postMessage({ type:'CANCEL_NOTIFICATIONS' });
+}
+
+async function toggleNotifications(btn){
+  if(Notification.permission === 'denied'){
+    flash(G.lang==='es'?'Actívalas en ajustes del sistema':'Enable in system settings','#e53935');
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    // Can't revoke programmatically — tell user to do it manually
+    flash(G.lang==='es'?'Desactívalas en ajustes del sistema':'Disable in system settings','#8a7f70');
+    return;
+  }
+  // Not yet asked — request now
+  const result = await Notification.requestPermission();
+  if(result === 'granted'){
+    btn.textContent='🔔 ON'; btn.style.borderColor='#4caf50'; btn.style.color='#4caf50';
+    flash(G.lang==='es'?'🔔 Notificaciones activadas':'🔔 Notifications enabled','#4caf50');
+  }
+}
 </script>
 </body>
 </html>
