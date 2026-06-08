@@ -365,21 +365,24 @@ const UPGRADES=[
 ];
 
 const PRESTIGE_UPGRADES=[
-  {id:"golden",   icon:"🪙",en:"Golden Drill",   es:"Taladro Dorado",     cost:3, en_d:"+75% tap power",        es_d:"+75% fuerza de toque"},
-  {id:"oil_rush", icon:"💨",en:"Oil Rush",       es:"Fiebre del Petróleo",cost:5, en_d:"+150% auto production", es_d:"+150% producción auto"},
-  {id:"black",    icon:"⚫",en:"Black Gold",     es:"Oro Negro",          cost:8, en_d:"+35% sell price",       es_d:"+35% precio de venta"},
-  {id:"megaboost",icon:"🚀",en:"Mega Boost",     es:"Mega Impulso",       cost:12,en_d:"Ad boost lasts 20 min", es_d:"Impulso dura 20 min"},
-  {id:"deep",     icon:"💎",en:"Deep Core Drill",es:"Taladro de Núcleo",  cost:20,en_d:"×2 barrels per tap",    es_d:"×2 barriles por toque"},
+  // Unlocks at rebirth 2 — early rewards
+  {id:"golden",   icon:"🪙",en:"Golden Drill",    es:"Taladro Dorado",      cost:8,  minRebirth:2, en_d:"+50% tap power",         es_d:"+50% fuerza de toque"},
+  {id:"oil_rush", icon:"💨",en:"Oil Rush",        es:"Fiebre del Petróleo", cost:12, minRebirth:3, en_d:"+100% auto production",  es_d:"+100% producción auto"},
+  {id:"black",    icon:"⚫",en:"Black Gold",      es:"Oro Negro",           cost:20, minRebirth:4, en_d:"+25% sell price",        es_d:"+25% precio de venta"},
+  {id:"megaboost",icon:"🚀",en:"Mega Boost",      es:"Mega Impulso",        cost:35, minRebirth:5, en_d:"Ad boost lasts 20 min",  es_d:"Impulso dura 20 min"},
+  {id:"deep",     icon:"💎",en:"Deep Core Drill", es:"Taladro de Núcleo",   cost:55, minRebirth:7, en_d:"×1.5 barrels per tap",   es_d:"×1.5 barriles por toque"},
+  {id:"tycoon",   icon:"🏆",en:"Oil Tycoon",      es:"Magnate Petrolero",   cost:80, minRebirth:10,en_d:"+100% everything",       es_d:"+100% a todo"},
 ];
 
-// ── INVESTMENTS (permanent bonuses per run, bought with dollars) ──
+// ── INVESTMENTS — unlock one per rebirth (rebirth 1 = first slot, etc.)
+// costs are BASE costs; actual cost = base * (1 + rebirths * 0.4)
 const INVESTMENTS=[
-  {id:"contract", icon:"📄",en:"Refinery Contract",  es:"Contrato Refinería", cost:50000,    en_d:"+20% sell price",         es_d:"+20% precio de venta",    bonus:{sellMult:0.20}},
-  {id:"crew",     icon:"👷",en:"Expert Crew",         es:"Equipo Experto",     cost:200000,   en_d:"+30% tap power",          es_d:"+30% fuerza de toque",    bonus:{tapMult:0.30}},
-  {id:"pipeline2",icon:"🔧",en:"Turbo Pipelines",     es:"Tuberías Turbo",     cost:800000,   en_d:"+40% auto production",    es_d:"+40% producción auto",    bonus:{bpsMult:0.40}},
-  {id:"offshore", icon:"🌊",en:"Offshore Drilling",   es:"Perforación Offshore",cost:3000000, en_d:"Unlock tier 2 upgrades",  es_d:"Desbloquea mejoras tier 2",bonus:{tier2:true}},
-  {id:"ai",       icon:"🤖",en:"AI Optimization",     es:"Optimización IA",    cost:15000000, en_d:"+60% all production",     es_d:"+60% toda producción",    bonus:{allMult:0.60}},
-  {id:"monopoly", icon:"👑",en:"Market Monopoly",     es:"Monopolio del Mercado",cost:80000000,en_d:"×2 sell price",           es_d:"×2 precio de venta",      bonus:{sellMult2x:true}},
+  {id:"contract", icon:"📄",en:"Refinery Contract",    es:"Contrato Refinería",    baseCost:80000,     minRebirth:1, en_d:"+15% sell price",       es_d:"+15% precio de venta",    bonus:{sellMult:0.15}},
+  {id:"crew",     icon:"👷",en:"Expert Crew",           es:"Equipo Experto",        baseCost:350000,    minRebirth:2, en_d:"+25% tap power",         es_d:"+25% fuerza de toque",    bonus:{tapMult:0.25}},
+  {id:"pipeline2",icon:"🔧",en:"Turbo Pipelines",       es:"Tuberías Turbo",        baseCost:1500000,   minRebirth:3, en_d:"+35% auto production",   es_d:"+35% producción auto",    bonus:{bpsMult:0.35}},
+  {id:"offshore", icon:"🌊",en:"Offshore Drilling",     es:"Perforación Offshore",  baseCost:8000000,   minRebirth:4, en_d:"+50% all production",    es_d:"+50% toda producción",    bonus:{allMult:0.50}},
+  {id:"ai",       icon:"🤖",en:"AI Optimization",       es:"Optimización IA",       baseCost:40000000,  minRebirth:5, en_d:"+80% auto production",   es_d:"+80% producción auto",    bonus:{bpsMult:0.80}},
+  {id:"monopoly", icon:"👑",en:"Market Monopoly",       es:"Monopolio del Mercado", baseCost:200000000, minRebirth:6, en_d:"×1.5 sell price",        es_d:"×1.5 precio de venta",    bonus:{sellMult2x:true}},
 ];
 
 // ── ACHIEVEMENTS ──
@@ -411,7 +414,7 @@ const EVENTS_CONFIG=[
 ];
 
 const REBIRTH_MONEY=500000000;
-const SAVE_KEY="oilempire5";
+const SAVE_KEY="oilempire6";
 const BASE_SELL=102;
 
 // ══════════════════════ STATE ══════════════════════
@@ -439,7 +442,17 @@ let eventCheckTimer=null;
 function t(){return T[G.lang];}
 function fmt(n){ if(n>=1e12)return(n/1e12).toFixed(2)+"T";if(n>=1e9)return(n/1e9).toFixed(2)+"B";if(n>=1e6)return(n/1e6).toFixed(2)+"M";if(n>=1e3)return(n/1e3).toFixed(1)+"K";return Math.floor(n).toString(); }
 function fmtTime(ms){ const s=Math.ceil(ms/1000),m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss; }
-function upgradeCost(u){return Math.floor(u.base*Math.pow(u.mult,G.upgrades[u.id]||0));}
+function upgradeCost(u){
+  // Base cost scales up by 30% per rebirth so grinding stays meaningful
+  const rebirthScale=Math.pow(1.30,G.rebirths);
+  return Math.floor(u.base*rebirthScale*Math.pow(u.mult,G.upgrades[u.id]||0));
+}
+
+function investmentCost(inv){
+  // Investment costs scale by 40% per rebirth above minRebirth
+  const extraRebirths=Math.max(0,G.rebirths-inv.minRebirth+1);
+  return Math.floor(inv.baseCost*Math.pow(1.40,extraRebirths));
+}
 
 function getAchievementBonus(){
   let tapMult=1,bpsMult=1,sellMult=1,allMult=1,ppBonus=0;
@@ -462,7 +475,7 @@ function getInvestmentBonus(){
     const inv=INVESTMENTS.find(x=>x.id===id);if(!inv)return;
     const b=inv.bonus;
     if(b.sellMult)  sellMult += b.sellMult;
-    if(b.sellMult2x)sellMult *= 2;
+    if(b.sellMult2x)sellMult *= 1.5;
     if(b.tapMult)   tapMult  += b.tapMult;
     if(b.bpsMult)   bpsMult  += b.bpsMult;
     if(b.allMult){  tapMult+=b.allMult;bpsMult+=b.allMult;sellMult+=b.allMult; }
@@ -485,11 +498,12 @@ function totalBPS(){
   let bps=0;
   UPGRADES.forEach(u=>{bps+=u.bps*(G.upgrades[u.id]||0);});
   const boost=G.boostActive&&Date.now()<G.boostEnd?3:1;
-  const prest=G.prestigeBought.includes("oil_rush")?2.5:1;
+  const prest=G.prestigeBought.includes("oil_rush")?2.0:1;
+  const pty=G.prestigeBought.includes("tycoon")?2.0:1;
   const ab=getAchievementBonus();
   const ib=getInvestmentBonus();
   const eb=getEventBonus();
-  return bps*G.rebirthMult*boost*prest*ab.bpsMult*ib.bpsMult*eb.bpsMult;
+  return bps*G.rebirthMult*boost*prest*pty*ab.bpsMult*ib.bpsMult*eb.bpsMult;
 }
 
 function tapPower(){
@@ -497,11 +511,12 @@ function tapPower(){
   UPGRADES.forEach(u=>{if(u.tap)tp+=u.tap*(G.upgrades[u.id]||0);});
   const boost=G.boostActive&&Date.now()<G.boostEnd?3:1;
   const combo=1+Math.min(comboCount*0.08,1.5);
-  const pg=G.prestigeBought.includes("golden")?1.75:1;
-  const pd=G.prestigeBought.includes("deep")?2:1;
+  const pg=G.prestigeBought.includes("golden")?1.50:1;
+  const pd=G.prestigeBought.includes("deep")?1.5:1;
+  const pty=G.prestigeBought.includes("tycoon")?2.0:1;
   const ab=getAchievementBonus();
   const ib=getInvestmentBonus();
-  return tp*G.rebirthMult*boost*combo*pg*pd*ab.tapMult*ib.tapMult;
+  return tp*G.rebirthMult*boost*combo*pg*pd*pty*ab.tapMult*ib.tapMult;
 }
 
 function sellPrice(){
@@ -726,8 +741,10 @@ function handleBuy(id){
 function handleBuyInvestment(id){
   const inv=INVESTMENTS.find(x=>x.id===id);if(!inv)return;
   if((G.investments||[]).includes(id)){sfxError();return;}
-  if(G.dollars<inv.cost){sfxError();flash(t().notEnough,"#e53935");return;}
-  sfxInvest();G.dollars-=inv.cost;
+  if(G.rebirths<inv.minRebirth){sfxError();flash(G.lang==="es"?"¡Requiere más Renacimientos!":"Requires more Rebirths!","#e53935");return;}
+  const cost=investmentCost(inv);
+  if(G.dollars<cost){sfxError();flash(t().notEnough,"#e53935");return;}
+  sfxInvest();G.dollars-=cost;
   G.investments=G.investments||[];G.investments.push(id);
   const name=G.lang==="en"?inv.en:inv.es;
   flash("💼 "+name,"#42a5f5");
@@ -738,14 +755,16 @@ function handleRebirth(){
   if(!canRebirth()){sfxError();flash(G.lang==="es"?"¡Requisitos no cumplidos!":"Requirements not met!","#e53935");return;}
   sfxRebirth();
   const nc=G.rebirths+1;
-  const ab=getAchievementBonus();
-  const pp=Math.max(2,Math.floor(Math.log2(Math.max(G.totalEarned/1e6,2))))+ab.ppBonus;
+  // PP formula: 1 base + 1 extra every 2 rebirths (so 1,1,2,2,3,3,4...)
+  // Very slow to accumulate — max ~3-4 PP per rebirth at high rebirths
+  const ppBase=1+Math.floor(nc/2);
+  const pp=Math.min(ppBase,5); // Hard cap: never more than 5 PP per rebirth
   G.rebirths=nc;G.rebirthMult=Math.pow(1.2,nc);G.pp=(G.pp||0)+pp;
   G.barrels=0;G.processed=0;G.dollars=0;G.totalEarned=0;oilLevel=0;G.totalTaps=0;
   G.seenMilestones=[];G.investments=[];G.activeEvent=null;
   UPGRADES.forEach(u=>{G.upgrades[u.id]=0;});
   applyNewGameBonus();
-  closeModal();flash("🌟 REBIRTH! ×"+G.rebirthMult.toFixed(2),"#ffd700");
+  closeModal();flash("🌟 REBIRTH! ×"+G.rebirthMult.toFixed(2)+" +"+pp+"PP","#ffd700");
   sceneLevel=0;buildScene();checkAchievements();updateStats();renderTab();updateRebirthUI();
 }
 
@@ -866,15 +885,18 @@ function renderUpgrades(c){
 
 function renderInvestments(c){
   const owned=G.investments||[];
-  let html=`<div style="font-size:6px;color:#8a7f70;margin-bottom:8px;padding:0 2px;line-height:1.8">${G.lang==="es"?"Inversiones permanentes para esta partida. Se pierden al Renacer.":"Permanent bonuses for this run. Lost on Rebirth."}</div>`;
+  let html=`<div style="font-size:6px;color:#8a7f70;margin-bottom:8px;padding:0 2px;line-height:1.8">${G.lang==="es"?"Bonos permanentes para esta partida. Se pierden al Renacer. Se desbloquean con cada Renacimiento.":"Permanent bonuses for this run. Lost on Rebirth. Unlock with each Rebirth."}</div>`;
   INVESTMENTS.forEach(inv=>{
     const isOwned=owned.includes(inv.id);
-    const afford=!isOwned&&G.dollars>=inv.cost;
+    const unlocked=G.rebirths>=inv.minRebirth;
+    const cost=investmentCost(inv);
+    const afford=!isOwned&&unlocked&&G.dollars>=cost;
     const name=G.lang==="en"?inv.en:inv.es;
     const desc=G.lang==="en"?inv.en_d:inv.es_d;
-    const btnCls="inv-buy-btn"+(isOwned?" owned":afford?" afford":"");
-    const btnTxt=isOwned?"✓ ACTIVO":"$"+fmt(inv.cost);
-    html+=`<div class="inv-card${isOwned?" owned":""}"><div class="inv-icon">${inv.icon}</div><div class="inv-info"><div class="inv-name">${name}</div><div class="inv-desc">${desc}</div></div><button class="${btnCls}" onclick="${isOwned?"":("handleBuyInvestment('"+inv.id+"')")}">${btnTxt}</button></div>`;
+    let btnCls="inv-buy-btn"+(isOwned?" owned":afford?" afford":"");
+    let btnTxt=isOwned?"✓ ACTIVO":unlocked?"$"+fmt(cost):"🔒 R"+inv.minRebirth;
+    let cardStyle=!unlocked?"opacity:.35;":"";
+    html+=`<div class="inv-card${isOwned?" owned":""}" style="${cardStyle}"><div class="inv-icon">${inv.icon}</div><div class="inv-info"><div class="inv-name">${name}${!unlocked?` <span style="font-size:5px;color:#555">· Rebirth ${inv.minRebirth}</span>`:""}</div><div class="inv-desc">${desc}</div></div><button class="${btnCls}" onclick="${isOwned||!unlocked?"":("handleBuyInvestment('"+inv.id+"')")}">${btnTxt}</button></div>`;
   });
   c.innerHTML=html;
 }
@@ -911,8 +933,12 @@ function renderPrestige(c){
   <button class="${btnCls}" onclick="${btnClick}">${btnTxt}</button></div>`;
   PRESTIGE_UPGRADES.forEach(pu=>{
     const owned=G.prestigeBought.includes(pu.id),afford=(G.pp||0)>=pu.cost;
+    const unlocked=G.rebirths>=pu.minRebirth;
     const name=G.lang==="en"?pu.en:pu.es,desc=G.lang==="en"?pu.en_d:pu.es_d;
-    html+=`<div class="prest-card${owned?" owned":""}"><div class="prest-inner"><span class="prest-icon">${pu.icon}</span><div style="flex:1"><div class="prest-name" style="color:${owned?"#ce93d8":"#e8e0d0"}">${name} ${owned?"✓":""}</div><div class="prest-desc">${desc}</div></div>${!owned?`<button class="prest-buy-btn${afford?" afford":""}" onclick="handlePrestigeBuy('${pu.id}')">⭐${pu.cost}</button>`:""}</div></div>`;
+    let btnTxt=owned?"✓":unlocked?("⭐"+pu.cost):("🔒 R"+pu.minRebirth);
+    let btnCls="prest-buy-btn"+(owned?"":unlocked&&afford?" afford":"");
+    let cardStyle=!unlocked&&!owned?"opacity:.35;":"";
+    html+=`<div class="prest-card${owned?" owned":""}" style="${cardStyle}"><div class="prest-inner"><span class="prest-icon">${pu.icon}</span><div style="flex:1"><div class="prest-name" style="color:${owned?"#ce93d8":"#e8e0d0"}">${name} ${owned?"✓":""}</div><div class="prest-desc">${desc}${!unlocked&&!owned?` · <span style="color:#555">Rebirth ${pu.minRebirth}</span>`:""}</div></div>${!owned?`<button class="${btnCls}" onclick="${unlocked?("handlePrestigeBuy('"+pu.id+"')"):"sfxError()"}">${btnTxt}</button>`:""}</div></div>`;
   });
   c.innerHTML=html;
 }
@@ -922,8 +948,8 @@ function openModal(type){
   currentModal=type;const box=document.getElementById("modal-box"),tt=t();
   if(type==="rebirth"){
     const nextMult=Math.pow(1.2,G.rebirths+1);
-    const ab=getAchievementBonus();
-    const pp=Math.max(2,Math.floor(Math.log2(Math.max(G.totalEarned/1e6,2))))+ab.ppBonus;
+    const nc=G.rebirths+1;
+    const pp=Math.min(1+Math.floor(nc/2),5);
     box.innerHTML=`<div class="modal-title gold">🌟 ${tt.rebirthTitle}</div><div class="modal-desc">${tt.rebirthDesc}</div><div class="modal-row"><span class="modal-row-label">${tt.rebirthCount}:</span><span style="color:#ffd700">${G.rebirths} → ${G.rebirths+1}</span></div><div class="modal-row"><span class="modal-row-label">${tt.rebirthBonus}:</span><span style="color:#4caf50">×${G.rebirthMult.toFixed(2)} → ×${nextMult.toFixed(2)}</span></div><div class="modal-row"><span class="modal-row-label">Prestige Points:</span><span style="color:#ce93d8">+${pp} PP</span></div><div class="btn-row" style="margin-top:12px"><button class="btn-sec" onclick="closeModal()">${tt.rebirthCancel}</button><button class="btn-gold" onclick="handleRebirth()">${tt.rebirthConfirm}</button></div>`;
   }else if(type==="boost"){
     const active=G.boostActive&&Date.now()<G.boostEnd;
