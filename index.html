@@ -913,10 +913,13 @@ function checkMilestones(){
 // ══════════════════════ GAME LOOP ══════════════════════
 function gameLoop(){
   const now=Date.now(),dt=Math.min((now-lastTime)/1000,0.5);lastTime=now;
-  // Auto-production only starts after user taps the drill
+  // Auto-production only starts after user taps AND owns at least one auto upgrade (pump or higher)
   if(G.gameStarted){
-    const bps=totalBPS();
-    if(bps>0){const g=bps*dt;G.barrels+=g;G.processed+=g*0.8;oilLevel=Math.min(100,oilLevel+g*0.02);}
+    const hasAuto=UPGRADES.some(u=>u.bps>0&&u.tap===0&&(G.upgrades[u.id]||0)>0);
+    if(hasAuto){
+      const bps=totalBPS();
+      if(bps>0){const g=bps*dt;G.barrels+=g;G.processed+=g*0.8;oilLevel=Math.min(100,oilLevel+g*0.02);}
+    }
   }
   if(G.boostActive&&now>G.boostEnd){G.boostActive=false;}
   if(canRebirth()&&!G.seenMilestones.includes("rebirth_ready"))checkMilestones();
