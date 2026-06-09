@@ -144,7 +144,7 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 #modal-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center}
 #modal-overlay.show{display:flex}
 #modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.9)}
-#modal-box{position:relative;z-index:1;background:#0f1318;border:2px solid #f5a623;border-radius:4px;padding:18px;max-width:340px;width:92%;box-shadow:0 0 35px #f5a62325;max-height:88vh;overflow-y:auto}
+#modal-box{position:relative;z-index:1;background:#0f1318;border:2px solid #f5a623;border-radius:4px;padding:18px;max-width:340px;width:92%;box-shadow:0 0 35px #f5a62325;max-height:88vh;overflow-y:auto;touch-action:pan-y}
 .modal-title{font-size:10px;color:#f5a623;margin-bottom:10px;text-align:center}
 .modal-title.gold{color:#ffd700;text-shadow:0 0 14px #ffd700}
 .modal-title.blue{color:#64b5f6}
@@ -196,9 +196,9 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
   <div id="header">
     <div id="title">IMPERIO PETROLERO</div>
     <div id="hbtns">
-      <button class="hbtn" id="boost-hbtn" ontouchstart="openModal('boost')" onclick="openModal('boost')">🚀</button>
-      <button class="hbtn" id="rebirth-btn" ontouchstart="openModal('rebirth')" onclick="openModal('rebirth')">🌟</button>
-      <button class="hbtn" id="settings-btn" ontouchstart="openModal('settings')" onclick="openModal('settings')">⚙️</button>
+      <button class="hbtn" id="boost-hbtn" onclick="openModal('boost')">🚀</button>
+      <button class="hbtn" id="rebirth-btn" onclick="openModal('rebirth')">🌟</button>
+      <button class="hbtn" id="settings-btn" onclick="openModal('settings')">⚙️</button>
     </div>
   </div>
 
@@ -337,7 +337,7 @@ function sfxPrestige(){ [262,330,392,523,659].forEach((f,i)=>setTimeout(()=>play
 
 // ══════════════════════ TRANSLATIONS ══════════════════════
 const T={
-es:{title:"IMPERIO PETROLERO",tap:"TOCA PARA TALADRAR",barrels:"Barriles",proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",upgrades:"MEJORAS",prestige:"PRESTIGIO",invest:"INVERSIÓN",achievements:"LOGROS",settings:"AJUSTES",perSec:"/seg",sellPrice:"$102/barril",rebirthTitle:"RENACIMIENTO",rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",rebirthBonus:"Bono de Ganancias",rebirthCount:"Renacimientos",rebirthConfirm:"RENACER AHORA",rebirthCancel:"CANCELAR",rebirthLocked:"🔒 BLOQUEADO",rebirthReqItems:"Todas las mejoras al MAX",rebirthReqMoney:"$500,000,000 en efectivo",adsTitle:"IMPULSO ×3",adsDesc:"¡Obtén ×3 recursos por 10 minutos!",adsWatch:"ACTIVAR IMPULSO",adsActive:"IMPULSO ACTIVO",notEnough:"¡No hay suficiente $!",maxed:"MAX",buy:"COMPRAR",close:"CERRAR",language:"Idioma",tutorial:"Tutorial",save:"Guardar",reset:"Reset",tutorial_skip:"OMITIR",tutorial_next:"SIGUIENTE",tutorial_done:"¡LISTO!",offline_title:"¡Bienvenido de nuevo!",offline_away:"Estuviste fuera por",offline_earned:"Ganancias offline:",offline_claim:"¡RECLAMAR!",eventActive:"EVENTO ACTIVO",bonus:"BONO",
+es:{title:"IMPERIO PETROLERO",tap:"TOCA PARA TALADRAR",barrels:"Barriles",proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",upgrades:"MEJORAS",prestige:"PRESTIGIO",invest:"INVERSIÓN",achievements:"LOGROS",settings:"AJUSTES",perSec:"/seg",sellPrice:"$102/barril",rebirthTitle:"RENACIMIENTO",rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",rebirthBonus:"Bono de Ganancias",rebirthCount:"Renacimientos",rebirthConfirm:"RENACER AHORA",rebirthCancel:"CANCELAR",rebirthLocked:"🔒 BLOQUEADO",rebirthReqItems:"Todas las mejoras al MAX",rebirthReqMoney:"$2,000,000,000 en efectivo",adsTitle:"IMPULSO ×3",adsDesc:"¡Obtén ×3 recursos por 10 minutos!",adsWatch:"ACTIVAR IMPULSO",adsActive:"IMPULSO ACTIVO",notEnough:"¡No hay suficiente $!",maxed:"MAX",buy:"COMPRAR",close:"CERRAR",language:"Idioma",tutorial:"Tutorial",save:"Guardar",reset:"Reset",tutorial_skip:"OMITIR",tutorial_next:"SIGUIENTE",tutorial_done:"¡LISTO!",offline_title:"¡Bienvenido de nuevo!",offline_away:"Estuviste fuera por",offline_earned:"Ganancias offline:",offline_claim:"¡RECLAMAR!",eventActive:"EVENTO ACTIVO",bonus:"BONO",
 tuts:[
   {t:"¡Bienvenido a Imperio Petrolero!",d:"¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo."},
   {t:"¡Toca para Extraer!",d:"Toca rápido para construir COMBOS y multiplicar tu poder. ¡Los 3 primeros taladros son gratis!"},
@@ -348,7 +348,7 @@ tuts:[
   {t:"Eventos",d:"¡Aparecen eventos aleatorios! Precio del petróleo ×2, pozos extra y más. ¡Aprovéchalos!"},
   {t:"¡Estás Listo!",d:"¡Construye tu Imperio Petrolero y domina el mercado energético global!"},
 ]},
-en:{title:"OIL EMPIRE",tap:"TAP TO DRILL",barrels:"Barrels",proc:"Processed",dollars:"Dollars",sell:"SELL ALL",upgrades:"UPGRADES",prestige:"PRESTIGE",invest:"INVEST",achievements:"ACHIEVEMENTS",settings:"SETTINGS",perSec:"/sec",sellPrice:"$102/barrel",rebirthTitle:"REBIRTH",rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",rebirthBonus:"Earnings Bonus",rebirthCount:"Rebirths",rebirthConfirm:"REBIRTH NOW",rebirthCancel:"CANCEL",rebirthLocked:"🔒 LOCKED",rebirthReqItems:"All upgrades at MAX level",rebirthReqMoney:"$500,000,000 cash",adsTitle:"BOOST ×3",adsDesc:"Get ×3 resources for 10 minutes!",adsWatch:"ACTIVATE BOOST",adsActive:"BOOST ACTIVE",notEnough:"Not enough $!",maxed:"MAX",buy:"BUY",close:"CLOSE",language:"Language",tutorial:"Tutorial",save:"Save",reset:"Reset",tutorial_skip:"SKIP",tutorial_next:"NEXT",tutorial_done:"DONE!",offline_title:"Welcome Back!",offline_away:"You were away for",offline_earned:"Offline earnings:",offline_claim:"CLAIM!",eventActive:"ACTIVE EVENT",bonus:"BONUS",
+en:{title:"OIL EMPIRE",tap:"TAP TO DRILL",barrels:"Barrels",proc:"Processed",dollars:"Dollars",sell:"SELL ALL",upgrades:"UPGRADES",prestige:"PRESTIGE",invest:"INVEST",achievements:"ACHIEVEMENTS",settings:"SETTINGS",perSec:"/sec",sellPrice:"$102/barrel",rebirthTitle:"REBIRTH",rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",rebirthBonus:"Earnings Bonus",rebirthCount:"Rebirths",rebirthConfirm:"REBIRTH NOW",rebirthCancel:"CANCEL",rebirthLocked:"🔒 LOCKED",rebirthReqItems:"All upgrades at MAX level",rebirthReqMoney:"$2,000,000,000 cash",adsTitle:"BOOST ×3",adsDesc:"Get ×3 resources for 10 minutes!",adsWatch:"ACTIVATE BOOST",adsActive:"BOOST ACTIVE",notEnough:"Not enough $!",maxed:"MAX",buy:"BUY",close:"CLOSE",language:"Language",tutorial:"Tutorial",save:"Save",reset:"Reset",tutorial_skip:"SKIP",tutorial_next:"NEXT",tutorial_done:"DONE!",offline_title:"Welcome Back!",offline_away:"You were away for",offline_earned:"Offline earnings:",offline_claim:"CLAIM!",eventActive:"ACTIVE EVENT",bonus:"BONUS",
 tuts:[
   {t:"Welcome to Oil Empire!",d:"Build the biggest oil empire on Earth! Tap the drill to extract crude oil."},
   {t:"Tap to Extract!",d:"Tap fast to build COMBOS and multiply your power. First 3 drills are FREE!"},
@@ -361,28 +361,28 @@ tuts:[
 ]}};
 
 // ══════════════════════ CONFIG ══════════════════════
-// Economy design goals:
-// - First rebirth achievable in ~2-3 hours of active play
-// - Each upgrade feels meaningful when bought
-// - No huge dead zones where nothing is affordable
-// - Max levels lower on expensive tiers to keep upgrade count manageable
+// Economy goals:
+// - Rebirth 1: ~3-5 hours active play
+// - Each tier is a noticeable milestone, not instant
+// - BPS/cost ratio stays roughly consistent so no tier feels useless
+// - Tap power meaningful early, auto takes over mid-game
 const UPGRADES=[
-  // TIER 1 — Early game (minutes 0-10)
-  {id:"pickaxe",  icon:"⛏️",en:"Hand Drill",       es:"Taladro Manual",      base:300,     mult:1.15,bps:0,   tap:2, max:30},
-  {id:"pump",     icon:"🔧",en:"Oil Pump",          es:"Bomba de Petróleo",   base:2000,    mult:1.17,bps:4,   tap:0, max:30},
-  {id:"worker",   icon:"👷",en:"Worker",            es:"Trabajador",          base:8000,    mult:1.18,bps:14,  tap:0, max:30},
-  // TIER 2 — Mid-early (minutes 10-30)
-  {id:"generator",icon:"⚡",en:"Generator",         es:"Generador",           base:40000,   mult:1.20,bps:50,  tap:0, max:25},
-  {id:"refinery", icon:"🏭",en:"Mini Refinery",     es:"Mini Refinería",      base:180000,  mult:1.22,bps:180, tap:0, max:25},
-  // TIER 3 — Mid game (minutes 30-60)
-  {id:"tanker",   icon:"🚛",en:"Oil Tanker",        es:"Camión Cisterna",     base:700000,  mult:1.23,bps:600, tap:0, max:20},
-  {id:"depot",    icon:"🏗️",en:"Storage Depot",     es:"Depósito Almacén",    base:3000000, mult:1.24,bps:2000,tap:0, max:20},
-  // TIER 4 — Late-mid (hours 1-2)
-  {id:"platform", icon:"🛢️",en:"Sea Platform",      es:"Plataforma Marina",   base:12000000,mult:1.25,bps:7000,tap:0, max:15},
-  {id:"pipeline", icon:"🔩",en:"Pipeline Network",  es:"Red de Tuberías",     base:50000000,mult:1.26,bps:25000,tap:0,max:12},
-  // TIER 5 — Late game (hours 2-3, final push to rebirth)
-  {id:"offshore", icon:"🌊",en:"Offshore Rig",      es:"Plataforma Offshore", base:180000000,mult:1.27,bps:90000,tap:0,max:10},
-  {id:"drillbot", icon:"🛸",en:"AI Drillbot",       es:"Robot Taladrador IA", base:500000000,mult:1.28,bps:300000,tap:0,max:8},
+  // TIER 1 — Manual era (0-20 min)
+  {id:"pickaxe",  icon:"⛏️",en:"Hand Drill",       es:"Taladro Manual",       base:400,       mult:1.12, bps:0,      tap:3,  max:25},
+  {id:"pump",     icon:"🔧",en:"Oil Pump",          es:"Bomba de Petróleo",    base:2500,      mult:1.14, bps:2,      tap:0,  max:25},
+  // TIER 2 — Early automation (20-60 min)
+  {id:"worker",   icon:"👷",en:"Worker",            es:"Trabajador",           base:12000,     mult:1.15, bps:8,      tap:0,  max:20},
+  {id:"generator",icon:"⚡",en:"Generator",         es:"Generador",            base:75000,     mult:1.16, bps:30,     tap:0,  max:20},
+  // TIER 3 — Industrial (1-2 hours)
+  {id:"refinery", icon:"🏭",en:"Mini Refinery",     es:"Mini Refinería",       base:400000,    mult:1.17, bps:120,    tap:0,  max:15},
+  {id:"tanker",   icon:"🚛",en:"Oil Tanker",        es:"Camión Cisterna",      base:2500000,   mult:1.18, bps:500,    tap:0,  max:15},
+  // TIER 4 — Corporate (2-3 hours)
+  {id:"depot",    icon:"🏗️",en:"Storage Depot",     es:"Depósito Almacén",     base:15000000,  mult:1.19, bps:2000,   tap:0,  max:12},
+  {id:"platform", icon:"🛢️",en:"Sea Platform",      es:"Plataforma Marina",    base:80000000,  mult:1.20, bps:8000,   tap:0,  max:10},
+  // TIER 5 — Empire (3-5 hours, final push to rebirth)
+  {id:"pipeline", icon:"🔩",en:"Pipeline Network",  es:"Red de Tuberías",      base:350000000, mult:1.21, bps:32000,  tap:0,  max:8},
+  {id:"offshore", icon:"🌊",en:"Offshore Rig",      es:"Plataforma Offshore",  base:1200000000,mult:1.22, bps:120000, tap:0,  max:6},
+  {id:"drillbot", icon:"🛸",en:"AI Drillbot",       es:"Robot Taladrador IA",  base:4000000000,mult:1.23, bps:500000, tap:0,  max:5},
 ];
 
 const PRESTIGE_UPGRADES=[
@@ -398,12 +398,12 @@ const PRESTIGE_UPGRADES=[
 // ── INVESTMENTS — unlock one per rebirth (rebirth 1 = first slot, etc.)
 // costs are BASE costs; actual cost = base * (1 + rebirths * 0.4)
 const INVESTMENTS=[
-  {id:"contract", icon:"📄",en:"Refinery Contract",    es:"Contrato Refinería",    baseCost:80000,     minRebirth:1, en_d:"+15% sell price",       es_d:"+15% precio de venta",    bonus:{sellMult:0.15}},
-  {id:"crew",     icon:"👷",en:"Expert Crew",           es:"Equipo Experto",        baseCost:350000,    minRebirth:2, en_d:"+25% tap power",         es_d:"+25% fuerza de toque",    bonus:{tapMult:0.25}},
-  {id:"pipeline2",icon:"🔧",en:"Turbo Pipelines",       es:"Tuberías Turbo",        baseCost:1500000,   minRebirth:3, en_d:"+35% auto production",   es_d:"+35% producción auto",    bonus:{bpsMult:0.35}},
-  {id:"offshore", icon:"🌊",en:"Offshore Drilling",     es:"Perforación Offshore",  baseCost:8000000,   minRebirth:4, en_d:"+50% all production",    es_d:"+50% toda producción",    bonus:{allMult:0.50}},
-  {id:"ai",       icon:"🤖",en:"AI Optimization",       es:"Optimización IA",       baseCost:40000000,  minRebirth:5, en_d:"+80% auto production",   es_d:"+80% producción auto",    bonus:{bpsMult:0.80}},
-  {id:"monopoly", icon:"👑",en:"Market Monopoly",       es:"Monopolio del Mercado", baseCost:200000000, minRebirth:6, en_d:"×1.5 sell price",        es_d:"×1.5 precio de venta",    bonus:{sellMult2x:true}},
+  {id:"contract", icon:"📄",en:"Refinery Contract",    es:"Contrato Refinería",    baseCost:150000,     minRebirth:1, en_d:"+15% sell price",       es_d:"+15% precio de venta",    bonus:{sellMult:0.15}},
+  {id:"crew",     icon:"👷",en:"Expert Crew",           es:"Equipo Experto",        baseCost:800000,     minRebirth:2, en_d:"+25% tap power",         es_d:"+25% fuerza de toque",    bonus:{tapMult:0.25}},
+  {id:"pipeline2",icon:"🔧",en:"Turbo Pipelines",       es:"Tuberías Turbo",        baseCost:5000000,    minRebirth:3, en_d:"+35% auto production",   es_d:"+35% producción auto",    bonus:{bpsMult:0.35}},
+  {id:"offshore", icon:"🌊",en:"Offshore Drilling",     es:"Perforación Offshore",  baseCost:25000000,   minRebirth:4, en_d:"+50% all production",    es_d:"+50% toda producción",    bonus:{allMult:0.50}},
+  {id:"ai",       icon:"🤖",en:"AI Optimization",       es:"Optimización IA",       baseCost:120000000,  minRebirth:5, en_d:"+80% auto production",   es_d:"+80% producción auto",    bonus:{bpsMult:0.80}},
+  {id:"monopoly", icon:"👑",en:"Market Monopoly",       es:"Monopolio del Mercado", baseCost:600000000,  minRebirth:6, en_d:"×1.5 sell price",        es_d:"×1.5 precio de venta",    bonus:{sellMult2x:true}},
 ];
 
 // ── ACHIEVEMENTS ──
@@ -435,10 +435,10 @@ const EVENTS_CONFIG=[
   {id:"price_crash",  icon:"📉",en:"Market Crash!",      es:"¡Caída del Mercado!",          en_d:"Oil price -20%",              es_d:"Precio del petróleo -20%",       dur:0,   effect:{priceBoost:-0.20}},
 ];
 
-const REBIRTH_MONEY=500000000;
-const SAVE_KEY="oilempire_save"; // permanent — never changes between updates
+const REBIRTH_MONEY=2000000000; // $2B — achievable in 3-5h with T5 upgrades maxed
+const SAVE_KEY="oilempire_save";
 const LEGACY_KEYS=["oilempire5","oilempire6","oilempire7","oilempire8"];
-const BASE_SELL=70; // Starting oil price
+const BASE_SELL=70;
 
 // ══════════════════════ STATE ══════════════════════
 let G={
@@ -1149,12 +1149,9 @@ function renderPrestige(c){
 }
 
 // ══════════════════════ MODALS ══════════════════════
-let _lastModalOpen=0;
 function openModal(type){
-  const now=Date.now();
-  if(now-_lastModalOpen<400)return; // debounce double-fire
-  _lastModalOpen=now;
-  currentModal=type;const box=document.getElementById("modal-box"),tt=t();
+  currentModal=type;
+  const box=document.getElementById("modal-box"),tt=t();
   if(type==="rebirth"){
     const nextMult=Math.pow(1.2,G.rebirths+1);
     const nc=G.rebirths+1;
@@ -1206,7 +1203,13 @@ function openOfflineModal(ms,barrels,processed){
 // Offline resources already applied in loadGame — just close
 function claimOffline(){closeModal();updateStats();}
 function closeModal(){document.getElementById("modal-overlay").classList.remove("show");currentModal=null;}
-function closeModalIfBackdrop(e){if(e.target===document.getElementById("modal-overlay")||e.target===document.getElementById("modal-backdrop"))closeModal();}
+function closeModalIfBackdrop(e){
+  // Only close if tapping exactly the backdrop or overlay, not bubbled from modal content
+  if(e.target===document.getElementById("modal-backdrop")||e.target===document.getElementById("modal-overlay")){
+    e.preventDefault();
+    closeModal();
+  }
+}
 function confirmReset(){if(confirm("¿Borrar todo el progreso?\nReset all progress?")){localStorage.removeItem(SAVE_KEY);location.reload();}}
 function setLang(l){G.lang=l;closeModal();updateLang();updateStats();}
 
