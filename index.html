@@ -1173,11 +1173,17 @@ function openModal(type){
   }else if(type==="settings"){
     const muteLabel=soundMuted?'🔇 OFF':'🔊 ON';
     const muteColor=soundMuted?'border-color:#e53935;color:#e53935':'border-color:#4caf50;color:#4caf50';
+    // Guard Notification API — may not exist in Android WebView
+    const notifAvailable=(typeof Notification!=='undefined');
+    const notifGranted=notifAvailable&&Notification.permission==='granted';
+    const notifStyle=notifGranted?'border-color:#4caf50;color:#4caf50':'';
+    const notifLabel=notifGranted?'🔔 ON':'🔕 OFF';
+    const notifRow=notifAvailable?`<div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${notifStyle}">${notifLabel}</button></div>`:'';
     box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div>
     <div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div>
     <div class="settings-row"><span class="settings-label">${G.lang==='es'?'Sonido':'Sound'}:</span><button class="small-btn" onclick="toggleMute(this)" style="${muteColor}">${muteLabel}</button></div>
     <div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div>
-    <div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${Notification.permission==='granted'?'border-color:#4caf50;color:#4caf50':''}">${Notification.permission==='granted'?'🔔 ON':'🔕 OFF'}</button></div>
+    ${notifRow}
     <div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div>
     <div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div>
     <div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
@@ -1281,7 +1287,7 @@ async function askNotifPermissionOnce(){
 }
 
 function scheduleOfflineNotifs(){
-  if(!swReg || Notification.permission !== 'granted') return;
+  if(typeof Notification==='undefined'||!swReg||Notification.permission!=='granted') return;
   const bps = totalBPS();
   swReg.active?.postMessage({ type:'SCHEDULE_NOTIFICATIONS', lang:G.lang, bps });
 }
@@ -1304,16 +1310,18 @@ function cancelOfflineNotifs(){
 }
 
 async function toggleNotifications(btn){
+  if(typeof Notification==='undefined'){
+    flash(G.lang==='es'?'No disponible en este dispositivo':'Not available on this device','#8a7f70');
+    return;
+  }
   if(Notification.permission === 'denied'){
     flash(G.lang==='es'?'Actívalas en ajustes del sistema':'Enable in system settings','#e53935');
     return;
   }
   if(Notification.permission === 'granted'){
-    // Can't revoke programmatically — tell user to do it manually
     flash(G.lang==='es'?'Desactívalas en ajustes del sistema':'Disable in system settings','#8a7f70');
     return;
   }
-  // Not yet asked — request now
   const result = await Notification.requestPermission();
   if(result === 'granted'){
     btn.textContent='🔔 ON'; btn.style.borderColor='#4caf50'; btn.style.color='#4caf50';
