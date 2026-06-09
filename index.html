@@ -196,9 +196,9 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
   <div id="header">
     <div id="title">IMPERIO PETROLERO</div>
     <div id="hbtns">
-      <button class="hbtn" id="boost-hbtn" onclick="openModal('boost')">🚀</button>
-      <button class="hbtn" id="rebirth-btn" onclick="openModal('rebirth')">🌟</button>
-      <button class="hbtn" id="settings-btn" onclick="openModal('settings')">⚙️</button>
+      <button class="hbtn" id="boost-hbtn">🚀</button>
+      <button class="hbtn" id="rebirth-btn">🌟</button>
+      <button class="hbtn" id="settings-btn">⚙️</button>
     </div>
   </div>
 
@@ -337,7 +337,7 @@ function sfxPrestige(){ [262,330,392,523,659].forEach((f,i)=>setTimeout(()=>play
 
 // ══════════════════════ TRANSLATIONS ══════════════════════
 const T={
-es:{title:"IMPERIO PETROLERO",tap:"TOCA PARA TALADRAR",barrels:"Barriles",proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",upgrades:"MEJORAS",prestige:"PRESTIGIO",invest:"INVERSIÓN",achievements:"LOGROS",settings:"AJUSTES",perSec:"/seg",sellPrice:"$102/barril",rebirthTitle:"RENACIMIENTO",rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",rebirthBonus:"Bono de Ganancias",rebirthCount:"Renacimientos",rebirthConfirm:"RENACER AHORA",rebirthCancel:"CANCELAR",rebirthLocked:"🔒 BLOQUEADO",rebirthReqItems:"Todas las mejoras al MAX",rebirthReqMoney:"$2,000,000,000 en efectivo",adsTitle:"IMPULSO ×3",adsDesc:"¡Obtén ×3 recursos por 10 minutos!",adsWatch:"ACTIVAR IMPULSO",adsActive:"IMPULSO ACTIVO",notEnough:"¡No hay suficiente $!",maxed:"MAX",buy:"COMPRAR",close:"CERRAR",language:"Idioma",tutorial:"Tutorial",save:"Guardar",reset:"Reset",tutorial_skip:"OMITIR",tutorial_next:"SIGUIENTE",tutorial_done:"¡LISTO!",offline_title:"¡Bienvenido de nuevo!",offline_away:"Estuviste fuera por",offline_earned:"Ganancias offline:",offline_claim:"¡RECLAMAR!",eventActive:"EVENTO ACTIVO",bonus:"BONO",
+es:{title:"IMPERIO PETROLERO",tap:"TOCA PARA TALADRAR",barrels:"Barriles",proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",upgrades:"MEJORAS",prestige:"PRESTIGIO",invest:"INVERSIÓN",achievements:"LOGROS",settings:"AJUSTES",perSec:"/seg",sellPrice:"$102/barril",rebirthTitle:"RENACIMIENTO",rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",rebirthBonus:"Bono de Ganancias",rebirthCount:"Renacimientos",rebirthConfirm:"RENACER AHORA",rebirthCancel:"CANCELAR",rebirthLocked:"🔒 BLOQUEADO",rebirthReqItems:"Todas las mejoras al MAX",rebirthReqMoney:"$2,000,000,000 en efectivo",adsTitle:"IMPULSO ×2",adsDesc:"¡Obtén ×2 recursos por 10 minutos!",adsWatch:"ACTIVAR IMPULSO",adsActive:"IMPULSO ACTIVO",notEnough:"¡No hay suficiente $!",maxed:"MAX",buy:"COMPRAR",close:"CERRAR",language:"Idioma",tutorial:"Tutorial",save:"Guardar",reset:"Reset",tutorial_skip:"OMITIR",tutorial_next:"SIGUIENTE",tutorial_done:"¡LISTO!",offline_title:"¡Bienvenido de nuevo!",offline_away:"Estuviste fuera por",offline_earned:"Ganancias offline:",offline_claim:"¡RECLAMAR!",eventActive:"EVENTO ACTIVO",bonus:"BONO",
 tuts:[
   {t:"¡Bienvenido a Imperio Petrolero!",d:"¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo."},
   {t:"¡Toca para Extraer!",d:"Toca rápido para construir COMBOS y multiplicar tu poder. ¡Los 3 primeros taladros son gratis!"},
@@ -348,7 +348,7 @@ tuts:[
   {t:"Eventos",d:"¡Aparecen eventos aleatorios! Precio del petróleo ×2, pozos extra y más. ¡Aprovéchalos!"},
   {t:"¡Estás Listo!",d:"¡Construye tu Imperio Petrolero y domina el mercado energético global!"},
 ]},
-en:{title:"OIL EMPIRE",tap:"TAP TO DRILL",barrels:"Barrels",proc:"Processed",dollars:"Dollars",sell:"SELL ALL",upgrades:"UPGRADES",prestige:"PRESTIGE",invest:"INVEST",achievements:"ACHIEVEMENTS",settings:"SETTINGS",perSec:"/sec",sellPrice:"$102/barrel",rebirthTitle:"REBIRTH",rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",rebirthBonus:"Earnings Bonus",rebirthCount:"Rebirths",rebirthConfirm:"REBIRTH NOW",rebirthCancel:"CANCEL",rebirthLocked:"🔒 LOCKED",rebirthReqItems:"All upgrades at MAX level",rebirthReqMoney:"$2,000,000,000 cash",adsTitle:"BOOST ×3",adsDesc:"Get ×3 resources for 10 minutes!",adsWatch:"ACTIVATE BOOST",adsActive:"BOOST ACTIVE",notEnough:"Not enough $!",maxed:"MAX",buy:"BUY",close:"CLOSE",language:"Language",tutorial:"Tutorial",save:"Save",reset:"Reset",tutorial_skip:"SKIP",tutorial_next:"NEXT",tutorial_done:"DONE!",offline_title:"Welcome Back!",offline_away:"You were away for",offline_earned:"Offline earnings:",offline_claim:"CLAIM!",eventActive:"ACTIVE EVENT",bonus:"BONUS",
+en:{title:"OIL EMPIRE",tap:"TAP TO DRILL",barrels:"Barrels",proc:"Processed",dollars:"Dollars",sell:"SELL ALL",upgrades:"UPGRADES",prestige:"PRESTIGE",invest:"INVEST",achievements:"ACHIEVEMENTS",settings:"SETTINGS",perSec:"/sec",sellPrice:"$102/barrel",rebirthTitle:"REBIRTH",rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",rebirthBonus:"Earnings Bonus",rebirthCount:"Rebirths",rebirthConfirm:"REBIRTH NOW",rebirthCancel:"CANCEL",rebirthLocked:"🔒 LOCKED",rebirthReqItems:"All upgrades at MAX level",rebirthReqMoney:"$2,000,000,000 cash",adsTitle:"BOOST ×2",adsDesc:"Get ×2 resources for 10 minutes!",adsWatch:"ACTIVATE BOOST",adsActive:"BOOST ACTIVE",notEnough:"Not enough $!",maxed:"MAX",buy:"BUY",close:"CLOSE",language:"Language",tutorial:"Tutorial",save:"Save",reset:"Reset",tutorial_skip:"SKIP",tutorial_next:"NEXT",tutorial_done:"DONE!",offline_title:"Welcome Back!",offline_away:"You were away for",offline_earned:"Offline earnings:",offline_claim:"CLAIM!",eventActive:"ACTIVE EVENT",bonus:"BONUS",
 tuts:[
   {t:"Welcome to Oil Empire!",d:"Build the biggest oil empire on Earth! Tap the drill to extract crude oil."},
   {t:"Tap to Extract!",d:"Tap fast to build COMBOS and multiply your power. First 3 drills are FREE!"},
@@ -1133,7 +1133,7 @@ function renderPrestige(c){
   <div class="${cardCls}"><div class="rr-title${ready?" can":""}">🌟 ${tt.rebirthTitle}</div><div class="rr-desc">${tt.rebirthDesc}</div>
   <div class="rr-req-row"><span class="rr-req-label${allMaxed()?" done":""}">${allMaxed()?"✓":"("+itemsDone+"/"+UPGRADES.length+")"} ${tt.rebirthReqItems}</span></div>
   <div class="req-prog"><div class="req-prog-fill" style="width:${itemsPct}%;background:${itemsColor}"></div></div>
-  <div class="rr-req-row" style="margin-top:3px"><span class="rr-req-label${G.dollars>=REBIRTH_MONEY?" done":""}">${G.dollars>=REBIRTH_MONEY?"✓":"$"+fmt(G.dollars)+" / $500M"} ${tt.rebirthReqMoney}</span></div>
+  <div class="rr-req-row" style="margin-top:3px"><span class="rr-req-label${G.dollars>=REBIRTH_MONEY?" done":""}">${G.dollars>=REBIRTH_MONEY?"✓":"$"+fmt(G.dollars)+" / $"+fmt(REBIRTH_MONEY)} ${tt.rebirthReqMoney}</span></div>
   <div class="req-prog"><div class="req-prog-fill" style="width:${moneyPct}%;background:${moneyColor}"></div></div>
   <button class="${btnCls}" onclick="${btnClick}">${btnTxt}</button></div>`;
   PRESTIGE_UPGRADES.forEach(pu=>{
@@ -1237,6 +1237,14 @@ setInterval(saveGame,10000);
 startEventSystem();
 gameLoop();
 initNotifications();
+
+// Attach header button handlers via JS (more reliable than inline onclick on Android WebView)
+['boost-hbtn','rebirth-btn','settings-btn'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  const type=id==='boost-hbtn'?'boost':id==='rebirth-btn'?'rebirth':'settings';
+  el.addEventListener('click',e=>{e.stopPropagation();openModal(type);});
+});
 
 // ══════════════════════ NOTIFICATIONS ══════════════════════
 let swReg = null;
