@@ -309,14 +309,19 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 <script>
 // ══════════════════════ AUDIO ══════════════════════
 let AC=null;
+let soundMuted=false;
+
 function getAC(){ if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}} if(AC&&AC.state==='suspended')AC.resume(); return AC; }
 function playTone(freq,type,dur,vol,attack){
+  if(soundMuted)return;
   try{ const ac=getAC();if(!ac)return; const o=ac.createOscillator(),g=ac.createGain();
   o.connect(g);g.connect(ac.destination);o.type=type||'sine';o.frequency.setValueAtTime(freq,ac.currentTime);
   g.gain.setValueAtTime(0,ac.currentTime);g.gain.linearRampToValueAtTime(vol||0.15,ac.currentTime+(attack||0.01));
   g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+(dur||0.2));o.start(ac.currentTime);o.stop(ac.currentTime+(dur||0.2)+0.05); }catch(e){}
 }
-function playNoise(dur,vol){ try{ const ac=getAC();if(!ac)return; const buf=ac.createBuffer(1,ac.sampleRate*dur,ac.sampleRate),d=buf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1); const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter(); f.type='bandpass';f.frequency.value=200;s.buffer=buf;s.connect(f);f.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(vol||0.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);s.start(ac.currentTime); }catch(e){} }
+function playNoise(dur,vol){
+  if(soundMuted)return;
+  try{ const ac=getAC();if(!ac)return; const buf=ac.createBuffer(1,ac.sampleRate*dur,ac.sampleRate),d=buf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1); const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter(); f.type='bandpass';f.frequency.value=200;s.buffer=buf;s.connect(f);f.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(vol||0.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);s.start(ac.currentTime); }catch(e){} }
 function sfxDrill(){ playTone(80,'sawtooth',0.08,0.12,0.005);playTone(220,'square',0.06,0.06,0.01);playNoise(0.05,0.06); }
 function sfxBuy(){ [523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.12,0.14,0.005),i*60)); }
 function sfxSell(){ playTone(1047,'triangle',0.08,0.18,0.005);setTimeout(()=>playTone(1319,'triangle',0.15,0.18,0.005),80);setTimeout(()=>playTone(1568,'triangle',0.2,0.2,0.005),160); }
@@ -418,7 +423,8 @@ const EVENTS_CONFIG=[
 ];
 
 const REBIRTH_MONEY=500000000;
-const SAVE_KEY="oilempire8";
+const SAVE_KEY="oilempire_save"; // permanent — never changes between updates
+const LEGACY_KEYS=["oilempire5","oilempire6","oilempire7","oilempire8"];
 const BASE_SELL=70; // Starting oil price
 
 // ══════════════════════ STATE ══════════════════════
@@ -625,6 +631,17 @@ function calcOfflineBPS(s){
 
 function loadGame(){
   try{
+    // Migrate old save keys → new permanent key (only runs once)
+    if(!localStorage.getItem(SAVE_KEY)){
+      for(const old of LEGACY_KEYS){
+        const legacy=localStorage.getItem(old);
+        if(legacy){
+          localStorage.setItem(SAVE_KEY,legacy);
+          localStorage.removeItem(old);
+          break; // use the newest one found
+        }
+      }
+    }
     const raw=localStorage.getItem(SAVE_KEY);
     if(!raw){applyNewGameBonus();showTutorial();return;}
     const s=JSON.parse(raw);
@@ -1136,7 +1153,16 @@ function openModal(type){
       ${!active&&!inCooldown?`<button class="btn-blue" onclick="handleBoost()">${tt.adsWatch}</button>`:""}
     </div>`;
   }else if(type==="settings"){
-    box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div><div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div><div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div><div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${Notification.permission==='granted'?'border-color:#4caf50;color:#4caf50':''}">${Notification.permission==='granted'?(G.lang==='es'?'🔔 ON':'🔔 ON'):(G.lang==='es'?'🔕 OFF':'🔕 OFF')}</button></div><div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div><div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div><div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
+    const muteLabel=soundMuted?'🔇 OFF':'🔊 ON';
+    const muteColor=soundMuted?'border-color:#e53935;color:#e53935':'border-color:#4caf50;color:#4caf50';
+    box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div>
+    <div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div>
+    <div class="settings-row"><span class="settings-label">${G.lang==='es'?'Sonido':'Sound'}:</span><button class="small-btn" onclick="toggleMute(this)" style="${muteColor}">${muteLabel}</button></div>
+    <div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div>
+    <div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${Notification.permission==='granted'?'border-color:#4caf50;color:#4caf50':''}">${Notification.permission==='granted'?'🔔 ON':'🔕 OFF'}</button></div>
+    <div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div>
+    <div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div>
+    <div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
   }
   document.getElementById("modal-overlay").classList.add("show");
 }
@@ -1179,6 +1205,7 @@ function tutNext(){const steps=t().tuts;if(tutStep<steps.length-1){tutStep++;ren
 function tutSkip(){G.tutDone=true;document.getElementById("tutorial-overlay").classList.remove("show");}
 
 // ══════════════════════ INIT ══════════════════════
+loadMutePref();
 loadGame();
 updateLang();updateStats();renderTab();
 sceneLevel=getSceneLevel();buildScene();
@@ -1225,6 +1252,18 @@ function scheduleOfflineNotifs(){
   if(!swReg || Notification.permission !== 'granted') return;
   const bps = totalBPS();
   swReg.active?.postMessage({ type:'SCHEDULE_NOTIFICATIONS', lang:G.lang, bps });
+}
+
+function toggleMute(btn){
+  soundMuted=!soundMuted;
+  localStorage.setItem('oilempire_muted', soundMuted?'1':'0');
+  btn.textContent=soundMuted?'🔇 OFF':'🔊 ON';
+  btn.style.borderColor=soundMuted?'#e53935':'#4caf50';
+  btn.style.color=soundMuted?'#e53935':'#4caf50';
+}
+
+function loadMutePref(){
+  soundMuted=localStorage.getItem('oilempire_muted')==='1';
 }
 
 function cancelOfflineNotifs(){
