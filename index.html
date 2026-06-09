@@ -414,7 +414,7 @@ const EVENTS_CONFIG=[
 ];
 
 const REBIRTH_MONEY=500000000;
-const SAVE_KEY="oilempire6";
+const SAVE_KEY="oilempire7";
 const BASE_SELL=102;
 
 // ══════════════════════ STATE ══════════════════════
@@ -497,19 +497,21 @@ function getEventBonus(){
 function totalBPS(){
   let bps=0;
   UPGRADES.forEach(u=>{bps+=u.bps*(G.upgrades[u.id]||0);});
-  const boost=G.boostActive&&Date.now()<G.boostEnd?3:1;
+  // Boost and event stack multiplicatively
+  const boost=G.boostActive&&Date.now()<G.boostEnd?2:1;
   const prest=G.prestigeBought.includes("oil_rush")?2.0:1;
   const pty=G.prestigeBought.includes("tycoon")?2.0:1;
   const ab=getAchievementBonus();
   const ib=getInvestmentBonus();
   const eb=getEventBonus();
+  // boost and event.bpsMult are both applied — they stack
   return bps*G.rebirthMult*boost*prest*pty*ab.bpsMult*ib.bpsMult*eb.bpsMult;
 }
 
 function tapPower(){
   let tp=1;
   UPGRADES.forEach(u=>{if(u.tap)tp+=u.tap*(G.upgrades[u.id]||0);});
-  const boost=G.boostActive&&Date.now()<G.boostEnd?3:1;
+  const boost=G.boostActive&&Date.now()<G.boostEnd?2:1;
   const combo=1+Math.min(comboCount*0.08,1.5);
   const pg=G.prestigeBought.includes("golden")?1.50:1;
   const pd=G.prestigeBought.includes("deep")?1.5:1;
@@ -562,7 +564,7 @@ function loadGame(){
     G.activeEvent=null;G.eventEnd=0;
 
     if(s.savedAt){
-      const offSec=Math.min((Date.now()-s.savedAt)/1000, 8*3600); // cap at 8 hours
+      const offSec=Math.min((Date.now()-s.savedAt)/1000, 3*3600); // cap at 3 hours
       if(offSec>5){
         const bpsV=calcOfflineBPS(s);
         const offBarrels=Math.floor(bpsV*offSec);
@@ -803,21 +805,45 @@ function handlePrestigeBuy(id){
 }
 
 function handleBoost(){
-  sfxBoost();const dur=G.prestigeBought.includes("megaboost")?20*60*1000:10*60*1000;
-  G.boostActive=true;G.boostEnd=Date.now()+dur;G.barrels*=3;closeModal();
-  flash("🚀 BOOST ×3!","#64b5f6");updateStats();
+  // Check cooldown
+  const now=Date.now();
+  if(G.boostCooldownEnd&&now<G.boostCooldownEnd){
+    const rem=fmtTime(G.boostCooldownEnd-now);
+    flash(G.lang==='es'?'⏳ Cooldown: '+rem:'⏳ Cooldown: '+rem,'#e53935');
+    return;
+  }
+  sfxBoost();
+  const dur=G.prestigeBought.includes("megaboost")?20*60*1000:10*60*1000;
+  G.boostActive=true;G.boostEnd=now+dur;
+  G.boostCooldownEnd=now+dur+15*60*1000; // 15min cooldown after boost ends
+  closeModal();
+  flash("🚀 BOOST ×2!","#64b5f6");updateStats();
 }
 
 const MILESTONES=[
-  {money:1000,es:"¡Primeros $1,000!",en:"First $1,000!"},
-  {money:100000,es:"¡$100K alcanzados!",en:"$100K reached!"},
-  {money:1000000,es:"¡MILLONARIO!",en:"MILLIONAIRE!"},
-  {money:10000000,es:"¡Imperio de $10M!",en:"$10M Empire!"},
-  {money:100000000,es:"¡Magnate de $100M!",en:"$100M Tycoon!"},
-  {money:500000000,es:"¡RENACIMIENTO DESBLOQUEADO!",en:"REBIRTH UNLOCKED!"},
+  {money:1000,    es:"¡Primeros $1,000!",      en:"First $1,000!"},
+  {money:100000,  es:"¡$100K alcanzados!",      en:"$100K reached!"},
+  {money:1000000, es:"¡MILLONARIO!",            en:"MILLIONAIRE!"},
+  {money:10000000,es:"¡Imperio de $10M!",       en:"$10M Empire!"},
+  {money:100000000,es:"¡Magnate de $100M!",     en:"$100M Tycoon!"},
+  // Note: No $500M milestone here — rebirth notification handled separately below
 ];
+
+let rebirthMilestoneShown=false;
 function checkMilestones(){
-  MILESTONES.forEach(m=>{if(!G.seenMilestones.includes(m.money)&&G.totalEarned>=m.money){G.seenMilestones.push(m.money);sfxMilestone();flash("🏆 "+(G.lang==="en"?m.en:m.es),"#ffd700");}});
+  MILESTONES.forEach(m=>{
+    if(!G.seenMilestones.includes(m.money)&&G.totalEarned>=m.money){
+      G.seenMilestones.push(m.money);sfxMilestone();
+      flash("🏆 "+(G.lang==="en"?m.en:m.es),"#ffd700");
+    }
+  });
+  // Rebirth notification: only when TRULY unlocked (all maxed AND $500M cash)
+  const rebirthKey="rebirth_ready";
+  if(!G.seenMilestones.includes(rebirthKey)&&canRebirth()){
+    G.seenMilestones.push(rebirthKey);
+    sfxMilestone();
+    flash(G.lang==="es"?"🌟 ¡RENACIMIENTO DESBLOQUEADO!":"🌟 REBIRTH UNLOCKED!","#ffd700");
+  }
 }
 
 // ══════════════════════ GAME LOOP ══════════════════════
@@ -825,7 +851,9 @@ function gameLoop(){
   const now=Date.now(),dt=Math.min((now-lastTime)/1000,0.5);lastTime=now;
   const bps=totalBPS();
   if(bps>0){const g=bps*dt;G.barrels+=g;G.processed+=g*0.8;oilLevel=Math.min(100,oilLevel+g*0.02);}
-  if(G.boostActive&&now>G.boostEnd){G.boostActive=false;updateBoostBtn();}
+  if(G.boostActive&&now>G.boostEnd){G.boostActive=false;}
+  // Check rebirth milestone every loop tick
+  if(canRebirth()&&!G.seenMilestones.includes("rebirth_ready"))checkMilestones();
   updateStats();updateOilFill();updateRebirthUI();
   requestAnimationFrame(gameLoop);
 }
@@ -844,8 +872,22 @@ function updateStats(){
 }
 function updateBoostBtn(){
   const btn=document.getElementById("boost-btn"),hbtn=document.getElementById("boost-hbtn");
-  if(G.boostActive&&Date.now()<G.boostEnd){const rem=fmtTime(G.boostEnd-Date.now());btn.innerHTML="🚀 ACTIVO<br>"+rem;btn.className="active";hbtn.textContent="🚀"+rem;hbtn.style.color="#64b5f6";}
-  else{btn.innerHTML="🚀 "+t().adsTitle;btn.className="";hbtn.textContent="🚀";hbtn.style.color="";}
+  const now=Date.now();
+  if(G.boostActive&&now<G.boostEnd){
+    const rem=fmtTime(G.boostEnd-now);
+    btn.innerHTML="🚀 ACTIVO ×2<br>"+rem;btn.className="active";
+    hbtn.textContent="🚀"+rem;hbtn.style.color="#64b5f6";
+  } else if(G.boostCooldownEnd&&now<G.boostCooldownEnd){
+    // Boost expired but still in cooldown
+    if(G.boostActive){G.boostActive=false;} // clear expired boost
+    const rem=fmtTime(G.boostCooldownEnd-now);
+    btn.innerHTML="⏳ COOLDOWN<br>"+rem;btn.className="";
+    hbtn.textContent="⏳"+rem;hbtn.style.color="#e53935";
+  } else {
+    if(G.boostActive){G.boostActive=false;} // clear if somehow still active
+    btn.innerHTML="🚀 "+t().adsTitle;btn.className="";
+    hbtn.textContent="🚀";hbtn.style.color="";
+  }
 }
 function updateCombo(){
   const el=document.getElementById("combo-text");
@@ -979,8 +1021,18 @@ function openModal(type){
     const pp=Math.min(1+Math.floor(nc/2),5);
     box.innerHTML=`<div class="modal-title gold">🌟 ${tt.rebirthTitle}</div><div class="modal-desc">${tt.rebirthDesc}</div><div class="modal-row"><span class="modal-row-label">${tt.rebirthCount}:</span><span style="color:#ffd700">${G.rebirths} → ${G.rebirths+1}</span></div><div class="modal-row"><span class="modal-row-label">${tt.rebirthBonus}:</span><span style="color:#4caf50">×${G.rebirthMult.toFixed(2)} → ×${nextMult.toFixed(2)}</span></div><div class="modal-row"><span class="modal-row-label">Prestige Points:</span><span style="color:#ce93d8">+${pp} PP</span></div><div class="btn-row" style="margin-top:12px"><button class="btn-sec" onclick="closeModal()">${tt.rebirthCancel}</button><button class="btn-gold" onclick="handleRebirth()">${tt.rebirthConfirm}</button></div>`;
   }else if(type==="boost"){
-    const active=G.boostActive&&Date.now()<G.boostEnd;
-    box.innerHTML=`<div class="modal-title blue">🚀 ${tt.adsTitle}</div><div class="modal-desc">${tt.adsDesc}</div>${active?`<div style="text-align:center;color:#4caf50;font-size:10px;margin-bottom:12px">${tt.adsActive}: ${fmtTime(G.boostEnd-Date.now())}</div>`:""}<div class="btn-row"><button class="btn-sec" onclick="closeModal()">${tt.close}</button>${!active?`<button class="btn-blue" onclick="handleBoost()">${tt.adsWatch}</button>`:""}</div>`;
+    const now=Date.now();
+    const active=G.boostActive&&now<G.boostEnd;
+    const inCooldown=!active&&G.boostCooldownEnd&&now<G.boostCooldownEnd;
+    const cooldownRem=inCooldown?fmtTime(G.boostCooldownEnd-now):"";
+    box.innerHTML=`<div class="modal-title blue">🚀 ${tt.adsTitle}</div>
+    <div class="modal-desc">${G.lang==='es'?'¡Obtén ×2 recursos por 10 minutos!':'Get ×2 resources for 10 minutes!'}</div>
+    ${active?`<div style="text-align:center;color:#4caf50;font-size:10px;margin-bottom:12px">${tt.adsActive}: ${fmtTime(G.boostEnd-now)}</div>`:""}
+    ${inCooldown?`<div style="text-align:center;color:#e53935;font-size:8px;margin-bottom:12px">⏳ ${G.lang==='es'?'Disponible en':'Available in'}: ${cooldownRem}</div>`:""}
+    <div class="btn-row">
+      <button class="btn-sec" onclick="closeModal()">${tt.close}</button>
+      ${!active&&!inCooldown?`<button class="btn-blue" onclick="handleBoost()">${tt.adsWatch}</button>`:""}
+    </div>`;
   }else if(type==="settings"){
     box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div><div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div><div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div><div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${Notification.permission==='granted'?'border-color:#4caf50;color:#4caf50':''}">${Notification.permission==='granted'?(G.lang==='es'?'🔔 ON':'🔔 ON'):(G.lang==='es'?'🔕 OFF':'🔕 OFF')}</button></div><div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div><div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div><div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
   }
