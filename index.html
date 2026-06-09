@@ -187,6 +187,7 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
 @keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(0)}}
 @keyframes dollarRise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-50px)}}
 @keyframes derrickBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes pricePopup{0%{opacity:0;transform:translateY(4px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1.1)}80%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-6px) scale(.9)}}
 @keyframes flameFlicker{0%,100%{transform:scaleY(1) scaleX(1);opacity:1}33%{transform:scaleY(1.3) scaleX(.8);opacity:.8}66%{transform:scaleY(.8) scaleX(1.2);opacity:.9}}
 </style>
 </head>
@@ -210,7 +211,9 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
     <div>
       <span class="stat-label">⚗️ <span id="lbl-proc">Procesados</span></span>
       <span class="stat-val" id="stat-proc">0</span>
-      <span class="stat-sub" id="lbl-price">$102/barril</span>
+      <span class="stat-sub" id="lbl-price">$70/barril</span>
+      <span class="stat-sub" id="price-countdown" style="color:#8a7f70;font-size:5px"></span>
+      <span id="price-change-popup" style="display:none;font-size:8px;font-weight:bold;margin-top:1px"></span>
     </div>
     <div>
       <span class="stat-label">💵 <span id="lbl-dollars">Dólares</span></span>
@@ -532,44 +535,70 @@ function sellPrice(){
 
 // ── Oil Price Fluctuation (every 2 minutes) ──
 let priceTickTimer=null;
+let priceNextTick=0; // timestamp of next price change
+let priceCountdownTimer=null;
+
 function startPriceTicker(){
   if(priceTickTimer)clearInterval(priceTickTimer);
-  priceTickTimer=setInterval(tickOilPrice, 2*60*1000);
+  if(priceCountdownTimer)clearInterval(priceCountdownTimer);
+  priceNextTick=Date.now()+2*60*1000;
+  priceTickTimer=setInterval(tickOilPrice,2*60*1000);
+  // Countdown updates every second
+  priceCountdownTimer=setInterval(updatePriceCountdown,1000);
+}
+
+function updatePriceCountdown(){
+  if(!G.gameStarted){document.getElementById("price-countdown").textContent="";return;}
+  const rem=Math.max(0,priceNextTick-Date.now());
+  const s=Math.ceil(rem/1000);
+  const m=Math.floor(s/60),ss=s%60;
+  document.getElementById("price-countdown").textContent="⏱ "+(m>0?m+"m ":"")+ss+"s";
 }
 
 function tickOilPrice(){
-  // streak: >0 = consecutive ups, <0 = consecutive downs
-  // max 3 in a row in either direction
+  priceNextTick=Date.now()+2*60*1000; // reset countdown
+  const streak=G.priceStreak||0;
   let direction;
-  if(G.priceStreak>=3){
-    direction=-1; // force down
-  } else if(G.priceStreak<=-3){
-    direction=1;  // force up
-  } else {
-    direction=Math.random()<0.5?1:-1; // truly random
-  }
+  if(streak>=3)       direction=-1;
+  else if(streak<=-3) direction=1;
+  else                direction=Math.random()<0.5?1:-1;
 
-  // Change: random 5-20%
   const pct=(5+Math.random()*15)/100;
-  const change=G.oilPrice*pct*direction;
-  G.oilPrice=Math.max(20, Math.round(G.oilPrice+change)); // floor at $20
+  const oldPrice=G.oilPrice;
+  G.oilPrice=Math.max(20,Math.round(G.oilPrice*(1+pct*direction)));
 
-  // Update streak
-  if(direction===1) G.priceStreak=Math.max(0,G.priceStreak)+1;
-  else              G.priceStreak=Math.min(0,G.priceStreak)-1;
+  if(direction===1) G.priceStreak=Math.max(0,streak)+1;
+  else              G.priceStreak=Math.min(0,streak)-1;
 
-  // Flash price change
-  const arrow=direction===1?"📈":"📉";
-  const pctStr=(pct*100).toFixed(0)+"%";
-  flash(`${arrow} Petróleo $${G.oilPrice} (${direction===1?"+":""}${direction===1?pctStr:"-"+pctStr})`,(direction===1?"#4caf50":"#e53935"));
+  // Show price change popup in the stats panel
+  const actualPct=Math.abs(Math.round((G.oilPrice-oldPrice)/oldPrice*100));
+  showPricePopup(direction===1,actualPct);
   updateStats();
   if(currentTab==="upgrades")renderTab();
 }
 
+let pricePopupTimer=null;
+function showPricePopup(up,pct){
+  const el=document.getElementById("price-change-popup");
+  el.textContent=(up?"+":"-")+pct+"%";
+  el.style.color=up?"#4caf50":"#e53935";
+  el.style.display="block";
+  el.style.animation="none";
+  void el.offsetWidth; // reflow
+  el.style.animation="pricePopup 2s ease forwards";
+  if(pricePopupTimer)clearTimeout(pricePopupTimer);
+  pricePopupTimer=setTimeout(()=>{el.style.display="none";},2000);
+}
+
 function applyPriceEventBoost(pct){
-  // Called by events that boost oil price directly
-  G.oilPrice=Math.round(G.oilPrice*(1+pct));
-  G.priceStreak=Math.max(0,G.priceStreak)+1; // counts as an up move
+  const oldPrice=G.oilPrice;
+  G.oilPrice=Math.max(20,Math.round(G.oilPrice*(1+pct)));
+  const up=pct>0;
+  const actualPct=Math.abs(Math.round((G.oilPrice-oldPrice)/oldPrice*100));
+  if(G.priceStreak===undefined)G.priceStreak=0;
+  if(up) G.priceStreak=Math.max(0,G.priceStreak)+1;
+  else   G.priceStreak=Math.min(0,G.priceStreak)-1;
+  showPricePopup(up,actualPct);
   updateStats();
 }
 
@@ -614,7 +643,7 @@ function loadGame(){
     // Always kill any saved event — events only run while app is open
     G.activeEvent=null;G.eventEnd=0;
     // Resume price ticker if game was already started
-    if(G.gameStarted)startPriceTicker();
+    if(G.gameStarted){startPriceTicker();}
 
     if(s.savedAt){
       const offSec=Math.min((Date.now()-s.savedAt)/1000, 3*3600); // cap at 3 hours
