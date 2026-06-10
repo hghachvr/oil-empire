@@ -1001,7 +1001,7 @@ function updateStats(){
   else{document.getElementById("stat-bps").textContent="";document.getElementById("bps-text").textContent="";}
   document.getElementById("sell-sub").textContent=fmt(G.processed)+" × $"+Math.floor(sellPrice())+(G.eventNextSaleMult>1?" ×"+G.eventNextSaleMult:"");
   // Update oil price display
-  document.getElementById("lbl-price").textContent="$"+Math.floor(G.oilPrice)+"/barril";
+  document.getElementById("lbl-price").textContent="$"+Math.floor(G.oilPrice)+(G.lang==="es"?"/barril":"/barrel");
   // Update drill label if game not started
   if(!G.gameStarted) document.getElementById("drill-label").textContent=G.lang==="es"?"¡TOCA PARA INICIAR!":"TAP TO START!";
   updateBoostBtn();
