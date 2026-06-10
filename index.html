@@ -274,8 +274,10 @@ button{-webkit-appearance:none;font-family:'Press Start 2P',monospace;cursor:poi
     <button id="sell-btn" onclick="handleSell()">
       💰 VENDER TODO<br><span id="sell-sub" style="font-size:6px;opacity:.8"></span>
     </button>
-    <button id="boost-btn" onclick="openModal('boost')">🚀 IMPULSO ×3</button>
+    <button id="boost-btn" onclick="openModal('boost')">🚀 IMPULSO ×2</button>
   </div>
+  <!-- Point 3: Next objective hint -->
+  <div id="next-obj" style="padding:3px 12px;font-size:6px;color:#8a7f70;background:#0a0d10;border-bottom:1px solid #1e2832;min-height:16px;flex-shrink:0"></div>
 
   <div id="tab-bar">
     <button class="tab-btn active" id="tab-upg"  onclick="setTab('upgrades')">⬆️ MEJORAS</button>
@@ -335,29 +337,64 @@ function sfxError(){ playTone(150,'square',0.1,0.1,0.005);setTimeout(()=>playTon
 function sfxCombo(c){ playTone(660+c*20,'sine',0.08,0.12,0.005); }
 function sfxPrestige(){ [262,330,392,523,659].forEach((f,i)=>setTimeout(()=>playTone(f,'triangle',0.2,0.18,0.01),i*70)); }
 
+// ── Ambient music (Web Audio API loop — no external files) ──
+let musicInterval=null;
+function startAmbientMusic(){
+  if(musicInterval||soundMuted)return;
+  // Simple industrial loop: bass drone + rhythmic clicks
+  const playBeat=()=>{
+    if(soundMuted||!G.musicOn)return;
+    // Bass drone
+    playTone(55,'sine',0.8,0.06,0.05);
+    // Mid rhythm
+    setTimeout(()=>playTone(110,'square',0.1,0.03,0.01),400);
+    setTimeout(()=>playTone(82,'sine',0.15,0.04,0.01),800);
+    setTimeout(()=>playTone(110,'square',0.1,0.03,0.01),1200);
+  };
+  playBeat();
+  musicInterval=setInterval(playBeat,1600);
+}
+function stopAmbientMusic(){
+  if(musicInterval){clearInterval(musicInterval);musicInterval=null;}
+}
+function toggleMusic(btn){
+  G.musicOn=!G.musicOn;
+  localStorage.setItem('oilempire_music',G.musicOn?'1':'0');
+  if(G.musicOn&&G.gameStarted)startAmbientMusic();
+  else stopAmbientMusic();
+  btn.textContent=G.musicOn?'🎵 ON':'🔇 OFF';
+  btn.style.borderColor=G.musicOn?'#4caf50':'#555';
+  btn.style.color=G.musicOn?'#4caf50':'#555';
+}
+function loadMusicPref(){
+  G.musicOn=localStorage.getItem('oilempire_music')==='1';
+}
+
 // ══════════════════════ TRANSLATIONS ══════════════════════
 const T={
 es:{title:"IMPERIO PETROLERO",tap:"TOCA PARA TALADRAR",barrels:"Barriles",proc:"Procesados",dollars:"Dólares",sell:"VENDER TODO",upgrades:"MEJORAS",prestige:"PRESTIGIO",invest:"INVERSIÓN",achievements:"LOGROS",settings:"AJUSTES",perSec:"/seg",sellPrice:"$102/barril",rebirthTitle:"RENACIMIENTO",rebirthDesc:"Reinicia todo a cambio de un multiplicador permanente ×1.2 en todas las ganancias.",rebirthBonus:"Bono de Ganancias",rebirthCount:"Renacimientos",rebirthConfirm:"RENACER AHORA",rebirthCancel:"CANCELAR",rebirthLocked:"🔒 BLOQUEADO",rebirthReqItems:"Todas las mejoras al MAX",rebirthReqMoney:"$2,000,000,000 en efectivo",adsTitle:"IMPULSO ×2",adsDesc:"¡Obtén ×2 recursos por 10 minutos!",adsWatch:"ACTIVAR IMPULSO",adsActive:"IMPULSO ACTIVO",notEnough:"¡No hay suficiente $!",maxed:"MAX",buy:"COMPRAR",close:"CERRAR",language:"Idioma",tutorial:"Tutorial",save:"Guardar",reset:"Reset",tutorial_skip:"OMITIR",tutorial_next:"SIGUIENTE",tutorial_done:"¡LISTO!",offline_title:"¡Bienvenido de nuevo!",offline_away:"Estuviste fuera por",offline_earned:"Ganancias offline:",offline_claim:"¡RECLAMAR!",eventActive:"EVENTO ACTIVO",bonus:"BONO",
 tuts:[
-  {t:"¡Bienvenido a Imperio Petrolero!",d:"¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo."},
-  {t:"¡Toca para Extraer!",d:"Toca rápido para construir COMBOS y multiplicar tu poder. ¡Los 3 primeros taladros son gratis!"},
-  {t:"Procesar y Vender",d:"Los barriles se procesan solos. ¡Véndelos todos a $102 cada uno presionando VENDER!"},
-  {t:"Compra Mejoras",d:"Gasta dólares en maquinaria. Cuantas más mejoras, más petróleo automático."},
-  {t:"Inversiones",d:"En la pestaña INVERSIÓN podés comprar bonos permanentes para esta partida."},
-  {t:"Logros",d:"Completa logros para ganar bonos permanentes. Mira la pestaña LOGROS."},
-  {t:"Eventos",d:"¡Aparecen eventos aleatorios! Precio del petróleo ×2, pozos extra y más. ¡Aprovéchalos!"},
-  {t:"¡Estás Listo!",d:"¡Construye tu Imperio Petrolero y domina el mercado energético global!"},
+  {t:"¡Bienvenido a Imperio Petrolero!",d:"¡Construye el mayor imperio petrolero del mundo! Toca el taladro para extraer petróleo y ganar tus primeros dólares."},
+  {t:"¡Toca para Extraer!",d:"Toca rápido para construir COMBOS y multiplicar tu poder. ¡Los 3 primeros taladros son gratis! Los combos dan hasta +150% de poder."},
+  {t:"Automatiza con la Bomba",d:"Cuando tengas $2,500, comprá tu primera Bomba de Petróleo. ¡Ahí empieza la producción automática! Sin ella, todo es manual."},
+  {t:"Procesar y Vender",d:"Los barriles se procesan solos. El precio del petróleo cambia cada 2 minutos. Vendé cuando el precio esté alto para maximizar ganancias."},
+  {t:"Inversiones — Bonos por Partida",d:"En INVERSIÓN podés comprar bonos permanentes para esa run. Se desbloquean con cada Renacimiento. Son clave para acelerar el progreso."},
+  {t:"Logros — Bonos Permanentes",d:"Los LOGROS dan bonos que se mantienen para siempre entre todas las partidas. ¡Completal todos para volverte imparable!"},
+  {t:"Prestigio y Renacimiento",d:"Con suficientes mejoras y dinero podés RENACER. Reiniciás todo pero ganás un multiplicador permanente ×1.2 y Puntos de Prestigio (PP)."},
+  {t:"Puntos de Prestigio",d:"Los PP se gastan en el PRESTIGIO para upgrades exclusivos. Son escasos — cada Renacimiento da solo 1-5 PP. ¡Gastálos sabiamente!"},
+  {t:"¡Estás Listo!",d:"¡Construye tu Imperio Petrolero, dominá el mercado energético global y llegá al Renacimiento!"},
 ]},
 en:{title:"OIL EMPIRE",tap:"TAP TO DRILL",barrels:"Barrels",proc:"Processed",dollars:"Dollars",sell:"SELL ALL",upgrades:"UPGRADES",prestige:"PRESTIGE",invest:"INVEST",achievements:"ACHIEVEMENTS",settings:"SETTINGS",perSec:"/sec",sellPrice:"$102/barrel",rebirthTitle:"REBIRTH",rebirthDesc:"Reset everything for a permanent ×1.2 multiplier on all earnings.",rebirthBonus:"Earnings Bonus",rebirthCount:"Rebirths",rebirthConfirm:"REBIRTH NOW",rebirthCancel:"CANCEL",rebirthLocked:"🔒 LOCKED",rebirthReqItems:"All upgrades at MAX level",rebirthReqMoney:"$2,000,000,000 cash",adsTitle:"BOOST ×2",adsDesc:"Get ×2 resources for 10 minutes!",adsWatch:"ACTIVATE BOOST",adsActive:"BOOST ACTIVE",notEnough:"Not enough $!",maxed:"MAX",buy:"BUY",close:"CLOSE",language:"Language",tutorial:"Tutorial",save:"Save",reset:"Reset",tutorial_skip:"SKIP",tutorial_next:"NEXT",tutorial_done:"DONE!",offline_title:"Welcome Back!",offline_away:"You were away for",offline_earned:"Offline earnings:",offline_claim:"CLAIM!",eventActive:"ACTIVE EVENT",bonus:"BONUS",
 tuts:[
-  {t:"Welcome to Oil Empire!",d:"Build the biggest oil empire on Earth! Tap the drill to extract crude oil."},
-  {t:"Tap to Extract!",d:"Tap fast to build COMBOS and multiply your power. First 3 drills are FREE!"},
-  {t:"Process & Sell",d:"Barrels auto-process. Sell them all for $102 each by pressing SELL ALL!"},
-  {t:"Buy Upgrades",d:"Spend dollars on machinery. More upgrades = more automatic oil production."},
-  {t:"Investments",d:"In the INVEST tab you can buy permanent bonuses for this run."},
-  {t:"Achievements",d:"Complete achievements to earn permanent bonuses. Check the ACHIEVEMENTS tab."},
-  {t:"Events",d:"Random events appear! Oil price ×2, bonus wells and more. Take advantage of them!"},
-  {t:"You're Ready!",d:"Build your Oil Empire and dominate the global energy market!"},
+  {t:"Welcome to Oil Empire!",d:"Build the biggest oil empire on Earth! Tap the drill to extract crude oil and earn your first dollars."},
+  {t:"Tap to Extract!",d:"Tap fast to build COMBOS and multiply your power. First 3 drills are FREE! Combos give up to +150% power."},
+  {t:"Automate with the Pump",d:"When you have $2,500, buy your first Oil Pump. That's when automatic production starts! Without it, everything is manual."},
+  {t:"Process & Sell",d:"Barrels auto-process. Oil price changes every 2 minutes. Sell when the price is high to maximize earnings."},
+  {t:"Investments — Per-Run Bonuses",d:"In INVEST you can buy permanent bonuses for that run. They unlock with each Rebirth. Key to accelerating progress."},
+  {t:"Achievements — Forever Bonuses",d:"ACHIEVEMENTS give bonuses that persist forever across all runs. Complete them all to become unstoppable!"},
+  {t:"Prestige & Rebirth",d:"With enough upgrades and money you can REBIRTH. You reset everything but gain a permanent ×1.2 multiplier and Prestige Points (PP)."},
+  {t:"Prestige Points",d:"PP are spent in PRESTIGE for exclusive upgrades. They're scarce — each Rebirth gives only 1-5 PP. Spend them wisely!"},
+  {t:"You're Ready!",d:"Build your Oil Empire, dominate the global energy market and reach Rebirth!"},
 ]}};
 
 // ══════════════════════ CONFIG ══════════════════════
@@ -448,14 +485,16 @@ let G={
   achievements:[],investments:[],
   tutDone:false,seenMilestones:[],
   boostActive:false,boostEnd:0,boostCooldownEnd:0,
-  // event state
   activeEvent:null,eventEnd:0,eventNextSaleMult:1,
-  // new game flag
   isNewGame:true,
-  // oil price system
-  oilPrice:70,          // current price per barrel
-  priceStreak:0,        // >0 = consecutive ups, <0 = consecutive downs
-  gameStarted:false,    // user must tap drill to start production
+  oilPrice:70,priceStreak:0,gameStarted:false,
+  // Point 5: Stats tracking
+  totalTimeSec:0,       // total seconds played
+  totalTapsAll:0,       // taps across all rebirths
+  bestComboEver:0,      // best combo ever
+  totalSells:0,         // number of sell actions
+  totalRebirths:0,      // alias for rebirths (for stats display)
+  musicOn:false,        // point 7: ambient music
 };
 UPGRADES.forEach(u=>{G.upgrades[u.id]=0;});
 
@@ -674,6 +713,11 @@ function loadGame(){
     if(G.priceStreak===undefined)G.priceStreak=0;
     if(G.gameStarted===undefined)G.gameStarted=false;
     if(!G.boostCooldownEnd)G.boostCooldownEnd=0;
+    if(!G.totalTimeSec)G.totalTimeSec=0;
+    if(!G.totalTapsAll)G.totalTapsAll=G.totalTaps||0;
+    if(!G.bestComboEver)G.bestComboEver=G.maxCombo||0;
+    if(!G.totalSells)G.totalSells=0;
+    if(G.musicOn===undefined)G.musicOn=false;
     // Always kill any saved event — events only run while app is open
     G.activeEvent=null;G.eventEnd=0;
     // Resume price ticker if game was already started
@@ -854,11 +898,15 @@ function handleTap(e){
     G.gameStarted=true;
     startPriceTicker();
     document.getElementById("drill-label").textContent=t().tap;
+    if(G.musicOn)startAmbientMusic();
   }
   const power=tapPower();
   G.barrels+=power;G.processed+=power*0.8;oilLevel=Math.min(100,oilLevel+power*0.15);
   G.totalTaps=(G.totalTaps||0)+1;
-  comboCount++;if(G.maxCombo===undefined||comboCount>G.maxCombo)G.maxCombo=comboCount;
+  G.totalTapsAll=(G.totalTapsAll||0)+1;
+  comboCount++;
+  if(comboCount>(G.maxCombo||0))G.maxCombo=comboCount;
+  if(comboCount>(G.bestComboEver||0))G.bestComboEver=comboCount;
   if(comboTimer)clearTimeout(comboTimer);
   comboTimer=setTimeout(()=>{comboCount=0;updateCombo();},1500);
   updateCombo();if(comboCount>5)sfxCombo(comboCount);
@@ -879,6 +927,7 @@ function handleSell(){
   const earned=Math.floor(G.processed)*price*G.rebirthMult*eventMult;
   G.dollars+=earned;G.totalEarned+=earned;G.processed=0;oilLevel=0;
   G.eventNextSaleMult=1;
+  G.totalSells=(G.totalSells||0)+1;
   flash("+$"+fmt(earned)+(eventMult>1?" ×"+eventMult+"!":""));
   spawnDollarFloat();checkMilestones();checkAchievements();updateStats();renderTab();
   const btn=document.getElementById("sell-btn");btn.style.transform="translateY(2px)";btn.style.boxShadow="none";setTimeout(()=>{btn.style.transform="";btn.style.boxShadow="";},400);
@@ -976,8 +1025,8 @@ function checkMilestones(){
 // ══════════════════════ GAME LOOP ══════════════════════
 function gameLoop(){
   const now=Date.now(),dt=Math.min((now-lastTime)/1000,0.5);lastTime=now;
-  // Auto-production only starts after user taps AND owns at least one auto upgrade (pump or higher)
   if(G.gameStarted){
+    G.totalTimeSec=(G.totalTimeSec||0)+dt;
     const hasAuto=UPGRADES.some(u=>u.bps>0&&u.tap===0&&(G.upgrades[u.id]||0)>0);
     if(hasAuto){
       const bps=totalBPS();
@@ -986,6 +1035,7 @@ function gameLoop(){
   }
   if(G.boostActive&&now>G.boostEnd){G.boostActive=false;}
   if(canRebirth()&&!G.seenMilestones.includes("rebirth_ready"))checkMilestones();
+  updateNextObjective();
   updateStats();updateOilFill();updateRebirthUI();
   requestAnimationFrame(gameLoop);
 }
@@ -1025,6 +1075,33 @@ function updateBoostBtn(){
     hbtn.textContent="🚀";hbtn.style.color="";
   }
 }
+function updateNextObjective(){
+  const el=document.getElementById("next-obj");if(!el)return;
+  const es=G.lang==="es";
+  // Point 10: hint to buy pump if no auto yet
+  const hasAuto=UPGRADES.some(u=>u.bps>0&&u.tap===0&&(G.upgrades[u.id]||0)>0);
+  if(!hasAuto&&G.gameStarted){
+    const pump=UPGRADES.find(u=>u.id==="pump");
+    const cost=upgradeCost(pump);
+    el.textContent=(es?"🎯 Compra una Bomba de Petróleo para automatizar: ":"🎯 Buy an Oil Pump to automate: ")+"$"+fmt(cost);
+    el.style.color="#f5a623";
+    return;
+  }
+  // Point 3: show next affordable upgrade target
+  const nextUpgrade=UPGRADES.find(u=>(G.upgrades[u.id]||0)<u.max&&upgradeCost(u)>G.dollars);
+  if(nextUpgrade){
+    const cost=upgradeCost(nextUpgrade);
+    const name=es?nextUpgrade.es:nextUpgrade.en;
+    const bps=totalBPS();
+    const secsNeeded=bps>0?Math.ceil((cost-G.dollars)/(bps*0.8*sellPrice())):null;
+    const timeStr=secsNeeded&&secsNeeded<3600?` · ${fmtTime(secsNeeded*1000)}`:"";
+    el.textContent=`🎯 ${es?"Próximo":"Next"}: ${name} — $${fmt(cost)}${timeStr}`;
+    el.style.color="#8a7f70";
+  } else {
+    el.textContent="";
+  }
+}
+function fmtTimeSec(s){const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=Math.floor(s%60);return h>0?h+"h "+m+"m":m>0?m+"m "+ss+"s":ss+"s";}
 function updateCombo(){
   const el=document.getElementById("combo-text");
   if(comboCount>3){el.style.display="block";document.getElementById("combo-num").textContent=comboCount;}else el.style.display="none";
@@ -1036,7 +1113,7 @@ function updateRebirthUI(){
   const pct=rebirthMoneyPct();
   const rpBar=document.getElementById("rebirth-progress-bar"),rpReady=document.getElementById("rebirth-ready-text");
   if(ready){rpBar.style.display="none";rpReady.style.display="block";}
-  else if(pct>0.1){rpBar.style.display="block";rpReady.style.display="none";document.getElementById("rp-label").textContent="🌟 $"+fmt(G.dollars)+" / $500M";document.getElementById("rp-fill").style.width=(pct*100)+"%";}
+  else if(pct>0.1){rpBar.style.display="block";rpReady.style.display="none";document.getElementById("rp-label").textContent="🌟 $"+fmt(G.dollars)+" / $"+fmt(REBIRTH_MONEY);document.getElementById("rp-fill").style.width=(pct*100)+"%";}
   else{rpBar.style.display="none";rpReady.style.display="none";}
 }
 function updateLang(){
@@ -1106,6 +1183,24 @@ function renderInvestments(c){
   c.innerHTML=html;
 }
 
+function getAchievementProgress(a){
+  // Returns {current, target} for progress bar on locked achievements
+  const bps=totalBPS();
+  if(a.id==="first_tap")  return {cur:G.totalTaps,max:1};
+  if(a.id==="combo10")    return {cur:G.maxCombo||0,max:10};
+  if(a.id==="sell1k")     return {cur:Math.min(G.totalEarned,1000),max:1000};
+  if(a.id==="buy3")       return {cur:Object.values(G.upgrades).filter(v=>v>0).length,max:3};
+  if(a.id==="bps100")     return {cur:Math.min(bps,100),max:100};
+  if(a.id==="earn100k")   return {cur:Math.min(G.totalEarned,100000),max:100000};
+  if(a.id==="upgrade25")  return {cur:Math.min(Math.max(...Object.values(G.upgrades)),25),max:25};
+  if(a.id==="event1")     return {cur:Math.min(G.eventsUsed||0,1),max:1};
+  if(a.id==="earn1m")     return {cur:Math.min(G.totalEarned,1000000),max:1000000};
+  if(a.id==="invest3")    return {cur:Math.min((G.investments||[]).length,3),max:3};
+  if(a.id==="earn100m")   return {cur:Math.min(G.totalEarned,100000000),max:100000000};
+  if(a.id==="rebirth1")   return {cur:Math.min(G.rebirths,1),max:1};
+  return null;
+}
+
 function renderAchievements(c){
   const bps=totalBPS();
   let html=`<div style="font-size:6px;color:#8a7f70;margin-bottom:8px;padding:0 2px">${G.achievements.length}/${ACHIEVEMENTS.length} ${G.lang==="es"?"completados":"completed"}</div>`;
@@ -1114,7 +1209,9 @@ function renderAchievements(c){
     const name=G.lang==="en"?a.en:a.es;
     const desc=G.lang==="en"?a.en_d:a.es_d;
     const reward=G.lang==="en"?a.en_r:a.es_r;
-    html+=`<div class="ach-card${done?" unlocked":""}"><div class="ach-icon">${a.icon}</div><div class="ach-info"><div class="ach-name${done?" done":""}">${name}</div><div class="ach-desc">${done?desc:"???"}</div>${done?`<div class="ach-reward">✓ ${reward}</div>`:""}</div><div class="ach-badge">${done?"✅":"🔒"}</div></div>`;
+    const prog=!done?getAchievementProgress(a):null;
+    const progBar=prog?`<div style="margin-top:4px"><div style="display:flex;justify-content:space-between;font-size:5px;color:#8a7f70;margin-bottom:2px"><span>${fmt(prog.cur)} / ${fmt(prog.max)}</span><span>${Math.floor(prog.cur/prog.max*100)}%</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${Math.min(100,prog.cur/prog.max*100).toFixed(1)}%;background:#f5a623"></div></div></div>`:"";
+    html+=`<div class="ach-card${done?" unlocked":""}"><div class="ach-icon">${a.icon}</div><div class="ach-info"><div class="ach-name${done?" done":""}">${name}</div><div class="ach-desc">${done?desc:desc}</div>${done?`<div class="ach-reward">✓ ${reward}</div>`:progBar}</div><div class="ach-badge">${done?"✅":"🔒"}</div></div>`;
   });
   c.innerHTML=html;
 }
@@ -1162,8 +1259,12 @@ function openModal(type){
     const active=G.boostActive&&now<G.boostEnd;
     const inCooldown=!active&&G.boostCooldownEnd&&now<G.boostCooldownEnd;
     const cooldownRem=inCooldown?fmtTime(G.boostCooldownEnd-now):"";
+    const currentBps=totalBPS();
+    const boostedBps=currentBps*2;
+    const bpsInfo=currentBps>0?`<div style="font-size:6px;color:#8a7f70;margin-bottom:10px;text-align:center">${G.lang==='es'?'BPS actual':'Current BPS'}: <span style="color:#e8e0d0">${fmt(currentBps)}</span> → <span style="color:#64b5f6">${fmt(boostedBps)}</span> ${G.lang==='es'?'con boost':'with boost'}</div>`:'';
     box.innerHTML=`<div class="modal-title blue">🚀 ${tt.adsTitle}</div>
     <div class="modal-desc">${G.lang==='es'?'¡Obtén ×2 recursos por 10 minutos!':'Get ×2 resources for 10 minutes!'}</div>
+    ${bpsInfo}
     ${active?`<div style="text-align:center;color:#4caf50;font-size:10px;margin-bottom:12px">${tt.adsActive}: ${fmtTime(G.boostEnd-now)}</div>`:""}
     ${inCooldown?`<div style="text-align:center;color:#e53935;font-size:8px;margin-bottom:12px">⏳ ${G.lang==='es'?'Disponible en':'Available in'}: ${cooldownRem}</div>`:""}
     <div class="btn-row">
@@ -1173,17 +1274,30 @@ function openModal(type){
   }else if(type==="settings"){
     const muteLabel=soundMuted?'🔇 OFF':'🔊 ON';
     const muteColor=soundMuted?'border-color:#e53935;color:#e53935':'border-color:#4caf50;color:#4caf50';
-    // Guard Notification API — may not exist in Android WebView
+    const musicLabel=G.musicOn?'🎵 ON':'🔇 OFF';
+    const musicColor=G.musicOn?'border-color:#4caf50;color:#4caf50':'border-color:#555;color:#555';
     const notifAvailable=(typeof Notification!=='undefined');
     const notifGranted=notifAvailable&&Notification.permission==='granted';
     const notifStyle=notifGranted?'border-color:#4caf50;color:#4caf50':'';
     const notifLabel=notifGranted?'🔔 ON':'🔕 OFF';
     const notifRow=notifAvailable?`<div class="settings-row"><span class="settings-label">${G.lang==='es'?'Notificaciones':'Notifications'}:</span><button class="small-btn" onclick="toggleNotifications(this)" style="${notifStyle}">${notifLabel}</button></div>`:'';
+    // Point 5: stats
+    const totalH=Math.floor((G.totalTimeSec||0)/3600),totalM=Math.floor(((G.totalTimeSec||0)%3600)/60);
+    const timeStr=totalH>0?totalH+"h "+totalM+"m":totalM+"m";
     box.innerHTML=`<div class="modal-title">⚙️ ${tt.settings}</div>
     <div class="settings-row"><span class="settings-label">${tt.language}:</span><div style="display:flex;gap:6px"><button class="lang-btn${G.lang==="es"?" active":""}" onclick="setLang('es')">🇪🇸 ES</button><button class="lang-btn${G.lang==="en"?" active":""}" onclick="setLang('en')">🇺🇸 EN</button></div></div>
     <div class="settings-row"><span class="settings-label">${G.lang==='es'?'Sonido':'Sound'}:</span><button class="small-btn" onclick="toggleMute(this)" style="${muteColor}">${muteLabel}</button></div>
+    <div class="settings-row"><span class="settings-label">${G.lang==='es'?'Música':'Music'}:</span><button class="small-btn" onclick="toggleMusic(this)" style="${musicColor}">${musicLabel}</button></div>
     <div class="settings-row"><span class="settings-label">${tt.tutorial}:</span><button class="small-btn" onclick="openTutorial()">📖</button></div>
     ${notifRow}
+    <div style="background:#0a0d10;border:1px solid #1e2832;border-radius:3px;padding:8px;margin:8px 0;font-size:6px;line-height:2.2;color:#8a7f70">
+      <div style="color:#f5a623;font-size:7px;margin-bottom:4px">📊 ${G.lang==='es'?'Estadísticas':'Stats'}</div>
+      <div>⏱ ${G.lang==='es'?'Tiempo jugado':'Play time'}: <span style="color:#e8e0d0">${timeStr}</span></div>
+      <div>👆 ${G.lang==='es'?'Taps totales':'Total taps'}: <span style="color:#e8e0d0">${fmt(G.totalTapsAll||0)}</span></div>
+      <div>🔥 ${G.lang==='es'?'Mejor combo':'Best combo'}: <span style="color:#e8e0d0">×${G.bestComboEver||0}</span></div>
+      <div>💰 ${G.lang==='es'?'Ventas':'Sells'}: <span style="color:#e8e0d0">${G.totalSells||0}</span></div>
+      <div>🌟 ${G.lang==='es'?'Renacimientos':'Rebirths'}: <span style="color:#e8e0d0">${G.rebirths||0}</span></div>
+    </div>
     <div class="settings-row"><span class="settings-label">${tt.save}:</span><button class="small-btn" onclick="saveGame();flash('💾 Guardado!','#4caf50');closeModal()">💾</button></div>
     <div class="settings-row"><span class="settings-label">${tt.reset}:</span><button class="danger-btn" onclick="confirmReset()">🗑️</button></div>
     <div style="text-align:center;margin-top:8px"><button class="btn-primary" onclick="closeModal()">${tt.close}</button></div>`;
@@ -1236,6 +1350,7 @@ function tutSkip(){G.tutDone=true;document.getElementById("tutorial-overlay").cl
 
 // ══════════════════════ INIT ══════════════════════
 loadMutePref();
+loadMusicPref();
 loadGame();
 updateLang();updateStats();renderTab();
 sceneLevel=getSceneLevel();buildScene();
